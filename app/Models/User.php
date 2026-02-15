@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-    'name', 'email', 'password', 'role', 'no_hp', 'alamat',
+    'name', 'email', 'password', 'role', 'no_hp', 'alamat', 'foto_profil',
 ];
 
     /**
@@ -50,6 +50,16 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Order::class);
     }
 
+    public function addresses()
+    {
+        return $this->hasMany(\App\Models\UserAddress::class);
+    }
+
+    public function defaultAddress()
+    {
+        return $this->hasOne(\App\Models\UserAddress::class)->where('is_default', true);
+    }
+
     public function reviews()
     {
         return $this->hasMany(\App\Models\Review::class);
@@ -78,5 +88,42 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Cek apakah user sudah pernah membeli produk tertentu (dengan status completed)
+     */
+    public function hasPurchased($produkId): bool
+    {
+        return $this->orders()
+            ->where('status', 'completed')
+            ->whereHas('items', function ($q) use ($produkId) {
+                $q->where('produk_id', $produkId);
+            })
+            ->exists();
+    }
+
+    /**
+     * Cek apakah user sudah mereview produk tertentu di order tertentu
+     */
+    public function hasReviewed($produkId, $orderId): bool
+    {
+        return $this->reviews()
+            ->where('produk_id', $produkId)
+            ->where('order_id', $orderId)
+            ->exists();
+    }
+
+    /**
+     * Dapatkan order completed yang memiliki produk tertentu
+     */
+    public function completedOrdersWithProduct($produkId)
+    {
+        return $this->orders()
+            ->where('status', 'completed')
+            ->whereHas('items', function ($q) use ($produkId) {
+                $q->where('produk_id', $produkId);
+            })
+            ->get();
     }
 }

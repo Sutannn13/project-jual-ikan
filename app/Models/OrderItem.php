@@ -29,4 +29,26 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Produk::class)->withTrashed();
     }
+
+    /**
+     * Cek apakah item ini sudah direview oleh user
+     */
+    public function hasReviewByUser($userId): bool
+    {
+        return Review::where('order_id', $this->order_id)
+            ->where('produk_id', $this->produk_id)
+            ->where('user_id', $userId)
+            ->exists();
+    }
+
+    /**
+     * Dapatkan review untuk item ini oleh user tertentu
+     */
+    public function getReviewByUser($userId)
+    {
+        return Review::where('order_id', $this->order_id)
+            ->where('produk_id', $this->produk_id)
+            ->where('user_id', $userId)
+            ->first();
+    }
 }

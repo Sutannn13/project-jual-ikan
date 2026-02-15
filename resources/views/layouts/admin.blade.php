@@ -273,6 +273,43 @@
                         <span class="tracking-wide">Zona Pengiriman</span>
                     </a>
 
+                    <p class="text-[10px] uppercase tracking-widest text-orange-300/80 font-bold mt-6 mb-3 px-3">Inventaris</p>
+
+                    <a href="{{ route('admin.stock-in.index') }}"
+                       class="flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                              {{ request()->routeIs('admin.stock-in.*') ? 'bg-white/15 text-white shadow-lg shine-effect border border-white/10' : 'text-gray-300 hover:bg-white/10 hover:text-white hover:pl-5' }}">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ request()->routeIs('admin.stock-in.*') ? 'bg-gradient-to-br from-emerald-500 to-green-500 shadow-lg' : 'bg-white/5' }}">
+                            <i class="fas fa-boxes text-sm"></i>
+                        </div>
+                        <span class="tracking-wide">Stok Masuk</span>
+                    </a>
+
+                    <a href="{{ route('admin.banners.index') }}"
+                       class="flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                              {{ request()->routeIs('admin.banners.*') ? 'bg-white/15 text-white shadow-lg shine-effect border border-white/10' : 'text-gray-300 hover:bg-white/10 hover:text-white hover:pl-5' }}">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ request()->routeIs('admin.banners.*') ? 'bg-gradient-to-br from-pink-500 to-rose-500 shadow-lg' : 'bg-white/5' }}">
+                            <i class="fas fa-images text-sm"></i>
+                        </div>
+                        <span class="tracking-wide">Banner & Promo</span>
+                    </a>
+
+                    <a href="{{ route('admin.refunds.index') }}"
+                       class="flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                              {{ request()->routeIs('admin.refunds.*') ? 'bg-white/15 text-white shadow-lg shine-effect border border-white/10' : 'text-gray-300 hover:bg-white/10 hover:text-white hover:pl-5' }}">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ request()->routeIs('admin.refunds.*') ? 'bg-gradient-to-br from-yellow-500 to-amber-500 shadow-lg' : 'bg-white/5' }}">
+                            <i class="fas fa-undo text-sm"></i>
+                        </div>
+                        <span class="tracking-wide">Refund</span>
+                        @php
+                            $pendingRefundCount = \App\Models\Order::where('refund_status', 'requested')->count();
+                        @endphp
+                        @if($pendingRefundCount > 0)
+                            <span class="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-sm border border-yellow-400 animate-pulse">
+                                {{ $pendingRefundCount }}
+                            </span>
+                        @endif
+                    </a>
+
                     <p class="text-[10px] uppercase tracking-widest text-orange-300/80 font-bold mt-6 mb-3 px-3">Komunikasi</p>
 
                     <a href="{{ route('admin.chat.index') }}"
@@ -570,6 +607,166 @@
             </main>
         </div>
     </div>
+
+    {{-- ========================================
+         ADMIN CUSTOM NOTIFICATION SYSTEM
+         Dark Glassmorphism Theme
+         ======================================== --}}
+    <div x-data="adminNotify()" x-cloak>
+        {{-- CONFIRM MODAL --}}
+        <template x-if="confirm.show">
+            <div class="fixed inset-0 z-[9999] flex items-center justify-center px-4"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0">
+                {{-- Backdrop --}}
+                <div class="absolute inset-0 bg-black/70 backdrop-blur-md" @click="cancelConfirm()"></div>
+                {{-- Modal --}}
+                <div class="relative w-full max-w-md rounded-3xl p-7 shadow-2xl transform"
+                     style="background: linear-gradient(145deg, rgba(30,27,46,0.97) 0%, rgba(20,17,36,0.98) 100%); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(30px);"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 scale-90 translate-y-6"
+                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-90">
+                    {{-- Icon --}}
+                    <div class="flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-5"
+                         :class="{
+                            'bg-red-500/10 border border-red-500/20': confirm.type === 'danger',
+                            'bg-amber-500/10 border border-amber-500/20': confirm.type === 'warning',
+                            'bg-cyan-500/10 border border-cyan-500/20': confirm.type === 'info',
+                            'bg-emerald-500/10 border border-emerald-500/20': confirm.type === 'success'
+                         }">
+                        <i class="text-2xl"
+                           :class="{
+                              'fas fa-trash-alt text-red-400': confirm.type === 'danger',
+                              'fas fa-exclamation-triangle text-amber-400': confirm.type === 'warning',
+                              'fas fa-question-circle text-cyan-400': confirm.type === 'info',
+                              'fas fa-check-circle text-emerald-400': confirm.type === 'success'
+                           }"></i>
+                    </div>
+                    {{-- Title --}}
+                    <h3 class="text-xl font-bold text-white text-center mb-2" x-text="confirm.title"></h3>
+                    {{-- Message --}}
+                    <p class="text-white/50 text-center text-sm leading-relaxed mb-7" x-text="confirm.message"></p>
+                    {{-- Actions --}}
+                    <div class="flex items-center gap-3">
+                        <button @click="cancelConfirm()" 
+                                class="flex-1 px-5 py-3 rounded-xl text-sm font-semibold text-white/60 hover:text-white transition-all border border-white/10 hover:border-white/20 hover:bg-white/5">
+                            Batal
+                        </button>
+                        <button @click="proceedConfirm()"
+                                class="flex-1 px-5 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                :class="{
+                                    'bg-gradient-to-r from-red-500 to-rose-600 shadow-red-500/25': confirm.type === 'danger',
+                                    'bg-gradient-to-r from-amber-500 to-orange-600 shadow-amber-500/25': confirm.type === 'warning',
+                                    'bg-gradient-to-r from-cyan-500 to-blue-600 shadow-cyan-500/25': confirm.type === 'info',
+                                    'bg-gradient-to-r from-emerald-500 to-green-600 shadow-emerald-500/25': confirm.type === 'success'
+                                }"
+                                x-text="confirm.confirmText">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        {{-- TOAST NOTIFICATION --}}
+        <template x-if="toast.show">
+            <div class="fixed top-6 right-6 z-[9998] max-w-sm w-full"
+                 x-transition:enter="transition ease-out duration-400"
+                 x-transition:enter-start="opacity-0 translate-x-8 scale-95"
+                 x-transition:enter-end="opacity-100 translate-x-0 scale-100"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 translate-x-8 scale-95">
+                <div class="rounded-2xl p-4 shadow-2xl flex items-start gap-3"
+                     style="background: linear-gradient(145deg, rgba(30,27,46,0.97) 0%, rgba(20,17,36,0.98) 100%); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(30px);">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                         :class="{
+                            'bg-emerald-500/15 border border-emerald-500/20': toast.type === 'success',
+                            'bg-red-500/15 border border-red-500/20': toast.type === 'error',
+                            'bg-amber-500/15 border border-amber-500/20': toast.type === 'warning',
+                            'bg-cyan-500/15 border border-cyan-500/20': toast.type === 'info'
+                         }">
+                        <i class="text-sm"
+                           :class="{
+                              'fas fa-check text-emerald-400': toast.type === 'success',
+                              'fas fa-times text-red-400': toast.type === 'error',
+                              'fas fa-exclamation text-amber-400': toast.type === 'warning',
+                              'fas fa-info text-cyan-400': toast.type === 'info'
+                           }"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-white" x-text="toast.title"></p>
+                        <p class="text-xs text-white/50 mt-0.5" x-text="toast.message"></p>
+                    </div>
+                    <button @click="toast.show = false" class="text-white/30 hover:text-white/60 transition-colors mt-0.5">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script>
+    function adminNotify() {
+        return {
+            confirm: { show: false, title: '', message: '', type: 'danger', confirmText: 'Ya, Lanjutkan', formEl: null, callback: null },
+            toast: { show: false, title: '', message: '', type: 'success' },
+
+            showConfirm(formEl, title, message, type = 'danger', confirmText = 'Ya, Lanjutkan') {
+                this.confirm = { show: true, title, message, type, confirmText, formEl, callback: null };
+            },
+
+            showConfirmCallback(callback, title, message, type = 'danger', confirmText = 'Ya, Lanjutkan') {
+                this.confirm = { show: true, title, message, type, confirmText, formEl: null, callback };
+            },
+
+            proceedConfirm() {
+                this.confirm.show = false;
+                if (this.confirm.callback) {
+                    this.confirm.callback();
+                } else if (this.confirm.formEl) {
+                    this.confirm.formEl.submit();
+                }
+            },
+
+            cancelConfirm() {
+                this.confirm.show = false;
+                this.confirm.formEl = null;
+                this.confirm.callback = null;
+            },
+
+            showToast(title, message, type = 'success', duration = 3000) {
+                this.toast = { show: true, title, message, type };
+                setTimeout(() => { this.toast.show = false; }, duration);
+            }
+        }
+    }
+
+    // Global helper for admin confirm dialogs
+    function adminConfirm(formEl, title, message, type = 'danger', confirmText = 'Ya, Lanjutkan') {
+        document.querySelectorAll('[x-data]').forEach(el => {
+            if (el._x_dataStack && el._x_dataStack[0] && el._x_dataStack[0].showConfirm) {
+                el._x_dataStack[0].showConfirm(formEl, title, message, type, confirmText);
+            }
+        });
+        return false;
+    }
+
+    // Global helper for admin toast
+    function adminToast(title, message, type = 'success', duration = 3000) {
+        document.querySelectorAll('[x-data]').forEach(el => {
+            if (el._x_dataStack && el._x_dataStack[0] && el._x_dataStack[0].showToast) {
+                el._x_dataStack[0].showToast(title, message, type, duration);
+            }
+        });
+    }
+    </script>
 
     @stack('scripts')
 </body>

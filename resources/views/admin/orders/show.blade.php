@@ -145,7 +145,7 @@
                             <button type="submit" 
                                     class="w-full py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02]"
                                     style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16,185,129,0.3);"
-                                    onclick="return confirm('Verifikasi pembayaran ini? Status order akan berubah menjadi PAID.')">
+                                    onclick="event.preventDefault(); adminConfirm(this.closest('form'), 'Verifikasi Pembayaran', 'Verifikasi pembayaran ini? Status order akan berubah menjadi PAID.', 'success', 'Ya, Verifikasi');">
                                 <i class="fas fa-check-circle mr-2"></i> Terima & Verifikasi
                             </button>
                         </form>
@@ -266,7 +266,7 @@
                         <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>Selesai</option>
                         <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
                     </select>
-                    <button type="submit" class="btn-ocean w-full" onclick="return confirm('Yakin ubah status pesanan ini?');">
+                    <button type="submit" class="btn-ocean w-full" onclick="event.preventDefault(); adminConfirm(this.closest('form'), 'Ubah Status Pesanan', 'Yakin ubah status pesanan ini? Pelanggan akan menerima notifikasi perubahan status.', 'warning', 'Ya, Update');">
                         <i class="fas fa-save mr-2"></i> Update Status
                     </button>
                 </form>

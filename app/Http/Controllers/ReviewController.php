@@ -12,6 +12,40 @@ use App\Services\AdminNotificationService;
 class ReviewController extends Controller
 {
     /**
+     * Show review form for a product from an order
+     */
+    public function create(Order $order, Produk $produk)
+    {
+        // Verify order belongs to user
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // Verify order is completed
+        if ($order->status !== 'completed') {
+            return redirect()->route('my.orders')->with('error', 'Hanya pesanan yang sudah selesai yang bisa direview.');
+        }
+
+        // Verify product exists in order
+        $orderItem = $order->items()->where('produk_id', $produk->id)->first();
+        if (!$orderItem) {
+            return redirect()->route('my.orders')->with('error', 'Produk ini tidak ada dalam pesanan tersebut.');
+        }
+
+        // Check if already reviewed
+        $existingReview = Review::where('user_id', Auth::id())
+            ->where('produk_id', $produk->id)
+            ->where('order_id', $order->id)
+            ->first();
+
+        if ($existingReview) {
+            return redirect()->route('my.orders')->with('error', 'Anda sudah memberikan review untuk produk ini.');
+        }
+
+        return view('store.review-form', compact('order', 'produk', 'orderItem'));
+    }
+
+    /**
      * Store a new review for a product
      */
     public function store(Request $request, Produk $produk)

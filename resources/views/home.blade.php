@@ -370,6 +370,31 @@
 {{-- PRODUCT CATALOG --}}
 <section class="py-8 sm:py-10 md:py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {{-- PROMO BANNERS --}}
+        @if(isset($banners) && $banners->count() > 0)
+        <div class="mb-8 sm:mb-10">
+            <div class="grid grid-cols-1 {{ $banners->count() > 1 ? 'md:grid-cols-2' : '' }} gap-4">
+                @foreach($banners->take(4) as $banner)
+                <a href="{{ $banner->link_url ?? route('catalog') }}" 
+                   class="block rounded-2xl overflow-hidden group relative {{ $banners->count() === 1 ? 'md:col-span-1 max-w-3xl mx-auto w-full' : '' }}">
+                    <div class="aspect-[16/7] overflow-hidden">
+                        <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}"
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                        <h3 class="text-white font-bold text-sm sm:text-lg drop-shadow-lg">{{ $banner->title }}</h3>
+                        @if($banner->description)
+                            <p class="text-white/80 text-xs sm:text-sm mt-1 drop-shadow-md">{{ $banner->description }}</p>
+                        @endif
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 sm:mb-8">
             <div>
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-white">Produk Segar Hari Ini</h2>

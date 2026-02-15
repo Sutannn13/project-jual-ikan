@@ -14,6 +14,7 @@ class Order extends Model
         'delivery_note', 'delivery_time',
         'courier_name', 'courier_phone', 'tracking_number',
         'midtrans_snap_token', 'midtrans_transaction_id', 'payment_method',
+        'refund_status', 'refund_reason', 'refund_admin_note', 'refund_requested_at', 'refund_processed_at',
     ];
 
     protected function casts(): array
@@ -23,6 +24,8 @@ class Order extends Model
             'delivery_time' => 'datetime',
             'payment_uploaded_at' => 'datetime',
             'payment_deadline' => 'datetime',
+            'refund_requested_at' => 'datetime',
+            'refund_processed_at' => 'datetime',
         ];
     }
 
@@ -39,6 +42,11 @@ class Order extends Model
     public function shippingZone()
     {
         return $this->belongsTo(ShippingZone::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 
     /**
@@ -100,6 +108,16 @@ class Order extends Model
     public function canBeCancelled(): bool
     {
         return in_array($this->status, ['pending', 'waiting_payment']);
+    }
+
+    /**
+     * Check if user can request refund
+     * Refund hanya bisa diajukan setelah pembayaran diterima tapi SEBELUM pengiriman
+     */
+    public function canRequestRefund(): bool
+    {
+        return in_array($this->status, ['paid', 'confirmed'])
+            && $this->refund_status === 'none';
     }
 
     /**

@@ -49,14 +49,14 @@
                     @if($user->id !== auth()->id())
                     <div class="grid grid-cols-2 gap-2 mt-3">
                         <form action="{{ route('admin.users.reset', $user) }}" method="POST"
-                                onsubmit="return confirm('Reset password user {{ $user->name }} ke default (password123)?');">
+                                onsubmit="event.preventDefault(); adminConfirm(this, 'Reset Password', 'Reset password user {{ $user->name }} ke default (password123)?', 'warning', 'Ya, Reset');">
                             @csrf
                             <button type="submit" class="w-full btn-warning text-xs py-2 justify-center">
                                 <i class="fas fa-key mr-1"></i> Reset Pass
                             </button>
                         </form>
                         <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
-                                onsubmit="return confirm('Yakin hapus user {{ $user->name }}?');">
+                                onsubmit="event.preventDefault(); adminConfirm(this, 'Hapus User', 'Yakin hapus user {{ $user->name }}? Semua data terkait akan ikut terhapus.', 'danger', 'Ya, Hapus');">
                             @csrf @method('DELETE')
                             <button type="submit" class="w-full btn-danger text-xs py-2 justify-center">
                                 <i class="fas fa-trash mr-1"></i> Hapus
@@ -119,14 +119,14 @@
                         <div class="flex items-center justify-center gap-2">
                             @if($user->id !== auth()->id())
                             <form action="{{ route('admin.users.reset', $user) }}" method="POST"
-                                  onsubmit="return confirm('Reset password user {{ $user->name }} ke default (password123)?');">
+                                  onsubmit="event.preventDefault(); adminConfirm(this, 'Reset Password', 'Reset password user {{ $user->name }} ke default (password123)?', 'warning', 'Ya, Reset');">
                                 @csrf
                                 <button type="submit" class="btn-warning text-xs px-3 py-1.5" title="Reset Password">
                                     <i class="fas fa-key"></i>
                                 </button>
                             </form>
                             <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
-                                  onsubmit="return confirm('Yakin hapus user {{ $user->name }}?');">
+                                  onsubmit="event.preventDefault(); adminConfirm(this, 'Hapus User', 'Yakin hapus user {{ $user->name }}? Semua data terkait akan ikut terhapus.', 'danger', 'Ya, Hapus');">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn-danger text-xs px-3 py-1.5" title="Hapus User">
                                     <i class="fas fa-trash"></i>

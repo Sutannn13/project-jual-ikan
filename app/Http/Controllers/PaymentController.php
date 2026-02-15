@@ -119,12 +119,16 @@ class PaymentController extends Controller
         }
 
         // Extract original order number (remove timestamp suffix)
-        $parts = explode('-', $orderId);
-        if (count($parts) >= 4) {
-            // FM-2026-0001-timestamp
-            $orderNumber = implode('-', array_slice($parts, 0, 3));
+        // Format: FM-YYYY-XXXX-timestamp → ambil 3 segment pertama
+        // Gunakan preg_match agar aman dari format order_id tak terduga
+        if (preg_match('/^(FM-\d{4}-\d{4})/', $orderId, $matches)) {
+            $orderNumber = $matches[1];
         } else {
-            $orderNumber = $orderId;
+            // Fallback: coba explode biasa
+            $parts = explode('-', $orderId);
+            $orderNumber = count($parts) >= 3
+                ? implode('-', array_slice($parts, 0, 3))
+                : $orderId;
         }
 
         $order = Order::where('order_number', $orderNumber)->first();
@@ -168,47 +172,58 @@ class PaymentController extends Controller
             'payment_method' => $paymentType,
         ]);
 
-        switch ($transactionStatus) {
-            case 'capture':
-            case 'settlement':
-                if (in_array($order->status, ['pending', 'waiting_payment'])) {
-                    $oldStatus = $order->status;
-                    
-                    // Confirm stock deduction (move from reserved to actual)
-                    foreach ($order->items as $item) {
-                        $item->produk->confirmStock($item->qty);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($order, $transactionStatus) {
+            // Re-fetch with lock inside transaction
+            $order = Order::lockForUpdate()->findOrFail($order->id);
+
+            switch ($transactionStatus) {
+                case 'capture':
+                case 'settlement':
+                    if (in_array($order->status, ['pending', 'waiting_payment'])) {
+                        $oldStatus = $order->status;
+                        
+                        // Confirm stock deduction (move from reserved to actual)
+                        foreach ($order->items as $item) {
+                            $produk = \App\Models\Produk::lockForUpdate()->find($item->produk_id);
+                            if ($produk) {
+                                $produk->confirmStock($item->qty);
+                            }
+                        }
+                        
+                        $order->update([
+                            'status' => 'paid',
+                            'payment_uploaded_at' => now(),
+                        ]);
+
+                        // Send email notification
+                        $this->sendStatusEmail($order, $oldStatus, 'paid');
                     }
-                    
-                    $order->update([
-                        'status' => 'paid',
-                        'payment_uploaded_at' => now(),
-                    ]);
+                    break;
 
-                    // Send email notification
-                    $this->sendStatusEmail($order, $oldStatus, 'paid');
-                }
-                break;
+                case 'pending':
+                    // Keep status as pending, waiting for actual payment
+                    break;
 
-            case 'pending':
-                // Keep status as pending, waiting for actual payment
-                break;
-
-            case 'deny':
-            case 'expire':
-            case 'cancel':
-                if (in_array($order->status, ['pending', 'waiting_payment'])) {
-                    $oldStatus = $order->status;
-                    
-                    // Release reserved stock
-                    foreach ($order->items as $item) {
-                        $item->produk->releaseStock($item->qty);
+                case 'deny':
+                case 'expire':
+                case 'cancel':
+                    if (in_array($order->status, ['pending', 'waiting_payment'])) {
+                        $oldStatus = $order->status;
+                        
+                        // Release reserved stock with lock
+                        foreach ($order->items as $item) {
+                            $produk = \App\Models\Produk::lockForUpdate()->find($item->produk_id);
+                            if ($produk) {
+                                $produk->releaseStock($item->qty);
+                            }
+                        }
+                        
+                        $order->update(['status' => 'cancelled']);
+                        $this->sendStatusEmail($order, $oldStatus, 'cancelled');
                     }
-                    
-                    $order->update(['status' => 'cancelled']);
-                    $this->sendStatusEmail($order, $oldStatus, 'cancelled');
-                }
-                break;
-        }
+                    break;
+            }
+        });
 
         return response()->json(['status' => 'OK']);
     }

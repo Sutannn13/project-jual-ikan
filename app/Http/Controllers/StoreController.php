@@ -21,7 +21,8 @@ class StoreController extends Controller
     public function index()
     {
         $produks = Produk::where('stok', '>', 0)->latest()->get();
-        return view('home', compact('produks'));
+        $banners = \App\Models\Banner::active()->position('hero')->orderBy('sort_order')->get();
+        return view('home', compact('produks', 'banners'));
     }
 
     public function catalog(Request $request)
@@ -150,7 +151,12 @@ class StoreController extends Controller
             // Validate and RESERVE stock (don't deduct yet)
             $totalPrice = 0;
             foreach ($cart as $produkId => $item) {
-                $produk = Produk::lockForUpdate()->findOrFail($produkId);
+                $produk = Produk::lockForUpdate()->find($produkId);
+
+                // Cek apakah produk masih ada (belum di-soft delete)
+                if (!$produk) {
+                    throw new \Exception("Produk tidak tersedia lagi. Silakan perbarui keranjang Anda.");
+                }
 
                 if (!$produk->reserveStock($item['qty'])) {
                     throw new \Exception("Stok {$produk->nama} tidak mencukupi. Tersedia: {$produk->availableStock} Kg");
@@ -299,12 +305,25 @@ class StoreController extends Controller
             return back()->with('error', 'Pesanan sudah diproses dan tidak dapat dibatalkan.');
         }
 
-        // Release reserved stock
-        foreach ($order->items as $item) {
-            $item->produk->releaseStock($item->qty);
-        }
+        DB::transaction(function () use ($order) {
+            // Lock order row to prevent race condition
+            $order = Order::lockForUpdate()->findOrFail($order->id);
 
-        $order->update(['status' => 'cancelled']);
+            // Double-check status inside transaction
+            if (!in_array($order->status, ['pending', 'waiting_payment'])) {
+                throw new \Exception('Pesanan sudah diproses.');
+            }
+
+            // Release reserved stock
+            foreach ($order->items as $item) {
+                $produk = Produk::lockForUpdate()->find($item->produk_id);
+                if ($produk) {
+                    $produk->releaseStock($item->qty);
+                }
+            }
+
+            $order->update(['status' => 'cancelled']);
+        });
 
         // Notify admin
         try {

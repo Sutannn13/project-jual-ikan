@@ -294,7 +294,7 @@
                             </div>
                         </div>
                         @if(Auth::id() === $review->user_id)
-                        <form action="{{ route('review.destroy', $review) }}" method="POST" onsubmit="return confirm('Hapus review ini?')">
+                        <form action="{{ route('review.destroy', $review) }}" method="POST" onsubmit="event.preventDefault(); userConfirm(this, 'Hapus Review', 'Yakin ingin menghapus review kamu?', 'danger', 'Ya, Hapus');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-white/30 hover:text-red-400 transition-colors">

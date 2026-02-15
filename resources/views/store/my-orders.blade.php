@@ -112,6 +112,48 @@
                         </div>
                         @endforeach
                     </div>
+
+                    {{-- Review Section for Completed Orders --}}
+                    @if($order->status === 'completed')
+                    <div class="mt-4 pt-4 border-t border-white/10">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fas fa-star text-amber-400 text-xs"></i>
+                            <h4 class="font-bold text-white text-xs">Review Produk</h4>
+                        </div>
+                        <div class="grid grid-cols-1 gap-2">
+                            @foreach($order->items as $item)
+                                @php
+                                    $hasReview = $item->hasReviewByUser(Auth::id());
+                                @endphp
+                                <div class="flex items-center justify-between gap-3 p-3 rounded-xl {{ $hasReview ? 'bg-mint-500/10 border border-mint-500/20' : 'bg-white/5 border border-white/10' }}">
+                                    <div class="flex items-center gap-2 flex-1 min-w-0">
+                                        <div class="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-white/10">
+                                            @if($item->produk->foto)
+                                                <img src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover">
+                                            @else
+                                                <i class="fas fa-fish text-white/40 text-xs"></i>
+                                            @endif
+                                        </div>
+                                        <p class="text-xs font-medium text-white truncate">{{ $item->produk->nama }}</p>
+                                    </div>
+                                    @if($hasReview)
+                                        <div class="flex items-center gap-1 text-xs">
+                                            <i class="fas fa-check-circle text-mint-400"></i>
+                                            <span class="text-mint-300 font-semibold">Sudah Direview</span>
+                                        </div>
+                                    @else
+                                        <a href="{{ route('review.create', ['order' => $order->id, 'produk' => $item->produk->id]) }}" 
+                                           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:scale-105"
+                                           style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); box-shadow: 0 2px 8px rgba(245,158,11,0.3);">
+                                            <i class="fas fa-star"></i>
+                                            <span>Beri Review</span>
+                                        </a>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 {{-- Payment Deadline Alert --}}
@@ -323,7 +365,7 @@
                         {{-- CANCEL BUTTON for pending/waiting_payment --}}
                         @if(in_array($order->status, ['pending', 'waiting_payment']))
                         <form action="{{ route('order.cancel', $order) }}" method="POST" class="flex-shrink-0"
-                              onsubmit="return confirm('Yakin ingin membatalkan pesanan {{ $order->order_number }}?')">
+                              onsubmit="event.preventDefault(); userConfirm(this, 'Batalkan Pesanan', 'Yakin ingin membatalkan pesanan {{ $order->order_number }}? Pesanan yang dibatalkan tidak bisa dikembalikan.', 'danger', 'Ya, Batalkan');">
                             @csrf
                             <button type="submit" 
                                     class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm text-red-400 transition-all duration-300 active:scale-[0.97] touch-manipulation"

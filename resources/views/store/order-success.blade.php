@@ -224,7 +224,7 @@
         <div class="flex items-center justify-center gap-2 text-white/40 mb-8">
             <span class="text-sm">Ingin membatalkan?</span>
             <form action="{{ route('order.cancel', $order) }}" method="POST" 
-                  onsubmit="return confirm('Yakin ingin membatalkan pesanan ini?')">
+                  onsubmit="event.preventDefault(); userConfirm(this, 'Batalkan Pesanan', 'Yakin ingin membatalkan pesanan ini? Pesanan yang dibatalkan tidak bisa dikembalikan.', 'danger', 'Ya, Batalkan');">
                 @csrf
                 <button type="submit" class="text-red-400 hover:text-red-300 text-sm font-semibold hover:underline">
                     Batalkan Pesanan
@@ -343,7 +343,7 @@
 
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
-            alert('Jumlah berhasil disalin!');
+            userToast('Berhasil Disalin!', 'Jumlah berhasil disalin ke clipboard.', 'success');
         });
     }
 

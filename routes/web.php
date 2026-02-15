@@ -15,6 +15,11 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AdminNotificationController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserAddressController;
+use App\Http\Controllers\RefundController;
+use App\Http\Controllers\StockInController;
+use App\Http\Controllers\BannerController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================================
@@ -83,6 +88,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/order/{order}/track', [StoreController::class, 'trackOrder'])->name('order.track');
 
     // Reviews
+    Route::get('/order/{order}/review/{produk}', [ReviewController::class, 'create'])->name('review.create');
     Route::post('/produk/{produk}/review', [ReviewController::class, 'store'])
         ->middleware('throttle:10,1')
         ->name('review.store');
@@ -103,6 +109,27 @@ Route::middleware('auth')->group(function () {
 
     // Midtrans Payment
     Route::post('/payment/{order}/snap-token', [PaymentController::class, 'createSnapToken'])->name('payment.snap');
+
+    // User Profile
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
+    Route::delete('/profile/photo', [ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
+
+    // User Addresses CRUD
+    Route::prefix('addresses')->name('user.addresses.')->group(function () {
+        Route::get('/', [UserAddressController::class, 'index'])->name('index');
+        Route::get('/create', [UserAddressController::class, 'create'])->name('create');
+        Route::post('/', [UserAddressController::class, 'store'])->name('store');
+        Route::get('/{address}/edit', [UserAddressController::class, 'edit'])->name('edit');
+        Route::put('/{address}', [UserAddressController::class, 'update'])->name('update');
+        Route::delete('/{address}', [UserAddressController::class, 'destroy'])->name('destroy');
+        Route::post('/{address}/set-default', [UserAddressController::class, 'setDefault'])->name('set-default');
+    });
+
+    // Refund Request
+    Route::post('/order/{order}/refund', [RefundController::class, 'request'])->name('order.refund');
+    Route::get('/order/{order}/refund-status', [RefundController::class, 'status'])->name('order.refund.status');
 });
 
 // ============================================================
@@ -153,4 +180,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Activity Log
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+
+    // Stock In (Restock) Management
+    Route::get('/stock-in', [StockInController::class, 'index'])->name('stock-in.index');
+    Route::get('/stock-in/create', [StockInController::class, 'create'])->name('stock-in.create');
+    Route::post('/stock-in', [StockInController::class, 'store'])->name('stock-in.store');
+
+    // Banner / Promo Management
+    Route::resource('banners', BannerController::class)->except(['show']);
+
+    // Refund Management (Admin)
+    Route::get('/refunds', [RefundController::class, 'adminIndex'])->name('refunds.index');
+    Route::post('/refunds/{order}/approve', [RefundController::class, 'approve'])->name('refunds.approve');
+    Route::post('/refunds/{order}/reject', [RefundController::class, 'reject'])->name('refunds.reject');
 });

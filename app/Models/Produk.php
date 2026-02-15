@@ -88,4 +88,30 @@ class Produk extends Model
         $this->decrement('reserved_stock', min($qty, $this->reserved_stock ?? 0));
         $this->decrement('stok', $qty);
     }
+
+    /**
+     * Cek apakah user tertentu bisa mereview produk ini
+     */
+    public function canBeReviewedBy($userId): bool
+    {
+        return \App\Models\Order::where('user_id', $userId)
+            ->where('status', 'completed')
+            ->whereHas('items', function ($q) {
+                $q->where('produk_id', $this->id);
+            })
+            ->exists();
+    }
+
+    /**
+     * Dapatkan order completed yang memiliki produk ini untuk user tertentu
+     */
+    public function completedOrdersForUser($userId)
+    {
+        return \App\Models\Order::where('user_id', $userId)
+            ->where('status', 'completed')
+            ->whereHas('items', function ($q) {
+                $q->where('produk_id', $this->id);
+            })
+            ->get();
+    }
 }

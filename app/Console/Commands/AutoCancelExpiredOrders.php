@@ -27,22 +27,29 @@ class AutoCancelExpiredOrders extends Command
      */
     public function handle()
     {
-        $expiredOrders = Order::expiredPending()->with('items.produk')->get();
+        $expiredOrders = Order::expiredPending()->with(['items.produk' => function ($q) {
+            $q->withTrashed(); // Include soft-deleted products for stock release
+        }])->get();
 
         $count = 0;
         foreach ($expiredOrders as $order) {
-            // Release reserved stock (don't restore to physical stock)
-            foreach ($order->items as $item) {
-                if ($item->produk) {
-                    $item->produk->releaseStock($item->qty);
+            \Illuminate\Support\Facades\DB::transaction(function () use ($order) {
+                // Lock and release reserved stock
+                foreach ($order->items as $item) {
+                    if ($item->produk) {
+                        $produk = \App\Models\Produk::withTrashed()->lockForUpdate()->find($item->produk_id);
+                        if ($produk) {
+                            $produk->releaseStock($item->qty);
+                        }
+                    }
                 }
-            }
 
-            // Update status to cancelled
-            $order->update([
-                'status' => 'cancelled',
-                'rejection_reason' => 'Dibatalkan otomatis: Batas waktu pembayaran telah terlewati.',
-            ]);
+                // Update status to cancelled
+                $order->update([
+                    'status' => 'cancelled',
+                    'rejection_reason' => 'Dibatalkan otomatis: Batas waktu pembayaran telah terlewati.',
+                ]);
+            });
 
             $count++;
             Log::info("Order {$order->order_number} auto-cancelled due to expired payment deadline.");

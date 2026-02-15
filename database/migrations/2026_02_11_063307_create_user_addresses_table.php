@@ -13,6 +13,17 @@ return new class extends Migration
     {
         Schema::create('user_addresses', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('label')->default('Rumah'); // Rumah, Kantor, Kolam, etc.
+            $table->string('penerima'); // Nama penerima
+            $table->string('telepon', 20);
+            $table->text('alamat_lengkap');
+            $table->string('kecamatan')->nullable();
+            $table->string('kota')->nullable();
+            $table->string('provinsi')->nullable();
+            $table->string('kode_pos', 10)->nullable();
+            $table->text('catatan')->nullable(); // Patokan, instruksi khusus
+            $table->boolean('is_default')->default(false);
             $table->timestamps();
         });
     }

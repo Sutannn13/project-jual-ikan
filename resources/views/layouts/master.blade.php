@@ -123,9 +123,13 @@
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" 
                                     class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-white/90 hover:bg-white/10 transition-all">
-                                <div class="w-9 h-9 rounded-full flex items-center justify-center"
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden"
                                      style="background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);">
-                                    <i class="fas fa-user text-white text-xs"></i>
+                                    @if(Auth::user()->foto_profil)
+                                        <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}" alt="Foto Profil" class="w-full h-full object-cover">
+                                    @else
+                                        <i class="fas fa-user text-white text-xs"></i>
+                                    @endif
                                 </div>
                                 <span class="hidden sm:block max-w-[120px] truncate text-white">{{ Auth::user()->name }}</span>
                                 <i class="fas fa-chevron-down text-[10px] text-white/50"></i>
@@ -141,8 +145,14 @@
                                         <i class="fas fa-tachometer-alt w-4 text-cyan-400"></i> Dashboard Admin
                                     </a>
                                 @endif
+                                <a href="{{ route('profile.show') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+                                    <i class="fas fa-user-edit w-4 text-cyan-400"></i> Profil Saya
+                                </a>
                                 <a href="{{ route('my.orders') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors">
                                     <i class="fas fa-box w-4 text-cyan-400"></i> Pesanan Saya
+                                </a>
+                                <a href="{{ route('user.addresses.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+                                    <i class="fas fa-map-marker-alt w-4 text-cyan-400"></i> Alamat Saya
                                 </a>
                                 <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors">
                                     <i class="fas fa-heart w-4 text-red-400"></i> Wishlist
@@ -211,6 +221,9 @@
                         </a>
                         <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium {{ request()->routeIs('wishlist.*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-heart w-5 text-center"></i> Wishlist
+                        </a>
+                        <a href="{{ route('profile.show') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium {{ request()->routeIs('profile.*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                            <i class="fas fa-user-edit w-5 text-center"></i> Profil
                         </a>
                         <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium {{ request()->routeIs('chat.*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-comments w-5 text-center"></i> Chat Admin
@@ -363,6 +376,185 @@
     </div>
     @endif
     @endauth
+
+    {{-- ========================================
+         USER CUSTOM NOTIFICATION SYSTEM
+         Ocean / Teal Glassmorphism Theme
+         ======================================== --}}
+    <div x-data="userNotify()" x-cloak>
+        {{-- CONFIRM MODAL --}}
+        <template x-if="confirm.show">
+            <div class="fixed inset-0 z-[9999] flex items-center justify-center px-4"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0">
+                {{-- Backdrop with blur --}}
+                <div class="absolute inset-0 bg-navy-950/80 backdrop-blur-lg" @click="cancelConfirm()"></div>
+                {{-- Modal --}}
+                <div class="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl transform"
+                     style="background: linear-gradient(165deg, rgba(8,51,68,0.97) 0%, rgba(6,78,97,0.95) 50%, rgba(13,42,58,0.98) 100%); border: 1px solid rgba(6,182,212,0.15); backdrop-filter: blur(30px);"
+                     x-transition:enter="transition ease-out duration-400"
+                     x-transition:enter-start="opacity-0 scale-75 translate-y-10"
+                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-90">
+                    {{-- Decorative top glow --}}
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-1 rounded-b-full"
+                         :class="{
+                            'bg-gradient-to-r from-transparent via-red-400 to-transparent': confirm.type === 'danger',
+                            'bg-gradient-to-r from-transparent via-amber-400 to-transparent': confirm.type === 'warning',
+                            'bg-gradient-to-r from-transparent via-cyan-400 to-transparent': confirm.type === 'info',
+                            'bg-gradient-to-r from-transparent via-teal-400 to-transparent': confirm.type === 'success'
+                         }"></div>
+                    <div class="p-7">
+                        {{-- Icon with animated ring --}}
+                        <div class="relative flex items-center justify-center w-20 h-20 mx-auto mb-5">
+                            <div class="absolute inset-0 rounded-full animate-ping opacity-20"
+                                 :class="{
+                                    'bg-red-400': confirm.type === 'danger',
+                                    'bg-amber-400': confirm.type === 'warning',
+                                    'bg-cyan-400': confirm.type === 'info',
+                                    'bg-teal-400': confirm.type === 'success'
+                                 }"></div>
+                            <div class="relative w-16 h-16 rounded-full flex items-center justify-center"
+                                 :class="{
+                                    'bg-red-500/15 border-2 border-red-400/30': confirm.type === 'danger',
+                                    'bg-amber-500/15 border-2 border-amber-400/30': confirm.type === 'warning',
+                                    'bg-cyan-500/15 border-2 border-cyan-400/30': confirm.type === 'info',
+                                    'bg-teal-500/15 border-2 border-teal-400/30': confirm.type === 'success'
+                                 }">
+                                <i class="text-2xl"
+                                   :class="{
+                                      'fas fa-trash-alt text-red-400': confirm.type === 'danger',
+                                      'fas fa-exclamation-triangle text-amber-400': confirm.type === 'warning',
+                                      'fas fa-question-circle text-cyan-300': confirm.type === 'info',
+                                      'fas fa-check-circle text-teal-400': confirm.type === 'success'
+                                   }"></i>
+                            </div>
+                        </div>
+                        {{-- Title --}}
+                        <h3 class="text-lg font-bold text-white text-center mb-2" x-text="confirm.title"></h3>
+                        {{-- Message --}}
+                        <p class="text-cyan-200/50 text-center text-sm leading-relaxed mb-7" x-text="confirm.message"></p>
+                        {{-- Actions --}}
+                        <div class="flex items-center gap-3">
+                            <button @click="cancelConfirm()" 
+                                    class="flex-1 px-5 py-3 rounded-2xl text-sm font-semibold text-white/50 hover:text-white transition-all border border-white/10 hover:border-cyan-400/30 hover:bg-white/5">
+                                Batal
+                            </button>
+                            <button @click="proceedConfirm()"
+                                    class="flex-1 px-5 py-3 rounded-2xl text-sm font-bold text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.97]"
+                                    :class="{
+                                        'bg-gradient-to-r from-red-500 to-rose-500 shadow-red-500/30': confirm.type === 'danger',
+                                        'bg-gradient-to-r from-amber-500 to-orange-500 shadow-amber-500/30': confirm.type === 'warning',
+                                        'bg-gradient-to-r from-cyan-500 to-teal-500 shadow-cyan-500/30': confirm.type === 'info',
+                                        'bg-gradient-to-r from-teal-500 to-emerald-500 shadow-teal-500/30': confirm.type === 'success'
+                                    }"
+                                    x-text="confirm.confirmText">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        {{-- TOAST NOTIFICATION --}}
+        <template x-if="toast.show">
+            <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9998] max-w-sm w-full px-4"
+                 x-transition:enter="transition ease-out duration-400"
+                 x-transition:enter-start="opacity-0 translate-y-6 scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 translate-y-6 scale-95">
+                <div class="rounded-2xl p-4 shadow-2xl flex items-center gap-3"
+                     style="background: linear-gradient(145deg, rgba(8,51,68,0.97) 0%, rgba(13,42,58,0.98) 100%); border: 1px solid rgba(6,182,212,0.15); backdrop-filter: blur(30px);">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                         :class="{
+                            'bg-teal-500/15 border border-teal-400/25': toast.type === 'success',
+                            'bg-red-500/15 border border-red-400/25': toast.type === 'error',
+                            'bg-amber-500/15 border border-amber-400/25': toast.type === 'warning',
+                            'bg-cyan-500/15 border border-cyan-400/25': toast.type === 'info'
+                         }">
+                        <i class="text-sm"
+                           :class="{
+                              'fas fa-check text-teal-400': toast.type === 'success',
+                              'fas fa-times text-red-400': toast.type === 'error',
+                              'fas fa-exclamation text-amber-400': toast.type === 'warning',
+                              'fas fa-info text-cyan-400': toast.type === 'info'
+                           }"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-white" x-text="toast.title"></p>
+                        <p class="text-xs text-cyan-200/40 mt-0.5" x-text="toast.message"></p>
+                    </div>
+                    <button @click="toast.show = false" class="text-white/30 hover:text-white/60 transition-colors">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script>
+    function userNotify() {
+        return {
+            confirm: { show: false, title: '', message: '', type: 'danger', confirmText: 'Ya, Lanjutkan', formEl: null, callback: null },
+            toast: { show: false, title: '', message: '', type: 'success' },
+
+            showConfirm(formEl, title, message, type = 'danger', confirmText = 'Ya, Lanjutkan') {
+                this.confirm = { show: true, title, message, type, confirmText, formEl, callback: null };
+            },
+
+            showConfirmCallback(callback, title, message, type = 'danger', confirmText = 'Ya, Lanjutkan') {
+                this.confirm = { show: true, title, message, type, confirmText, formEl: null, callback };
+            },
+
+            proceedConfirm() {
+                this.confirm.show = false;
+                if (this.confirm.callback) {
+                    this.confirm.callback();
+                } else if (this.confirm.formEl) {
+                    this.confirm.formEl.submit();
+                }
+            },
+
+            cancelConfirm() {
+                this.confirm.show = false;
+                this.confirm.formEl = null;
+                this.confirm.callback = null;
+            },
+
+            showToast(title, message, type = 'success', duration = 3000) {
+                this.toast = { show: true, title, message, type };
+                setTimeout(() => { this.toast.show = false; }, duration);
+            }
+        }
+    }
+
+    // Global helper for user confirm dialogs
+    function userConfirm(formEl, title, message, type = 'danger', confirmText = 'Ya, Lanjutkan') {
+        document.querySelectorAll('[x-data]').forEach(el => {
+            if (el._x_dataStack && el._x_dataStack[0] && el._x_dataStack[0].showConfirm) {
+                el._x_dataStack[0].showConfirm(formEl, title, message, type, confirmText);
+            }
+        });
+        return false;
+    }
+
+    // Global helper for user toast
+    function userToast(title, message, type = 'success', duration = 3000) {
+        document.querySelectorAll('[x-data]').forEach(el => {
+            if (el._x_dataStack && el._x_dataStack[0] && el._x_dataStack[0].showToast) {
+                el._x_dataStack[0].showToast(title, message, type, duration);
+            }
+        });
+    }
+    </script>
 
     @stack('scripts')
 </body>

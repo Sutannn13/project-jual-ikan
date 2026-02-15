@@ -15,9 +15,10 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         $cartItems = [];
         $total = 0;
+        $removedItems = [];
 
         foreach ($cart as $id => $item) {
-            $produk = Produk::find($id);
+            $produk = Produk::find($id); // SoftDeletes: otomatis filter deleted_at
             if ($produk) {
                 $subtotal = $produk->harga_per_kg * $item['qty'];
                 $cartItems[] = [
@@ -26,7 +27,18 @@ class CartController extends Controller
                     'subtotal' => $subtotal,
                 ];
                 $total += $subtotal;
+            } else {
+                // Produk sudah dihapus (soft deleted) — hapus dari cart
+                $deletedProduk = Produk::withTrashed()->find($id);
+                $removedItems[] = $deletedProduk?->nama ?? "Produk #$id";
+                unset($cart[$id]);
             }
+        }
+
+        // Update cart session jika ada produk yang dihapus
+        if (!empty($removedItems)) {
+            session()->put('cart', $cart);
+            session()->flash('warning', 'Beberapa produk telah dihapus dari keranjang karena sudah tidak tersedia: ' . implode(', ', $removedItems));
         }
 
         return view('store.cart', compact('cartItems', 'total'));

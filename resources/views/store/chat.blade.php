@@ -82,10 +82,46 @@ function chatInput() {
         sending: false,
         lastId: {{ $messages->last()?->id ?? 0 }},
         pollInterval: null,
+        echoConnected: false,
 
         init() {
             this.scrollToBottom();
+            this.listenWebSocket();
             this.startPolling();
+        },
+
+        listenWebSocket() {
+            if (typeof window.Echo === 'undefined') {
+                console.log('[Chat] Echo not available, using polling only');
+                return;
+            }
+
+            try {
+                const userId = {{ Auth::id() }};
+                window.Echo.private(`chat.${userId}`)
+                    .listen('.message.sent', (e) => {
+                        console.log('[Chat] WebSocket message received:', e);
+                        if (e.messageData && e.messageData.id > this.lastId) {
+                            this.appendMessage({
+                                id: e.messageData.id,
+                                message: e.messageData.message,
+                                is_mine: false,
+                                created_at: e.messageData.created_at
+                            });
+                            this.lastId = e.messageData.id;
+                        }
+                    })
+                    .subscribed(() => {
+                        console.log('[Chat] WebSocket connected');
+                        this.echoConnected = true;
+                    })
+                    .error((error) => {
+                        console.warn('[Chat] WebSocket error, falling back to polling:', error);
+                        this.echoConnected = false;
+                    });
+            } catch (e) {
+                console.warn('[Chat] WebSocket setup failed:', e);
+            }
         },
 
         async sendMessage() {
@@ -113,7 +149,7 @@ function chatInput() {
                 }
             } catch (error) {
                 console.error('Send failed:', error);
-                this.message = msg; // Restore message on failure
+                this.message = msg;
             } finally {
                 this.sending = false;
                 this.$refs.messageInput.focus();
@@ -121,6 +157,7 @@ function chatInput() {
         },
 
         startPolling() {
+            // Use longer interval when WebSocket is connected (fallback safety net)
             this.pollInterval = setInterval(async () => {
                 try {
                     const response = await fetch(`{{ route("chat.poll") }}?last_id=${this.lastId}`, {
@@ -142,18 +179,21 @@ function chatInput() {
                 } catch (error) {
                     console.error('Poll failed:', error);
                 }
-            }, 3000); // Poll every 3 seconds
+            }, this.echoConnected ? 15000 : 3000); // 15s with WS, 3s without
         },
 
         appendMessage(msg) {
             const container = document.getElementById('chat-messages');
-            // Remove empty state if exists
             const emptyState = container.querySelector('.text-center.py-12');
             if (emptyState) emptyState.remove();
+
+            // Prevent duplicate messages
+            if (container.querySelector(`[data-msg-id="${msg.id}"]`)) return;
 
             const isMine = msg.is_mine;
             const div = document.createElement('div');
             div.className = `flex ${isMine ? 'justify-end' : 'justify-start'}`;
+            div.setAttribute('data-msg-id', msg.id);
             div.innerHTML = `
                 <div class="max-w-[80%] sm:max-w-[70%] ${isMine 
                     ? 'bg-gradient-to-br from-cyan-500 to-teal-500 text-white rounded-2xl rounded-br-md' 
@@ -180,6 +220,9 @@ function chatInput() {
 
         destroy() {
             if (this.pollInterval) clearInterval(this.pollInterval);
+            if (typeof window.Echo !== 'undefined') {
+                window.Echo.leave(`chat.{{ Auth::id() }}`);
+            }
         }
     };
 }

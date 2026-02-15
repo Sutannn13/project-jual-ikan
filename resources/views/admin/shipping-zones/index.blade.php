@@ -115,7 +115,7 @@
                         <i class="fas fa-edit mr-1"></i> Edit
                     </a>
                     <form action="{{ route('admin.shipping-zones.destroy', $zone) }}" method="POST" 
-                          onsubmit="return confirm('Yakin hapus zona {{ $zone->zone_name }}?')" class="flex-1">
+                          onsubmit="event.preventDefault(); adminConfirm(this, 'Hapus Zona Pengiriman', 'Yakin hapus zona {{ $zone->zone_name }}? Ongkir terkait akan ikut terhapus.', 'danger', 'Ya, Hapus');" class="flex-1">
                         @csrf @method('DELETE')
                         <button type="submit" class="w-full btn-danger text-xs py-2 justify-center">
                             <i class="fas fa-trash mr-1"></i> Hapus
@@ -182,7 +182,7 @@
                                 <i class="fas fa-edit text-sm"></i>
                             </a>
                             <form action="{{ route('admin.shipping-zones.destroy', $zone) }}" method="POST" 
-                                  onsubmit="return confirm('Yakin hapus zona {{ $zone->zone_name }}?')">
+                                  onsubmit="event.preventDefault(); adminConfirm(this, 'Hapus Zona Pengiriman', 'Yakin hapus zona {{ $zone->zone_name }}? Ongkir terkait akan ikut terhapus.', 'danger', 'Ya, Hapus');">
                                 @csrf @method('DELETE')
                                 <button type="submit" 
                                         class="w-9 h-9 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-all">

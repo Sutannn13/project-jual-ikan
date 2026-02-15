@@ -82,22 +82,26 @@
 
                             {{-- Quantity Controls --}}
                             <div class="flex items-center justify-between mt-4">
-                                <form action="{{ route('cart.update', $item['produk']->id) }}" method="POST" class="flex items-center gap-2">
+                                <form action="{{ route('cart.update', $item['produk']->id) }}" method="POST" class="flex items-center gap-3">
                                     @csrf
                                     @method('PATCH')
+                                    {{-- Button Minus (Kurangi) --}}
                                     <button type="button" onclick="decrementQty(this)" 
-                                            class="w-9 h-9 rounded-lg flex items-center justify-center text-ocean-600 hover:bg-ocean-100 transition-colors"
-                                            style="background: linear-gradient(135deg, rgba(6,182,212,0.1) 0%, rgba(20,184,166,0.05) 100%);">
-                                        <i class="fas fa-minus text-sm"></i>
+                                            class="w-10 h-10 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 shadow-md"
+                                            style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                                        <i class="fas fa-minus text-sm font-bold"></i>
                                     </button>
+                                    {{-- Input Kuantitas --}}
                                     <input type="number" name="qty" value="{{ $item['qty'] }}" 
                                            min="0.5" max="{{ $item['produk']->stok }}" step="0.5"
-                                           class="w-16 text-center input-premium text-sm font-bold py-2 hide-spinner"
+                                           class="w-20 text-center text-lg font-extrabold py-2 rounded-lg hide-spinner"
+                                           style="background: rgba(255,255,255,0.15); color: #fff; border: 2px solid rgba(6,182,212,0.4);"
                                            onchange="this.form.submit()">
+                                    {{-- Button Plus (Tambah) --}}
                                     <button type="button" onclick="incrementQty(this, {{ $item['produk']->stok }})"
-                                            class="w-9 h-9 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105"
+                                            class="w-10 h-10 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105 shadow-md"
                                             style="background: linear-gradient(135deg, #0891b2 0%, #14b8a6 100%);">
-                                        <i class="fas fa-plus text-sm"></i>
+                                        <i class="fas fa-plus text-sm font-bold"></i>
                                     </button>
                                 </form>
 
@@ -115,13 +119,16 @@
                 </div>
                 @endforeach
 
-                {{-- Clear Cart --}}
-                <div class="flex justify-end">
-                    <form action="{{ route('cart.clear') }}" method="POST">
+                {{-- Clear Cart Button (Hapus Semua Item Sekaligus) --}}
+                <div class="flex justify-end mt-2">
+                    <form action="{{ route('cart.clear') }}" method="POST" 
+                          onsubmit="return confirm('Yakin ingin mengosongkan semua keranjang?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="text-gray-500 hover:text-red-500 text-sm transition-colors">
-                            <i class="fas fa-trash mr-1"></i> Kosongkan Keranjang
+                        <button type="submit" 
+                                class="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all hover:scale-105 shadow-md"
+                                style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);">
+                            <i class="fas fa-trash-alt mr-2"></i>Kosongkan Semua
                         </button>
                     </form>
                 </div>

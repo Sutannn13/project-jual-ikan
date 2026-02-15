@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Events\MessageSent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\AdminNotificationService;
@@ -56,6 +57,13 @@ class ChatController extends Controller
             'receiver_id' => $admin->id,
             'message'     => $sanitizedMessage,
         ]);
+
+        // Broadcast via WebSocket (Reverb) — graceful fallback to polling
+        try {
+            event(new MessageSent($message));
+        } catch (\Exception $e) {
+            // Silently fail — polling akan tetap bekerja sebagai fallback
+        }
 
         // Notify admin about new chat
         try {
@@ -193,6 +201,13 @@ class ChatController extends Controller
             'receiver_id' => $user->id,
             'message'     => $sanitizedMessage,
         ]);
+
+        // Broadcast via WebSocket (Reverb)
+        try {
+            event(new MessageSent($message));
+        } catch (\Exception $e) {
+            // Silently fail — polling fallback
+        }
 
         return response()->json([
             'success' => true,

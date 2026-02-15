@@ -29,13 +29,16 @@
 
                 <div>
                     <label class="block text-sm font-semibold text-white/80 mb-2">Nama Lengkap</label>
-                    <div class="relative">
-                        <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-ocean-400/70"></i>
+                    <div class="relative overflow-hidden rounded-xl"
+                         style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
+                        <div class="absolute left-0 top-0 bottom-0 w-14 flex items-center justify-center z-10"
+                             style="background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%); box-shadow: 2px 0 8px rgba(6,182,212,0.2);">
+                            <i class="fas fa-user text-white text-base"></i>
+                        </div>
                         <input type="text" name="name" 
-                               class="w-full px-4 py-3.5 pl-12 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none @error('name') !border-red-400/50 @enderror"
-                               style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);"
-                               onfocus="this.style.borderColor='rgba(6,182,212,0.5)'; this.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
-                               onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.boxShadow='none';"
+                               class="w-full px-4 py-3.5 pl-16 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none bg-transparent border-0 @error('name') !border-red-400/50 @enderror"
+                               onfocus="this.parentElement.style.borderColor='rgba(6,182,212,0.5)'; this.parentElement.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
+                               onblur="this.parentElement.style.borderColor='rgba(255,255,255,0.15)'; this.parentElement.style.boxShadow='none';"
                                value="{{ old('name') }}" placeholder="Nama Anda" required>
                     </div>
                     @error('name') 
@@ -47,13 +50,16 @@
 
                 <div>
                     <label class="block text-sm font-semibold text-white/80 mb-2">Email</label>
-                    <div class="relative">
-                        <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-ocean-400/70"></i>
+                    <div class="relative overflow-hidden rounded-xl"
+                         style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
+                        <div class="absolute left-0 top-0 bottom-0 w-14 flex items-center justify-center z-10"
+                             style="background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%); box-shadow: 2px 0 8px rgba(6,182,212,0.2);">
+                            <i class="fas fa-envelope text-white text-base"></i>
+                        </div>
                         <input type="email" name="email" 
-                               class="w-full px-4 py-3.5 pl-12 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none @error('email') !border-red-400/50 @enderror"
-                               style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);"
-                               onfocus="this.style.borderColor='rgba(6,182,212,0.5)'; this.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
-                               onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.boxShadow='none';"
+                               class="w-full px-4 py-3.5 pl-16 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none bg-transparent border-0 @error('email') !border-red-400/50 @enderror"
+                               onfocus="this.parentElement.style.borderColor='rgba(6,182,212,0.5)'; this.parentElement.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
+                               onblur="this.parentElement.style.borderColor='rgba(255,255,255,0.15)'; this.parentElement.style.boxShadow='none';"
                                value="{{ old('email') }}" placeholder="nama@email.com" required>
                     </div>
                     @error('email') 
@@ -66,25 +72,31 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-white/80 mb-2">No. HP <span class="text-white/30 font-normal">(Opsional)</span></label>
-                        <div class="relative">
-                            <i class="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-ocean-400/70"></i>
+                        <div class="relative overflow-hidden rounded-xl"
+                             style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
+                            <div class="absolute left-0 top-0 bottom-0 w-14 flex items-center justify-center z-10"
+                                 style="background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%); box-shadow: 2px 0 8px rgba(6,182,212,0.2);">
+                                <i class="fas fa-phone text-white text-base"></i>
+                            </div>
                             <input type="text" name="no_hp" 
-                                   class="w-full px-4 py-3.5 pl-12 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none"
-                                   style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);"
-                                   onfocus="this.style.borderColor='rgba(6,182,212,0.5)'; this.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
-                                   onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.boxShadow='none';"
+                                   class="w-full px-4 py-3.5 pl-16 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none bg-transparent border-0"
+                                   onfocus="this.parentElement.style.borderColor='rgba(6,182,212,0.5)'; this.parentElement.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
+                                   onblur="this.parentElement.style.borderColor='rgba(255,255,255,0.15)'; this.parentElement.style.boxShadow='none';"
                                    value="{{ old('no_hp') }}" placeholder="08xx">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-white/80 mb-2">Alamat <span class="text-white/30 font-normal">(Opsional)</span></label>
-                        <div class="relative">
-                            <i class="fas fa-map-marker-alt absolute left-4 top-1/2 -translate-y-1/2 text-ocean-400/70"></i>
+                        <div class="relative overflow-hidden rounded-xl"
+                             style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
+                            <div class="absolute left-0 top-0 bottom-0 w-14 flex items-center justify-center z-10"
+                                 style="background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%); box-shadow: 2px 0 8px rgba(6,182,212,0.2);">
+                                <i class="fas fa-map-marker-alt text-white text-base"></i>
+                            </div>
                             <input type="text" name="alamat" 
-                                   class="w-full px-4 py-3.5 pl-12 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none"
-                                   style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);"
-                                   onfocus="this.style.borderColor='rgba(6,182,212,0.5)'; this.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
-                                   onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.boxShadow='none';"
+                                   class="w-full px-4 py-3.5 pl-16 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none bg-transparent border-0"
+                                   onfocus="this.parentElement.style.borderColor='rgba(6,182,212,0.5)'; this.parentElement.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
+                                   onblur="this.parentElement.style.borderColor='rgba(255,255,255,0.15)'; this.parentElement.style.boxShadow='none';"
                                    value="{{ old('alamat') }}" placeholder="Alamat">
                         </div>
                     </div>
@@ -92,13 +104,16 @@
 
                 <div>
                     <label class="block text-sm font-semibold text-white/80 mb-2">Password</label>
-                    <div class="relative">
-                        <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-ocean-400/70"></i>
+                    <div class="relative overflow-hidden rounded-xl"
+                         style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
+                        <div class="absolute left-0 top-0 bottom-0 w-14 flex items-center justify-center z-10"
+                             style="background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%); box-shadow: 2px 0 8px rgba(6,182,212,0.2);">
+                            <i class="fas fa-lock text-white text-base"></i>
+                        </div>
                         <input type="password" name="password" 
-                               class="w-full px-4 py-3.5 pl-12 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none @error('password') !border-red-400/50 @enderror"
-                               style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);"
-                               onfocus="this.style.borderColor='rgba(6,182,212,0.5)'; this.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
-                               onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.boxShadow='none';"
+                               class="w-full px-4 py-3.5 pl-16 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none bg-transparent border-0 @error('password') !border-red-400/50 @enderror"
+                               onfocus="this.parentElement.style.borderColor='rgba(6,182,212,0.5)'; this.parentElement.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
+                               onblur="this.parentElement.style.borderColor='rgba(255,255,255,0.15)'; this.parentElement.style.boxShadow='none';"
                                placeholder="Min. 6 karakter" required>
                     </div>
                     @error('password') 
@@ -110,13 +125,16 @@
 
                 <div>
                     <label class="block text-sm font-semibold text-white/80 mb-2">Konfirmasi Password</label>
-                    <div class="relative">
-                        <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-ocean-400/70"></i>
+                    <div class="relative overflow-hidden rounded-xl"
+                         style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
+                        <div class="absolute left-0 top-0 bottom-0 w-14 flex items-center justify-center z-10"
+                             style="background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%); box-shadow: 2px 0 8px rgba(6,182,212,0.2);">
+                            <i class="fas fa-lock text-white text-base"></i>
+                        </div>
                         <input type="password" name="password_confirmation" 
-                               class="w-full px-4 py-3.5 pl-12 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none"
-                               style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);"
-                               onfocus="this.style.borderColor='rgba(6,182,212,0.5)'; this.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
-                               onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.boxShadow='none';"
+                               class="w-full px-4 py-3.5 pl-16 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none bg-transparent border-0"
+                               onfocus="this.parentElement.style.borderColor='rgba(6,182,212,0.5)'; this.parentElement.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
+                               onblur="this.parentElement.style.borderColor='rgba(255,255,255,0.15)'; this.parentElement.style.boxShadow='none';"
                                placeholder="Ulangi password" required>
                     </div>
                 </div>

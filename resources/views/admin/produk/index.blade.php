@@ -61,7 +61,7 @@
                             <i class="fas fa-pencil-alt mr-1"></i> Edit
                         </a>
                         <form action="{{ route('admin.produk.destroy', $produk) }}" method="POST"
-                              onsubmit="return confirm('Yakin hapus produk ini?');" class="inline">
+                              onsubmit="event.preventDefault(); adminConfirm(this, 'Hapus Produk', 'Yakin hapus produk ini? Data yang sudah dihapus tidak bisa dikembalikan.', 'danger', 'Ya, Hapus');" class="inline">
                             @csrf @method('DELETE')
                             <button type="submit" class="text-xs text-red-600 font-semibold">
                                 <i class="fas fa-trash mr-1"></i> Hapus
@@ -125,7 +125,7 @@
                                 <i class="fas fa-pencil-alt text-xs"></i>
                             </a>
                             <form action="{{ route('admin.produk.destroy', $produk) }}" method="POST"
-                                  onsubmit="return confirm('Yakin hapus produk ini?');">
+                                  onsubmit="event.preventDefault(); adminConfirm(this, 'Hapus Produk', 'Yakin hapus produk ini? Data yang sudah dihapus tidak bisa dikembalikan.', 'danger', 'Ya, Hapus');">
                                 @csrf @method('DELETE')
                                 <button type="submit" 
                                         class="w-9 h-9 rounded-lg flex items-center justify-center text-white transition-all hover:scale-105"
