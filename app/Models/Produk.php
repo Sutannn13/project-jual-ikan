@@ -16,7 +16,7 @@ class Produk extends Model
     {
         return [
             'harga_per_kg' => 'decimal:2',
-            'stok' => 'integer',
+            'stok' => 'decimal:1',
         ];
     }
 

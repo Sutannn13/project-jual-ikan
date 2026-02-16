@@ -5,9 +5,9 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
     {{-- Header --}}
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div class="flex items-center gap-4">
-            <a href="{{ route('profile.show') }}" class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all">
+            <a href="{{ route('profile.show') }}" class="w-10 h-10 rounded-xl flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all flex-shrink-0">
                 <i class="fas fa-arrow-left text-white/70"></i>
             </a>
             <div>
@@ -15,7 +15,7 @@
                 <p class="text-white/50 text-sm mt-0.5">Kelola alamat pengiriman Anda</p>
             </div>
         </div>
-        <a href="{{ route('user.addresses.create') }}" class="btn-primary text-sm px-5 py-2.5">
+        <a href="{{ route('user.addresses.create') }}" class="btn-primary text-sm px-5 py-2.5 flex-shrink-0 w-full sm:w-auto text-center">
             <i class="fas fa-plus mr-1"></i> Tambah Alamat
         </a>
     </div>

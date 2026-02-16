@@ -205,7 +205,7 @@
                                 <p class="text-white/50 text-sm mt-1">{{ $address->penerima }} — {{ $address->telepon }}</p>
                                 <p class="text-white/40 text-xs mt-0.5">{{ $address->alamat_lengkap }}</p>
                             </div>
-                            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                 <a href="{{ route('user.addresses.edit', $address) }}" 
                                    class="w-8 h-8 rounded-lg flex items-center justify-center bg-white/10 hover:bg-blue-500/20 text-white/50 hover:text-blue-400 transition-all">
                                     <i class="fas fa-edit text-xs"></i>

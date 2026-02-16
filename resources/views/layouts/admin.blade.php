@@ -346,7 +346,33 @@
                         @endif
                     </a>
 
+                    <a href="{{ route('admin.tickets.index') }}"
+                       class="flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                              {{ request()->routeIs('admin.tickets.*') ? 'bg-white/15 text-white shadow-lg shine-effect border border-white/10' : 'text-gray-300 hover:bg-white/10 hover:text-white hover:pl-5' }}">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ request()->routeIs('admin.tickets.*') ? 'bg-gradient-to-br from-rose-500 to-pink-500 shadow-lg' : 'bg-white/5' }}">
+                            <i class="fas fa-headset text-sm"></i>
+                        </div>
+                        <span class="tracking-wide">Support Ticket</span>
+                        @php
+                            $openTicketCount = \App\Models\SupportTicket::whereIn('status', ['open', 'in_progress'])->count();
+                        @endphp
+                        @if($openTicketCount > 0)
+                            <span class="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-sm border border-rose-400">
+                                {{ $openTicketCount }}
+                            </span>
+                        @endif
+                    </a>
+
                     <p class="text-[10px] uppercase tracking-widest text-orange-300/80 font-bold mt-6 mb-3 px-3">Analitik</p>
+
+                    <a href="{{ route('admin.analytics.index') }}"
+                       class="flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                              {{ request()->routeIs('admin.analytics.*') ? 'bg-white/15 text-white shadow-lg shine-effect border border-white/10' : 'text-gray-300 hover:bg-white/10 hover:text-white hover:pl-5' }}">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ request()->routeIs('admin.analytics.*') ? 'bg-gradient-to-br from-cyan-500 to-blue-500 shadow-lg' : 'bg-white/5' }}">
+                            <i class="fas fa-chart-line text-sm"></i>
+                        </div>
+                        <span class="tracking-wide">Analytics</span>
+                    </a>
 
                     <a href="{{ route('admin.reports.index') }}"
                        class="flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-300

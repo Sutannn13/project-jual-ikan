@@ -20,6 +20,8 @@ use App\Http\Controllers\UserAddressController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\StockInController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\SupportTicketController;
+use App\Http\Controllers\AdminAnalyticsController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================================
@@ -57,7 +59,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::match(['GET', 'POST'], '/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/change-password', [AuthController::class, 'showChangePassword'])->name('password.change');
     Route::post('/change-password', [AuthController::class, 'processChangePassword'])->name('password.change.proses');
 });
@@ -130,6 +132,15 @@ Route::middleware('auth')->group(function () {
     // Refund Request
     Route::post('/order/{order}/refund', [RefundController::class, 'request'])->name('order.refund');
     Route::get('/order/{order}/refund-status', [RefundController::class, 'status'])->name('order.refund.status');
+
+    // Support Tickets (Customer)
+    Route::prefix('tickets')->name('tickets.')->group(function () {
+        Route::get('/', [SupportTicketController::class, 'index'])->name('index');
+        Route::get('/create', [SupportTicketController::class, 'create'])->name('create');
+        Route::post('/', [SupportTicketController::class, 'store'])->name('store');
+        Route::get('/{ticket}', [SupportTicketController::class, 'show'])->name('show');
+        Route::post('/{ticket}/reply', [SupportTicketController::class, 'reply'])->name('reply');
+    });
 });
 
 // ============================================================
@@ -149,6 +160,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/orders/{order}/reject-payment', [AdminOrderController::class, 'rejectPayment'])->name('orders.reject');
     Route::post('/orders/{order}/confirm', [AdminOrderController::class, 'confirm'])->name('orders.confirm');
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+    Route::post('/orders/bulk-action', [AdminOrderController::class, 'bulkAction'])->name('orders.bulk-action');
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -193,4 +205,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/refunds', [RefundController::class, 'adminIndex'])->name('refunds.index');
     Route::post('/refunds/{order}/approve', [RefundController::class, 'approve'])->name('refunds.approve');
     Route::post('/refunds/{order}/reject', [RefundController::class, 'reject'])->name('refunds.reject');
+
+    // Support Tickets (Admin)
+    Route::prefix('tickets')->name('tickets.')->group(function () {
+        Route::get('/', [SupportTicketController::class, 'adminIndex'])->name('index');
+        Route::get('/{ticket}', [SupportTicketController::class, 'adminShow'])->name('show');
+        Route::post('/{ticket}/reply', [SupportTicketController::class, 'adminReply'])->name('reply');
+        Route::patch('/{ticket}/status', [SupportTicketController::class, 'adminUpdateStatus'])->name('status');
+    });
+
+    // Advanced Analytics
+    Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('analytics.index');
 });

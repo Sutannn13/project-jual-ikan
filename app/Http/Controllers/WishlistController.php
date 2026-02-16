@@ -50,6 +50,7 @@ class WishlistController extends Controller
 
         if ($request->wantsJson()) {
             return response()->json([
+                'status'     => $wishlisted ? 'added' : 'removed',
                 'wishlisted' => $wishlisted,
                 'message'    => $message,
             ]);

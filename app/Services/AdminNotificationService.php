@@ -261,4 +261,21 @@ class AdminNotificationService
     {
         ActivityLog::log('updated', "Password user '{$user->name}' direset", 'User', $user->id);
     }
+
+    /**
+     * Generic notification creator
+     */
+    public static function create(string $type, string $message, ?int $relatedId = null, ?string $relatedType = null): void
+    {
+        AdminNotification::create([
+            'type'         => $type,
+            'priority'     => 'medium',
+            'title'        => ucfirst(str_replace('_', ' ', $type)),
+            'message'      => $message,
+            'icon'         => 'fas fa-info-circle',
+            'color'        => 'cyan',
+            'related_id'   => $relatedId,
+            'related_type' => $relatedType,
+        ]);
+    }
 }

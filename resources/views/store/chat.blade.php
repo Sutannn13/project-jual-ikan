@@ -26,7 +26,7 @@
 
         {{-- Chat Messages --}}
         <div id="chat-messages" class="p-4 sm:p-6 space-y-4 overflow-y-auto"
-             style="height: calc(100vh - 340px); min-height: 400px; background: rgba(255,255,255,0.03); border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1);">
+             style="height: calc(100dvh - 340px); min-height: 300px; max-height: calc(100dvh - 280px); background: rgba(255,255,255,0.03); border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1);">
             
             @if($messages->isEmpty())
             <div class="text-center py-12">

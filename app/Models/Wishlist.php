@@ -7,8 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Wishlist extends Model
 {
     protected $fillable = [
-        'user_id', 'produk_id',
+        'user_id', 'produk_id', 'notify_when_available', 'notified_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'notify_when_available' => 'boolean',
+            'notified_at' => 'datetime',
+        ];
+    }
 
     public function user()
     {

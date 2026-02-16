@@ -2,6 +2,11 @@
 
 @section('title', 'Pesanan Berhasil')
 
+@push('head')
+{{-- Midtrans Snap --}}
+<script src="{{ config('midtrans.snap_js_url') }}" data-client-key="{{ config('midtrans.client_key') }}"></script>
+@endpush
+
 @section('content')
 <section class="py-12 sm:py-20 relative overflow-hidden">
     {{-- Decorative Background Elements --}}
@@ -153,7 +158,57 @@
 
         {{-- Payment Section (Show if pending OR if status is waiting_payment but payment was rejected) --}}
         @if($order->status === 'pending' || ($order->status === 'waiting_payment' && $order->wasRejected()))
+        
+        {{-- E-Wallet Auto-Trigger Info (if ewallet was selected) --}}
+        @if($order->payment_method === 'ewallet_pending')
+        <div class="store-glass-card rounded-3xl p-8 mb-10 text-center">
+            <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+                 style="background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3);">
+                <i class="fas fa-wallet text-4xl text-violet-400"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-3">Pembayaran E-Wallet</h3>
+            <p class="text-white/60 mb-6">Popup pembayaran akan muncul otomatis...</p>
+            
+            <button onclick="payWithMidtrans()"
+                    id="pay-button"
+                    class="mx-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                    style="background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);">
+                <i class="fas fa-bolt text-xl"></i>
+                <span class="text-lg">Bayar Sekarang</span>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs px-2 py-1 rounded-lg bg-white/20">Dana</span>
+                    <span class="text-xs px-2 py-1 rounded-lg bg-white/20">GoPay</span>
+                    <span class="text-xs px-2 py-1 rounded-lg bg-white/20">QRIS</span>
+                </div>
+            </button>
+            
+            <div class="rounded-xl p-4 mt-6 text-left" style="background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.15);">
+                <p class="text-sm text-violet-300">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>Pembayaran otomatis & instan!</strong> Setelah Anda membayar, pesanan akan langsung dikonfirmasi tanpa perlu menunggu verifikasi admin.
+                </p>
+            </div>
+
+            {{-- OR switch to manual --}}
+            <div class="flex items-center gap-4 my-6">
+                <div class="flex-1 h-px" style="background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);"></div>
+                <button onclick="document.getElementById('manual-transfer-section').classList.toggle('hidden')" 
+                        class="text-xs font-semibold text-white/40 hover:text-white/60 uppercase tracking-wider">
+                    Atau transfer manual
+                </button>
+                <div class="flex-1 h-px" style="background: linear-gradient(to right, rgba(255,255,255,0.15), transparent);"></div>
+            </div>
+        </div>
+
+        {{-- Manual Transfer Section (Hidden by default if ewallet) --}}
+        <div id="manual-transfer-section" class="hidden">
+        @endif
+
+        @if($order->payment_method !== 'ewallet_pending')
         <div class="store-glass-card rounded-3xl p-8 mb-10 text-left">
+        @else
+        <div class="store-glass-card rounded-3xl p-8 mb-10 text-left">
+        @endif
             {{-- Bank Account Info --}}
             <h3 class="font-bold text-white flex items-center gap-2 mb-4">
                 <i class="fas fa-university text-cyan-400"></i> Transfer ke Rekening
@@ -219,6 +274,10 @@
                 </button>
             </form>
         </div>
+
+        @if($order->payment_method === 'ewallet_pending')
+        </div> {{-- Close manual-transfer-section --}}
+        @endif
 
         {{-- Cancel Order Option --}}
         <div class="flex items-center justify-center gap-2 text-white/40 mb-8">
@@ -289,6 +348,65 @@
 @push('scripts')
 <script>
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+    // Midtrans Payment Function
+    function payWithMidtrans() {
+        const payButton = document.getElementById('pay-button');
+        payButton.disabled = true;
+        payButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+
+        // Request snap token from server
+        fetch("{{ route('payment.snap', $order) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                userToast('Gagal', data.error, 'error');
+                payButton.disabled = false;
+                payButton.innerHTML = '<i class="fas fa-bolt mr-2"></i>Bayar Sekarang';
+                return;
+            }
+
+            // Open Midtrans Snap Popup
+            window.snap.pay(data.snap_token, {
+                onSuccess: function(result) {
+                    console.log('Payment success:', result);
+                    userToast('Pembayaran Berhasil!', 'Pesanan Anda sedang diproses.', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                },
+                onPending: function(result) {
+                    console.log('Payment pending:', result);
+                    userToast('Menunggu Pembayaran', 'Silakan selesaikan pembayaran Anda.', 'info');
+                    payButton.disabled = false;
+                    payButton.innerHTML = '<i class="fas fa-bolt mr-2"></i>Bayar Sekarang';
+                },
+                onError: function(result) {
+                    console.log('Payment error:', result);
+                    userToast('Pembayaran Gagal', 'Terjadi kesalahan. Silakan coba lagi.', 'error');
+                    payButton.disabled = false;
+                    payButton.innerHTML = '<i class="fas fa-bolt mr-2"></i>Bayar Sekarang';
+                },
+                onClose: function() {
+                    console.log('Payment popup closed');
+                    payButton.disabled = false;
+                    payButton.innerHTML = '<i class="fas fa-bolt mr-2"></i>Bayar Sekarang';
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            userToast('Error', 'Terjadi kesalahan koneksi.', 'error');
+            payButton.disabled = false;
+            payButton.innerHTML = '<i class="fas fa-bolt mr-2"></i>Bayar Sekarang';
+        });
+    }
 
     function previewImage(event) {
         const input = event.target;
@@ -376,6 +494,21 @@
         updateCountdown();
         const timer = setInterval(updateCountdown, 1000);
     })();
+    @endif
+
+    // Auto-trigger E-Wallet payment popup if ewallet was selected
+    @if($order->payment_method === 'ewallet_pending' && $order->status === 'pending' && !$order->isPaymentExpired())
+    // Wait for page load
+    window.addEventListener('load', function() {
+        // Wait 1 second for smooth UX
+        setTimeout(function() {
+            const payButton = document.getElementById('pay-button');
+            if (payButton) {
+                // Auto trigger payment
+                payWithMidtrans();
+            }
+        }, 1000);
+    });
     @endif
 </script>
 @endpush

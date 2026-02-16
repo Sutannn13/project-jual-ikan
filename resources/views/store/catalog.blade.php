@@ -134,6 +134,44 @@
                         <span class="px-4 py-2 bg-red-500 text-white font-bold rounded-lg text-sm">Habis</span>
                     </div>
                     @endif
+
+                    {{-- Wishlist Button --}}
+                    @auth
+                    <div class="absolute top-2 right-2 z-10"
+                         x-data="{ 
+                            wishlisted: {{ in_array($produk->id, $wishlistedIds ?? []) ? 'true' : 'false' }}, 
+                            loading: false,
+                            toggle() {
+                                if (this.loading) return;
+                                this.loading = true;
+                                fetch('{{ route('wishlist.toggle') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').content,
+                                        'Accept': 'application/json',
+                                    },
+                                    body: JSON.stringify({ produk_id: {{ $produk->id }} }),
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    this.wishlisted = data.status === 'added';
+                                    this.loading = false;
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    this.loading = false;
+                                });
+                            }
+                         }">
+                        <button @click.prevent="toggle()" :disabled="loading"
+                                class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg"
+                                :class="wishlisted ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-white/80 backdrop-blur text-gray-400 hover:text-red-500 hover:bg-white'"
+                                :title="wishlisted ? 'Hapus dari Wishlist' : 'Tambah ke Wishlist'">
+                            <i class="text-sm" :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-heart'"></i>
+                        </button>
+                    </div>
+                    @endauth
                 </div>
                 
                 {{-- Content --}}

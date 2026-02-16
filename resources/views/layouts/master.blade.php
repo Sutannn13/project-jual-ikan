@@ -160,6 +160,9 @@
                                 <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors">
                                     <i class="fas fa-comments w-4 text-cyan-400"></i> Chat Admin
                                 </a>
+                                <a href="{{ route('tickets.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+                                    <i class="fas fa-headset w-4 text-rose-400"></i> Support Ticket
+                                </a>
                                 <hr class="my-2 border-white/10">
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
@@ -227,6 +230,9 @@
                         </a>
                         <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium {{ request()->routeIs('chat.*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-comments w-5 text-center"></i> Chat Admin
+                        </a>
+                        <a href="{{ route('tickets.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium {{ request()->routeIs('tickets.*') ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                            <i class="fas fa-headset w-5 text-center"></i> Support Ticket
                         </a>
                         @if(Auth::user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white">

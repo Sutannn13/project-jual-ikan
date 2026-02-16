@@ -76,7 +76,7 @@
                             class="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg"
                             :class="wishlisted ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-white/90 backdrop-blur text-gray-400 hover:text-red-500 hover:bg-white'"
                             :title="wishlisted ? 'Hapus dari Wishlist' : 'Tambah ke Wishlist'">
-                        <i class="fas fa-heart text-lg" :class="loading ? 'fa-spinner fa-spin' : 'fa-heart'"></i>
+                        <i class="text-lg" :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-heart'"></i>
                     </button>
                 </div>
                 @endauth

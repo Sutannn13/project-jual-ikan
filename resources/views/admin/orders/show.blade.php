@@ -3,7 +3,7 @@
 @section('title', 'Detail Pesanan')
 
 @section('content')
-<div class="max-w-5xl mx-auto">
+<div class="max-w-5xl mx-auto px-4 sm:px-6">
     <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-2 text-sm text-white/50 hover:text-cyan-400 mb-6 transition-colors">
         <i class="fas fa-arrow-left"></i> Kembali ke Daftar Pesanan
     </a>
@@ -302,40 +302,52 @@
             </div>
             @endif
 
-            {{-- Order Timeline --}}
+            {{-- Order Timeline (Dynamic from StatusHistory) --}}
             <div class="dark-glass-card rounded-2xl p-6">
                 <h3 class="font-semibold text-white mb-4"><i class="fas fa-history text-cyan-400 mr-2"></i>Timeline</h3>
                 <div class="space-y-3">
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(6,182,212,0.15);">
-                            <i class="fas fa-cart-plus text-cyan-400 text-xs"></i>
+                    @if($order->statusHistories && $order->statusHistories->count())
+                        @foreach($order->statusHistories as $history)
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(6,182,212,0.15);">
+                                    <i class="{{ $history->status_icon }} text-xs" style="color: {{ $history->status_color }};"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-white">{{ $history->status_label }}</p>
+                                    @if($history->notes)
+                                        <p class="text-xs text-white/50 mt-0.5">{{ $history->notes }}</p>
+                                    @endif
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <p class="text-xs text-white/30">{{ $history->created_at->format('d M Y, H:i') }}</p>
+                                        @if($history->updatedByUser)
+                                            <span class="text-xs text-white/20">• {{ $history->updatedByUser->name }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        {{-- Fallback: basic timeline --}}
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(6,182,212,0.15);">
+                                <i class="fas fa-cart-plus text-cyan-400 text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">Pesanan Dibuat</p>
+                                <p class="text-xs text-white/40">{{ $order->created_at->format('d M Y, H:i') }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-white">Pesanan Dibuat</p>
-                            <p class="text-xs text-white/40">{{ $order->created_at->format('d M Y, H:i') }}</p>
+                        @if($order->payment_uploaded_at)
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(245,158,11,0.15);">
+                                <i class="fas fa-receipt text-amber-400 text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-white">Bukti Bayar Diupload</p>
+                                <p class="text-xs text-white/40">{{ $order->payment_uploaded_at->format('d M Y, H:i') }}</p>
+                            </div>
                         </div>
-                    </div>
-                    @if($order->payment_uploaded_at)
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(245,158,11,0.15);">
-                            <i class="fas fa-receipt text-amber-400 text-xs"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-white">Bukti Bayar Diupload</p>
-                            <p class="text-xs text-white/40">{{ $order->payment_uploaded_at->format('d M Y, H:i') }}</p>
-                        </div>
-                    </div>
-                    @endif
-                    @if(in_array($order->status, ['paid', 'confirmed', 'out_for_delivery', 'completed']))
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(6,182,212,0.15);">
-                            <i class="fas fa-check text-cyan-400 text-xs"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-white">Pembayaran Diverifikasi</p>
-                            <p class="text-xs text-white/40">{{ $order->updated_at->format('d M Y, H:i') }}</p>
-                        </div>
-                    </div>
+                        @endif
                     @endif
                 </div>
             </div>

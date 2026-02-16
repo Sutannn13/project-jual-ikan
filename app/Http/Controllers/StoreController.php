@@ -22,7 +22,16 @@ class StoreController extends Controller
     {
         $produks = Produk::where('stok', '>', 0)->latest()->get();
         $banners = \App\Models\Banner::active()->position('hero')->orderBy('sort_order')->get();
-        return view('home', compact('produks', 'banners'));
+        
+        // Get wishlisted product IDs for current user
+        $wishlistedIds = [];
+        if (Auth::check()) {
+            $wishlistedIds = \App\Models\Wishlist::where('user_id', Auth::id())
+                ->pluck('produk_id')
+                ->toArray();
+        }
+        
+        return view('home', compact('produks', 'banners', 'wishlistedIds'));
     }
 
     public function catalog(Request $request)
@@ -74,9 +83,17 @@ class StoreController extends Controller
         $produks = $query->paginate(12);
 
         // Get min/max prices for filter UI
-        $priceRange = Produk::selectRaw('MIN(harga_per_kg) as min, MAX(harga_per_kg) as max')->first();
+        $priceRange = Produk::selectRaw('MIN(harga_per_kg) as min_price, MAX(harga_per_kg) as max_price')->first();
+        
+        // Get wishlisted product IDs for current user
+        $wishlistedIds = [];
+        if (Auth::check()) {
+            $wishlistedIds = \App\Models\Wishlist::where('user_id', Auth::id())
+                ->pluck('produk_id')
+                ->toArray();
+        }
 
-        return view('store.catalog', compact('produks', 'priceRange'));
+        return view('store.catalog', compact('produks', 'priceRange', 'wishlistedIds'));
     }
 
     public function show(Produk $produk)
@@ -123,6 +140,12 @@ class StoreController extends Controller
             return redirect()->route('cart.index')->with('error', 'Keranjang belanja kosong!');
         }
 
+        // Validate payment method
+        $paymentMethod = $request->input('payment_method', 'transfer');
+        if (!in_array($paymentMethod, ['transfer', 'cod', 'ewallet'])) {
+            $paymentMethod = 'transfer';
+        }
+
         // Validate shipping address
         $userAddress = Auth::user()->alamat ?? '';
         if (empty(trim($userAddress))) {
@@ -138,7 +161,7 @@ class StoreController extends Controller
             return redirect()->route('my.orders')->with('error', 'Anda masih memiliki pesanan yang belum dibayar. Selesaikan pembayaran terlebih dahulu.');
         }
 
-        $order = DB::transaction(function () use ($cart, $request, $userAddress) {
+        $order = DB::transaction(function () use ($cart, $request, $userAddress, $paymentMethod) {
             $orderNumber = Order::generateOrderNumber();
             $totalPrice = 0;
 
@@ -171,11 +194,12 @@ class StoreController extends Controller
             $order = Order::create([
                 'user_id'          => Auth::id(),
                 'order_number'     => $orderNumber,
-                'total_price'      => $grandTotal, // Grand total (termasuk ongkir)
+                'total_price'      => $grandTotal,
                 'shipping_cost'    => $shippingCost,
                 'shipping_zone_id' => $shippingZone?->id,
-                'status'           => 'pending',
-                'payment_deadline' => now()->addHours(24),
+                'status'           => $paymentMethod === 'cod' ? 'confirmed' : 'pending',
+                'payment_method'   => $paymentMethod === 'cod' ? 'cod' : ($paymentMethod === 'ewallet' ? 'ewallet_pending' : null),
+                'payment_deadline' => $paymentMethod === 'cod' ? null : now()->addHours(24),
             ]);
 
             foreach ($cart as $produkId => $item) {
@@ -195,6 +219,15 @@ class StoreController extends Controller
             // Clear cart
             session()->forget('cart');
 
+            // Log initial status
+            if ($paymentMethod === 'cod') {
+                $order->logStatusChange('confirmed', null, 'Pesanan COD — bayar saat diterima');
+            } elseif ($paymentMethod === 'ewallet') {
+                $order->logStatusChange('pending', null, 'Pesanan dibuat - Menunggu pembayaran E-Wallet');
+            } else {
+                $order->logStatusChange('pending', null, 'Pesanan dibuat oleh customer');
+            }
+
             return $order;
         });
 
@@ -212,8 +245,14 @@ class StoreController extends Controller
             Log::error('Failed to create order notification', ['error' => $e->getMessage()]);
         }
 
+        $successMsg = $paymentMethod === 'cod'
+            ? 'Pesanan COD berhasil dibuat! Siapkan pembayaran saat barang diterima.'
+            : ($paymentMethod === 'ewallet' 
+                ? 'Pesanan berhasil dibuat! Silakan pilih metode pembayaran E-Wallet (Dana, GoPay, QRIS).' 
+                : 'Pesanan berhasil dibuat! Silakan upload bukti pembayaran dalam 24 jam.');
+
         return redirect()->route('order.success', $order->id)
-            ->with('success', 'Pesanan berhasil dibuat! Silakan upload bukti pembayaran dalam 24 jam.');
+            ->with('success', $successMsg);
     }
 
     /**
@@ -277,6 +316,8 @@ class StoreController extends Controller
             'payment_method' => 'manual_transfer', // Mark as manual payment
         ]);
 
+        $order->logStatusChange('waiting_payment', 'pending', 'Bukti pembayaran diupload oleh customer');
+
         \Illuminate\Support\Facades\Log::info("Payment proof uploaded for order {$order->order_number}", [
             'user_id' => Auth::id(),
             'file_path' => $path,
@@ -323,6 +364,8 @@ class StoreController extends Controller
             }
 
             $order->update(['status' => 'cancelled']);
+
+            $order->logStatusChange('cancelled', 'pending', 'Dibatalkan oleh customer');
         });
 
         // Notify admin
@@ -365,7 +408,7 @@ class StoreController extends Controller
     public function trackOrder(Order $order)
     {
         if ($order->user_id !== Auth::id()) abort(403);
-        $order->load('items.produk');
+        $order->load('items.produk', 'statusHistories');
         return view('store.track-order', compact('order'));
     }
 

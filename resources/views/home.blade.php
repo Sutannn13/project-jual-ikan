@@ -408,16 +408,52 @@
         @if($produks->count() > 0)
         <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             @foreach($produks->take(8) as $produk)
-            <div class="product-card flex flex-col">
-                <div class="aspect-[4/3] overflow-hidden bg-white/5">
+            <div class="product-card flex flex-col group">
+                <div class="aspect-[4/3] overflow-hidden bg-white/5 relative">
                     @if($produk->foto)
                         <img src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama }}"
-                             class="w-full h-full object-cover hover:scale-110 transition duration-500">
+                             class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                     @else
                         <div class="w-full h-full flex items-center justify-center text-white/20">
                             <i class="fas fa-fish text-3xl sm:text-4xl md:text-5xl"></i>
                         </div>
                     @endif
+
+                    {{-- Wishlist Button --}}
+                    <div class="absolute top-2 right-2 z-10"
+                         x-data="{ 
+                            wishlisted: {{ in_array($produk->id, $wishlistedIds ?? []) ? 'true' : 'false' }}, 
+                            loading: false,
+                            toggle() {
+                                if (this.loading) return;
+                                this.loading = true;
+                                fetch('{{ route('wishlist.toggle') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']').content,
+                                        'Accept': 'application/json',
+                                    },
+                                    body: JSON.stringify({ produk_id: {{ $produk->id }} }),
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    this.wishlisted = data.status === 'added';
+                                    this.loading = false;
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    this.loading = false;
+                                });
+                            }
+                         }">
+                        <button @click.prevent="toggle()" :disabled="loading"
+                                class="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg"
+                                :class="wishlisted ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-white/80 backdrop-blur text-gray-400 hover:text-red-500 hover:bg-white'"
+                                :title="wishlisted ? 'Hapus dari Wishlist' : 'Tambah ke Wishlist'">
+                            <i class="text-xs sm:text-sm" :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-heart'"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="p-3 sm:p-4 md:p-5 flex flex-col flex-1">
                     <div class="flex items-center justify-between gap-2 mb-2">

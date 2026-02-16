@@ -148,6 +148,31 @@
             </div>
         </div>
 
+        {{-- Detailed Status History --}}
+        @if($order->statusHistories && $order->statusHistories->count())
+        <div class="store-glass-card rounded-3xl overflow-hidden p-6 sm:p-8">
+            <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
+                <i class="fas fa-clipboard-list text-cyan-400"></i> Riwayat Status
+            </h3>
+            <div class="space-y-3">
+                @foreach($order->statusHistories as $history)
+                    <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background: rgba(6,182,212,0.1);">
+                            <i class="{{ $history->status_icon }} text-xs" style="color: {{ $history->status_color }};"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-white">{{ $history->status_label }}</p>
+                            @if($history->notes)
+                                <p class="text-xs text-white/50 mt-0.5">{{ $history->notes }}</p>
+                            @endif
+                            <p class="text-xs text-white/30 mt-1">{{ $history->created_at->format('d M Y, H:i') }}</p>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         {{-- Order Items --}}
         <div class="store-glass-card rounded-3xl overflow-hidden p-6 sm:p-8">
             <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2">

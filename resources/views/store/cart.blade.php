@@ -28,20 +28,42 @@
         @if(count($cartItems) > 0)
         <div class="grid lg:grid-cols-3 gap-6">
             {{-- Mobile Checkout Bar (visible only on mobile/tablet, shown ABOVE items) --}}
-            <div class="lg:hidden">
+            <div class="lg:hidden" x-data="{ mobilePayMethod: 'transfer' }">
                 <div class="store-glass-card rounded-2xl p-5">
-                    <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-between mb-3">
                         <div>
                             <p class="text-white/60 text-sm">Total ({{ count($cartItems) }} produk)</p>
                             <p class="text-xl font-extrabold text-cyan-300">Rp {{ number_format($total, 0, ',', '.') }}</p>
                         </div>
-                        <form action="{{ route('checkout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn-primary py-3 px-6 text-sm btn-shiny">
-                                <i class="fas fa-credit-card mr-2"></i>Checkout
-                            </button>
-                        </form>
                     </div>
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="mobile_pm" value="transfer" x-model="mobilePayMethod" class="sr-only peer">
+                            <div class="text-center py-2 rounded-lg border text-xs font-medium transition-all peer-checked:bg-cyan-500/20 peer-checked:border-cyan-500/50 peer-checked:text-cyan-300 border-white/10 text-white/50">
+                                <i class="fas fa-university block mb-1"></i>Transfer
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="mobile_pm" value="ewallet" x-model="mobilePayMethod" class="sr-only peer">
+                            <div class="text-center py-2 rounded-lg border text-xs font-medium transition-all peer-checked:bg-violet-500/20 peer-checked:border-violet-500/50 peer-checked:text-violet-300 border-white/10 text-white/50">
+                                <i class="fas fa-wallet block mb-1"></i>E-Wallet
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="mobile_pm" value="cod" x-model="mobilePayMethod" class="sr-only peer">
+                            <div class="text-center py-2 rounded-lg border text-xs font-medium transition-all peer-checked:bg-emerald-500/20 peer-checked:border-emerald-500/50 peer-checked:text-emerald-300 border-white/10 text-white/50">
+                                <i class="fas fa-hand-holding-usd block mb-1"></i>COD
+                            </div>
+                        </label>
+                    </div>
+                    <form action="{{ route('checkout') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="payment_method" :value="mobilePayMethod">
+                        <button type="submit" class="btn-primary w-full py-3 text-sm btn-shiny">
+                            <i class="fas fa-credit-card mr-2"></i>
+                            <span x-text="mobilePayMethod === 'cod' ? 'Pesan COD' : (mobilePayMethod === 'ewallet' ? 'Bayar E-Wallet' : 'Checkout')">Checkout</span>
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -157,10 +179,46 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('checkout') }}" method="POST">
+                    <form action="{{ route('checkout') }}" method="POST" x-data="{ payMethod: 'transfer' }">
                         @csrf
+                        
+                        {{-- Payment Method Selection --}}
+                        <div class="mb-5">
+                            <p class="text-sm font-semibold text-white mb-3">Metode Pembayaran</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
+                                       :class="payMethod === 'transfer' ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-white/10 hover:border-white/20'">
+                                    <input type="radio" name="payment_method" value="transfer" x-model="payMethod" class="text-cyan-500 focus:ring-cyan-500">
+                                    <div class="flex-1">
+                                        <span class="text-sm font-medium text-white">Transfer Bank</span>
+                                        <p class="text-xs text-white/40">Upload bukti bayar setelah checkout</p>
+                                    </div>
+                                    <i class="fas fa-university text-white/30"></i>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
+                                       :class="payMethod === 'ewallet' ? 'border-violet-500/50 bg-violet-500/10' : 'border-white/10 hover:border-white/20'">
+                                    <input type="radio" name="payment_method" value="ewallet" x-model="payMethod" class="text-violet-500 focus:ring-violet-500">
+                                    <div class="flex-1">
+                                        <span class="text-sm font-medium text-white">E-Wallet (Dana, GoPay, QRIS)</span>
+                                        <p class="text-xs text-white/40">⚡ Pembayaran otomatis & instan</p>
+                                    </div>
+                                    <i class="fas fa-wallet text-white/30"></i>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
+                                       :class="payMethod === 'cod' ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 hover:border-white/20'">
+                                    <input type="radio" name="payment_method" value="cod" x-model="payMethod" class="text-emerald-500 focus:ring-emerald-500">
+                                    <div class="flex-1">
+                                        <span class="text-sm font-medium text-white">COD (Bayar di Tempat)</span>
+                                        <p class="text-xs text-white/40">Bayar saat barang diterima</p>
+                                    </div>
+                                    <i class="fas fa-hand-holding-usd text-white/30"></i>
+                                </label>
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn-primary w-full py-4 text-base btn-shiny">
-                            <i class="fas fa-credit-card mr-2"></i>Checkout Sekarang
+                            <i class="fas fa-credit-card mr-2"></i>
+                            <span x-text="payMethod === 'cod' ? 'Pesan COD' : (payMethod === 'ewallet' ? 'Bayar dengan E-Wallet' : 'Checkout Sekarang')">Checkout Sekarang</span>
                         </button>
                     </form>
 

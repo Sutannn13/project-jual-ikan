@@ -68,6 +68,31 @@
 </div>
 
 {{-- Table Card --}}
+<form id="bulkForm" action="{{ route('admin.orders.bulk-action') }}" method="POST" x-data="{ selectedOrders: [], bulkAction: '' }">
+    @csrf
+
+    {{-- Bulk Action Bar --}}
+    <div x-show="selectedOrders.length > 0" x-transition
+         class="mb-4 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-3"
+         style="background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2);">
+        <span class="text-sm text-cyan-300 font-semibold" x-text="selectedOrders.length + ' pesanan dipilih'"></span>
+        <div class="flex flex-wrap gap-2 sm:ml-auto">
+            <button type="submit" name="action" value="mark_processing" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition border border-blue-500/20">
+                <i class="fas fa-cog mr-1"></i> Proses
+            </button>
+            <button type="submit" name="action" value="mark_shipped" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 transition border border-indigo-500/20">
+                <i class="fas fa-truck mr-1"></i> Kirim
+            </button>
+            <button type="submit" name="action" value="mark_completed" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 transition border border-emerald-500/20">
+                <i class="fas fa-check mr-1"></i> Selesai
+            </button>
+            <button type="submit" name="action" value="mark_cancelled" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-500/20 text-red-300 hover:bg-red-500/30 transition border border-red-500/20"
+                    onclick="return confirm('Yakin batalkan pesanan terpilih?')">
+                <i class="fas fa-times mr-1"></i> Batalkan
+            </button>
+        </div>
+    </div>
+
 <div class="dark-glass-card rounded-2xl overflow-hidden">
     {{-- Mobile Card View --}}
     <div class="sm:hidden divide-y divide-white/5">
@@ -121,6 +146,9 @@
         <table class="w-full text-sm">
             <thead>
                 <tr class="bg-white/5 text-white/40 text-xs uppercase tracking-wider">
+                    <th class="px-4 py-4 text-center w-10">
+                        <input type="checkbox" @click="if($event.target.checked) { selectedOrders = [...document.querySelectorAll('.order-checkbox')].map(el => el.value) } else { selectedOrders = [] }" class="rounded bg-white/10 border-white/20 text-cyan-500 focus:ring-cyan-500">
+                    </th>
                     <th class="px-6 py-4 text-left">Order ID</th>
                     <th class="px-6 py-4 text-left">Pelanggan</th>
                     <th class="px-6 py-4 text-left">Items</th>
@@ -134,6 +162,10 @@
             <tbody class="divide-y divide-white/5">
                 @forelse($orders as $order)
                 <tr class="transition {{ $order->status === 'waiting_payment' ? 'bg-orange-500/10 hover:bg-orange-500/15 border-l-4 border-orange-500' : 'hover:bg-white/5' }}">
+                    <td class="px-4 py-4 text-center">
+                        <input type="checkbox" name="order_ids[]" value="{{ $order->id }}" class="order-checkbox rounded bg-white/10 border-white/20 text-cyan-500 focus:ring-cyan-500"
+                               x-model="selectedOrders" :value="'{{ $order->id }}'">
+                    </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             @if($order->status === 'waiting_payment')
@@ -191,7 +223,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="px-6 py-16 text-center text-white/30">
+                    <td colspan="9" class="px-6 py-16 text-center text-white/30">
                         <i class="fas fa-shopping-cart text-4xl mb-3 block"></i>
                         <p>Belum ada pesanan.</p>
                     </td>
@@ -207,4 +239,5 @@
     </div>
     @endif
 </div>
+</form>
 @endsection

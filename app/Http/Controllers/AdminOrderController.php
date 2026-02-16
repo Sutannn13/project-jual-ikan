@@ -38,7 +38,7 @@ class AdminOrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['user', 'items.produk']);
+        $order->load(['user', 'items.produk', 'statusHistories.updatedByUser']);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -64,6 +64,8 @@ class AdminOrderController extends Controller
             'status' => 'paid',
             'rejection_reason' => null,
         ]);
+
+        $order->logStatusChange('paid', 'waiting_payment', 'Pembayaran diverifikasi oleh admin', auth()->id());
 
         AdminNotificationService::paymentVerified($order);
 
@@ -99,6 +101,8 @@ class AdminOrderController extends Controller
             'rejection_reason' => $request->rejection_reason,
         ]);
 
+        $order->logStatusChange('pending', 'waiting_payment', 'Pembayaran ditolak: ' . $request->rejection_reason, auth()->id());
+
         AdminNotificationService::paymentRejected($order, $request->rejection_reason);
 
         $this->sendStatusEmail($order, 'waiting_payment', 'pending');
@@ -132,6 +136,8 @@ class AdminOrderController extends Controller
             'courier_phone'   => $request->courier_phone,
             'tracking_number' => $request->tracking_number,
         ]);
+
+        $order->logStatusChange('confirmed', 'paid', 'Pesanan dikonfirmasi. Kurir: ' . ($request->courier_name ?? '-'), auth()->id());
 
         AdminNotificationService::orderConfirmed($order);
 
@@ -186,6 +192,8 @@ class AdminOrderController extends Controller
 
         $order->update(['status' => $newStatus]);
 
+        $order->logStatusChange($newStatus, $oldStatus, 'Status diubah manual oleh admin', auth()->id());
+
         AdminNotificationService::orderStatusChanged($order, $oldStatus, $newStatus);
 
         $this->sendStatusEmail($order, $oldStatus, $newStatus);
@@ -207,5 +215,91 @@ class AdminOrderController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Bulk actions for orders
+     */
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'order_ids'   => 'required|array|min:1',
+            'order_ids.*' => 'exists:orders,id',
+            'bulk_action' => 'required|in:mark_processing,mark_shipped,mark_completed,mark_cancelled,send_reminder',
+        ]);
+
+        $orderIds = $request->input('order_ids');
+        $action = $request->input('bulk_action');
+        $count = 0;
+
+        switch ($action) {
+            case 'mark_processing':
+                $orders = Order::whereIn('id', $orderIds)->where('status', 'paid')->get();
+                foreach ($orders as $order) {
+                    $order->update(['status' => 'confirmed']);
+                    $order->logStatusChange('confirmed', 'paid', 'Dikonfirmasi via bulk action', auth()->id());
+                    $this->sendStatusEmail($order, 'paid', 'confirmed');
+                    $count++;
+                }
+                $message = "{$count} pesanan berhasil dikonfirmasi.";
+                break;
+
+            case 'mark_shipped':
+                $orders = Order::whereIn('id', $orderIds)->where('status', 'confirmed')->get();
+                foreach ($orders as $order) {
+                    $order->update(['status' => 'out_for_delivery']);
+                    $order->logStatusChange('out_for_delivery', 'confirmed', 'Dikirim via bulk action', auth()->id());
+                    $this->sendStatusEmail($order, 'confirmed', 'out_for_delivery');
+                    $count++;
+                }
+                $message = "{$count} pesanan berhasil diubah ke Dalam Pengiriman.";
+                break;
+
+            case 'mark_completed':
+                $orders = Order::whereIn('id', $orderIds)->where('status', 'out_for_delivery')->get();
+                foreach ($orders as $order) {
+                    $order->update(['status' => 'completed']);
+                    $order->logStatusChange('completed', 'out_for_delivery', 'Selesai via bulk action', auth()->id());
+                    $this->sendStatusEmail($order, 'out_for_delivery', 'completed');
+                    $count++;
+                }
+                $message = "{$count} pesanan berhasil diselesaikan.";
+                break;
+
+            case 'mark_cancelled':
+                $orders = Order::whereIn('id', $orderIds)
+                    ->whereIn('status', ['pending', 'waiting_payment'])->get();
+                foreach ($orders as $order) {
+                    foreach ($order->items as $item) {
+                        $item->produk->releaseStock($item->qty);
+                    }
+                    $order->update(['status' => 'cancelled']);
+                    $order->logStatusChange('cancelled', $order->status, 'Dibatalkan via bulk action', auth()->id());
+                    $this->sendStatusEmail($order, $order->status, 'cancelled');
+                    $count++;
+                }
+                $message = "{$count} pesanan berhasil dibatalkan.";
+                break;
+
+            case 'send_reminder':
+                $orders = Order::whereIn('id', $orderIds)
+                    ->where('status', 'pending')
+                    ->with('user')->get();
+                foreach ($orders as $order) {
+                    try {
+                        Mail::to($order->user->email)->send(new OrderStatusMail($order, 'pending', 'pending'));
+                        $count++;
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send reminder', ['order' => $order->order_number]);
+                    }
+                }
+                $message = "{$count} email reminder berhasil terkirim.";
+                break;
+
+            default:
+                $message = 'Aksi tidak dikenali.';
+        }
+
+        return back()->with('success', $message);
     }
 }

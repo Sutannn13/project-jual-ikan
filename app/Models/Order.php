@@ -49,6 +49,32 @@ class Order extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function statusHistories()
+    {
+        return $this->hasMany(OrderStatusHistory::class)->orderBy('created_at', 'asc');
+    }
+
+    public function supportTickets()
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
+    /**
+     * Log status change to history
+     */
+    public function logStatusChange(string $newStatus, ?string $oldStatus = null, ?string $notes = null, ?int $updatedBy = null, ?string $location = null): void
+    {
+        OrderStatusHistory::create([
+            'order_id' => $this->id,
+            'status' => $newStatus,
+            'old_status' => $oldStatus,
+            'notes' => $notes,
+            'updated_by' => $updatedBy,
+            'location' => $location,
+            'created_at' => now(),
+        ]);
+    }
+
     /**
      * Generate unique order number: FM-2026-XXXX
      */

@@ -25,7 +25,7 @@
                 {{-- Judul --}}
                 <div>
                     <label class="label-field">Judul Banner</label>
-                    <input type="text" name="title" value="{{ old('title', $banner->title ?? '') }}" 
+                    <input type="text" name="title" value="{{ old('title', $banner?->title) }}" 
                            class="input-field" placeholder="Contoh: Promo Lele Segar 50% OFF!" required>
                     @error('title') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
@@ -34,7 +34,7 @@
                 <div>
                     <label class="label-field">Deskripsi (opsional)</label>
                     <textarea name="description" rows="2" class="input-field" 
-                              placeholder="Keterangan singkat promo">{{ old('description', $banner->description ?? '') }}</textarea>
+                              placeholder="Keterangan singkat promo">{{ old('description', $banner?->description) }}</textarea>
                 </div>
 
                 {{-- Image --}}
@@ -53,7 +53,7 @@
                 {{-- Link URL --}}
                 <div>
                     <label class="label-field">Link URL (opsional)</label>
-                    <input type="url" name="link_url" value="{{ old('link_url', $banner->link_url ?? '') }}" 
+                    <input type="url" name="link_url" value="{{ old('link_url', $banner?->link_url) }}" 
                            class="input-field" placeholder="https://...">
                     <p class="text-white/30 text-xs mt-1">Jika diisi, banner akan bisa diklik menuju URL ini.</p>
                 </div>
@@ -63,14 +63,14 @@
                     <div>
                         <label class="label-field">Posisi</label>
                         <select name="position" class="input-field">
-                            <option value="hero" {{ old('position', $banner->position ?? 'hero') === 'hero' ? 'selected' : '' }}>Hero (Halaman Utama)</option>
-                            <option value="catalog" {{ old('position', $banner->position ?? '') === 'catalog' ? 'selected' : '' }}>Katalog</option>
-                            <option value="sidebar" {{ old('position', $banner->position ?? '') === 'sidebar' ? 'selected' : '' }}>Sidebar</option>
+                            <option value="hero" {{ old('position', $banner?->position ?? 'hero') === 'hero' ? 'selected' : '' }}>Hero (Halaman Utama)</option>
+                            <option value="catalog" {{ old('position', $banner?->position) === 'catalog' ? 'selected' : '' }}>Katalog</option>
+                            <option value="sidebar" {{ old('position', $banner?->position) === 'sidebar' ? 'selected' : '' }}>Sidebar</option>
                         </select>
                     </div>
                     <div>
                         <label class="label-field">Urutan</label>
-                        <input type="number" name="sort_order" value="{{ old('sort_order', $banner->sort_order ?? 0) }}" 
+                        <input type="number" name="sort_order" value="{{ old('sort_order', $banner?->sort_order ?? 0) }}" 
                                class="input-field" min="0" placeholder="0">
                     </div>
                 </div>
@@ -79,12 +79,12 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="label-field">Tanggal Mulai (opsional)</label>
-                        <input type="date" name="start_date" value="{{ old('start_date', $banner->start_date?->format('Y-m-d') ?? '') }}" 
+                        <input type="date" name="start_date" value="{{ old('start_date', $banner?->start_date?->format('Y-m-d')) }}" 
                                class="input-field">
                     </div>
                     <div>
                         <label class="label-field">Tanggal Berakhir (opsional)</label>
-                        <input type="date" name="end_date" value="{{ old('end_date', $banner->end_date?->format('Y-m-d') ?? '') }}" 
+                        <input type="date" name="end_date" value="{{ old('end_date', $banner?->end_date?->format('Y-m-d')) }}" 
                                class="input-field">
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                     <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" name="is_active" value="1" id="is_active"
                            class="w-4 h-4 rounded accent-cyan-500"
-                           {{ old('is_active', $banner->is_active ?? true) ? 'checked' : '' }}>
+                           {{ old('is_active', $banner?->is_active ?? true) ? 'checked' : '' }}>
                     <label for="is_active" class="text-sm text-white/70 cursor-pointer">
                         <i class="fas fa-eye text-green-400 mr-1"></i> Aktif (tampilkan di toko)
                     </label>

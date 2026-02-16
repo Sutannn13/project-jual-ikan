@@ -702,6 +702,36 @@
         min-height: 44px;
         padding: 0.75rem 1.25rem;
     }
+
+    /* Ensure product cards look good on small screens */
+    .product-card {
+        border-radius: 1rem;
+    }
+
+    .product-card:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Better form inputs on mobile */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    textarea,
+    select {
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+
+    /* Fix overflow on mobile for tables and wide content */
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Better spacing for mobile footers */
+    footer .grid {
+        gap: 1.5rem;
+    }
 }
 
 /* Small devices (landscape phones, 576px and up) */
@@ -772,6 +802,19 @@
     .py-20 {
         padding-top: 2rem;
         padding-bottom: 2rem;
+    }
+}
+
+/* Safe area insets for notched devices (iPhone X+, etc.) */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+
+    /* Fixed bottom elements need bottom safe area */
+    .fixed.bottom-6 {
+        bottom: max(1.5rem, env(safe-area-inset-bottom));
     }
 }
 

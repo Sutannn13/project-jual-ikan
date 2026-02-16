@@ -56,6 +56,8 @@ class PaymentController extends Controller
             'callbacks' => [
                 'finish' => route('order.success', $order),
             ],
+            // Enable only Dana e-wallet
+            'enabled_payments' => ['gopay', 'shopeepay', 'other_qris', 'dana'],
         ];
 
         try {
