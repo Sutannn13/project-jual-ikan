@@ -2,80 +2,82 @@
 
 @section('title', 'Beranda')
 
+@push('styles')
+@guest
+<style>
+    /* Override master layout background on landing page - use hero image instead */
+    /* Must use higher specificity and come after master styles */
+    html.scroll-smooth,
+    html.scroll-smooth body,
+    html.scroll-smooth body.bg-ocean-waves {
+        background: url('{{ asset('images/hero-background.jpg') }}') no-repeat center center fixed !important;
+        background-size: cover !important;
+        background-color: #0c4a6e !important; /* Fallback color while image loads */
+    }
+    
+    /* Hide all master background layers */
+    #master-bg-ocean,
+    #master-bg-radial,
+    #master-bg-grid,
+    #master-bg-orbs {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+</style>
+@endguest
+@endpush
+
 @section('content')
 @guest
 {{-- ========================================
      PREMIUM LANDING PAGE FOR GUESTS
      ======================================== --}}
 
-{{-- HERO SECTION with Animated Gradient --}}
-<section class="relative overflow-hidden -mt-[1px]">
-    {{-- Base Gradient Background --}}
-    <div class="absolute inset-0 bg-gradient-to-br from-[#0e7490] via-[#0891b2] to-[#155e75]"></div>
+{{-- Background overlay gradient only (image now in body background from styles) --}}
+<div class="fixed inset-0 w-full h-full bg-gradient-to-br from-ocean-900/70 via-ocean-800/60 to-cyan-900/70" style="z-index: -1;"></div>
+
+{{-- HERO SECTION with Background Image --}}
+<section class="relative overflow-x-hidden -mt-[1px] min-h-screen w-full flex items-center">
     
-    {{-- ENHANCED Lightning Glow Effects (More Dramatic!) --}}
-    <div class="absolute inset-0" style="background: 
-        radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.6) 0%, rgba(6, 182, 212, 0.3) 25%, transparent 50%),
-        radial-gradient(circle at 85% 25%, rgba(20, 184, 166, 0.5) 0%, rgba(20, 184, 166, 0.25) 30%, transparent 55%),
-        radial-gradient(circle at 50% 90%, rgba(14, 116, 144, 0.45) 0%, rgba(14, 116, 144, 0.2) 35%, transparent 60%),
-        radial-gradient(circle at 95% 80%, rgba(22, 211, 238, 0.4) 0%, rgba(22, 211, 238, 0.15) 25%, transparent 45%),
-        radial-gradient(circle at 40% 50%, rgba(34, 211, 238, 0.3) 0%, transparent 40%);">
-    </div>
-    
-    {{-- Animated Floating Light Orbs (BIGGER & BRIGHTER) --}}
-    <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute -top-20 -left-20 w-[500px] h-[500px] bg-gradient-to-br from-cyan-400/40 via-teal-400/30 to-transparent rounded-full blur-[100px] animate-float"></div>
-        <div class="absolute -bottom-32 -right-32 w-[600px] h-[600px] bg-gradient-to-tl from-ocean-300/35 via-cyan-300/25 to-transparent rounded-full blur-[120px] animate-float" style="animation-delay: -3s;"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-white/15 rounded-full blur-[80px] animate-float" style="animation-delay: -5s;"></div>
-        <div class="absolute top-20 right-1/4 w-[350px] h-[350px] bg-gradient-to-br from-teal-300/30 via-transparent to-transparent rounded-full blur-[90px] animate-float" style="animation-delay: -7s;"></div>
-        <div class="absolute bottom-1/4 left-1/3 w-[450px] h-[450px] bg-gradient-to-tr from-cyan-400/25 to-transparent rounded-full blur-[110px] animate-float" style="animation-delay: -4s;"></div>
-    </div>
-    
-    {{-- Shimmer Effect Overlay --}}
-    <div class="absolute inset-0 opacity-30" style="background: 
-        linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+    {{-- Subtle shimmer effect --}}
+    <div class="absolute inset-0 w-full h-full opacity-10" style="background: 
+        linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
         background-size: 200% 100%;
-        animation: shimmer 8s infinite linear;">
+        animation: shimmer 10s infinite linear;">
     </div>
     
-    {{-- Grid Pattern Overlay (Thinner) --}}
-    <div class="absolute inset-0 opacity-20" style="background-image: 
-        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-        background-size: 50px 50px;">
-    </div>
-    
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24">
+    <div class="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24">
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {{-- Hero Text (Left side on desktop, centered on mobile) --}}
             <div class="text-center lg:text-left">
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-                     style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
-                    <div class="w-2 h-2 rounded-full bg-teal-300 animate-pulse"></div>
-                    <span class="text-white/90 text-xs sm:text-sm font-medium">Platform Jual Beli Ikan #1 di Indonesia</span>
+                     style="background: rgba(20,20,40,0.7); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+                    <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(251,191,36,0.7)]"></div>
+                    <span class="text-white font-semibold text-xs sm:text-sm drop-shadow-lg">Platform Jual Beli Ikan #1 di Indonesia</span>
                 </div>
                 
-                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] mb-6">
-                    Ikan Segar
-                    <span class="block mt-2 bg-gradient-to-r from-teal-200 via-teal-300 to-ocean-200 bg-clip-text text-transparent">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.1] mb-6">
+                    <span class="text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">Ikan Segar</span>
+                    <span class="block mt-2 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-100 bg-clip-text text-transparent drop-shadow-[0_4px_25px_rgba(251,191,36,0.6)]">
                         Langsung dari Kolam
                     </span>
                 </h1>
                 
-                <p class="text-base sm:text-lg md:text-xl text-ocean-100 mb-8 max-w-2xl lg:max-w-none mx-auto lg:mx-0 leading-relaxed">
-                    Dapatkan <strong class="text-white">Lele & Ikan Mas</strong> segar berkualitas premium dengan harga terbaik. Tanpa perantara!
+                <p class="text-base sm:text-lg md:text-xl text-white/95 mb-8 max-w-2xl lg:max-w-none mx-auto lg:mx-0 leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+                    Dapatkan <strong class="text-amber-200">Lele & Ikan Mas</strong> segar berkualitas premium dengan harga terbaik. Tanpa perantara!
                 </p>
                 
                 {{-- CTA Buttons --}}
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10">
-                    <a href="{{ route('register') }}" class="btn-shiny group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 font-bold text-ocean-900 rounded-2xl transition-all duration-300 hover:scale-105 text-sm sm:text-base"
-                       style="background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%); box-shadow: 0 8px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,1);">
-                        <i class="fas fa-rocket text-ocean-600"></i>
+                    <a href="{{ route('register') }}" class="btn-shiny group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 font-bold rounded-2xl transition-all duration-300 hover:scale-105 text-sm sm:text-base"
+                       style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1e293b; box-shadow: 0 10px 40px rgba(251,191,36,0.5), inset 0 1px 0 rgba(255,255,255,0.5);">
+                        <i class="fas fa-rocket"></i>
                         <span>Mulai Sekarang - Gratis!</span>
-                        <i class="fas fa-arrow-right text-ocean-500 group-hover:translate-x-1 transition-transform"></i>
+                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                     </a>
-                    <a href="{{ route('catalog') }}" class="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white rounded-2xl transition-all duration-300 hover:bg-white/20 text-sm sm:text-base"
-                       style="background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
+                    <a href="{{ route('catalog') }}" class="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 font-semibold text-white rounded-2xl transition-all duration-300 hover:bg-white/30 text-sm sm:text-base"
+                       style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
                         <i class="fas fa-fish"></i>
                         <span>Lihat Katalog</span>
                     </a>
@@ -83,25 +85,25 @@
 
                 {{-- Trust Badges --}}
                 <div class="flex flex-wrap items-center gap-4 sm:gap-6 justify-center lg:justify-start">
-                    <div class="flex items-center gap-2 text-white/80 text-xs sm:text-sm">
-                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-teal-400/30 flex items-center justify-center">
-                            <i class="fas fa-truck text-teal-200 text-xs"></i>
+                    <div class="flex items-center gap-2 text-white text-xs sm:text-sm">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center border border-white/40 shadow-lg">
+                            <i class="fas fa-truck text-amber-300 text-xs drop-shadow-md"></i>
                         </div>
-                        <span class="hidden sm:inline">Same-Day Delivery</span>
-                        <span class="sm:hidden">Same-Day</span>
+                        <span class="hidden sm:inline drop-shadow-lg font-medium">Same-Day Delivery</span>
+                        <span class="sm:hidden drop-shadow-lg font-medium">Same-Day</span>
                     </div>
-                    <div class="flex items-center gap-2 text-white/80 text-xs sm:text-sm">
-                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-teal-400/30 flex items-center justify-center">
-                            <i class="fas fa-shield-alt text-teal-200 text-xs"></i>
+                    <div class="flex items-center gap-2 text-white text-xs sm:text-sm">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center border border-white/40 shadow-lg">
+                            <i class="fas fa-shield-alt text-amber-300 text-xs drop-shadow-md"></i>
                         </div>
-                        <span class="hidden sm:inline">100% Garansi Segar</span>
-                        <span class="sm:hidden">100% Segar</span>
+                        <span class="hidden sm:inline drop-shadow-lg font-medium">100% Garansi Segar</span>
+                        <span class="sm:hidden drop-shadow-lg font-medium">100% Segar</span>
                     </div>
-                    <div class="flex items-center gap-2 text-white/80 text-xs sm:text-sm">
-                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-teal-400/30 flex items-center justify-center">
-                            <i class="fas fa-tags text-teal-200 text-xs"></i>
+                    <div class="flex items-center gap-2 text-white text-xs sm:text-sm">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center border border-white/40 shadow-lg">
+                            <i class="fas fa-tags text-amber-300 text-xs drop-shadow-md"></i>
                         </div>
-                        <span>Harga Transparan</span>
+                        <span class="drop-shadow-lg font-medium">Harga Transparan</span>
                     </div>
                 </div>
             </div>
@@ -110,26 +112,26 @@
             <div class="w-full">
                 <div class="relative">
                     {{-- Glow Effect --}}
-                    <div class="absolute -inset-2 sm:-inset-4 bg-gradient-to-r from-teal-400/30 to-ocean-400/30 rounded-3xl blur-2xl"></div>
+                    <div class="absolute -inset-2 sm:-inset-4 bg-gradient-to-r from-amber-400/25 to-cyan-400/25 rounded-3xl blur-2xl"></div>
                     
                     <div class="relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 overflow-hidden"
-                         style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(20px);">
+                         style="background: rgba(20,20,40,0.6); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(30px); box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
                         <div class="grid grid-cols-2 gap-3 sm:gap-4">
-                            <div class="text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.1);">
-                                <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-1">{{ $produks->count() }}+</div>
-                                <p class="text-ocean-200 text-xs sm:text-sm">Produk Tersedia</p>
+                            <div class="text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+                                <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-amber-300 mb-1 drop-shadow-[0_2px_15px_rgba(251,191,36,0.6)]">{{ $produks->count() }}+</div>
+                                <p class="text-white/95 text-xs sm:text-sm drop-shadow-md font-medium">Produk Tersedia</p>
                             </div>
-                            <div class="text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.1);">
-                                <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-teal-300 mb-1">100%</div>
-                                <p class="text-ocean-200 text-xs sm:text-sm">Segar Terjamin</p>
+                            <div class="text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+                                <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-cyan-300 mb-1 drop-shadow-[0_2px_15px_rgba(34,211,238,0.6)]">100%</div>
+                                <p class="text-white/95 text-xs sm:text-sm drop-shadow-md font-medium">Segar Terjamin</p>
                             </div>
-                            <div class="text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.1);">
-                                <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-1">24h</div>
-                                <p class="text-ocean-200 text-xs sm:text-sm">Pengiriman Cepat</p>
+                            <div class="text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+                                <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-amber-300 mb-1 drop-shadow-[0_2px_15px_rgba(251,191,36,0.6)]">24h</div>
+                                <p class="text-white/95 text-xs sm:text-sm drop-shadow-md font-medium">Pengiriman Cepat</p>
                             </div>
-                            <div class="text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.1);">
-                                <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-teal-300 mb-1">5.0</div>
-                                <p class="text-ocean-200 text-xs sm:text-sm">Rating Pelanggan</p>
+                            <div class="text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+                                <div class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-cyan-300 mb-1 drop-shadow-[0_2px_15px_rgba(34,211,238,0.6)]">5.0</div>
+                                <p class="text-white/95 text-xs sm:text-sm drop-shadow-md font-medium">Rating Pelanggan</p>
                             </div>
                         </div>
                         

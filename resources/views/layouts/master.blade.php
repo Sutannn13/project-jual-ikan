@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" class="scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,8 +15,15 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
     <style>
-        /* Store Premium Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        /* Hide horizontal scrollbar & prevent white corners */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw;
+            background-color: #0c4a6e !important;
+        }
+        
+        /* Store Premium Scrollbar (vertical only) */
+        ::-webkit-scrollbar { width: 6px; height: 0px; }
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
@@ -28,23 +35,37 @@
             50% { transform: translate(-10px, -40px) scale(0.95); }
             75% { transform: translate(-30px, -10px) scale(1.02); }
         }
+        
+        /* Navbar sticky blur effect - always blurred */
+        .nav-blur {
+            transition: all 0.3s ease;
+            background: rgba(14, 116, 144, 0.35);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .nav-blur.scrolled {
+            background: rgba(14, 116, 144, 0.7) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-ocean-waves text-white" x-data="{ mobileOpen: false }">
+<body class="min-h-screen flex flex-col bg-ocean-waves text-white overflow-x-hidden" x-data="{ mobileOpen: false }">
 
     {{-- ========================================
          PREMIUM STORE BACKGROUND (like Admin)
          ======================================== --}}
-    <div class="fixed inset-0 bg-ocean-waves -z-10"></div>
-    <div class="fixed inset-0 -z-10" style="background: 
+    <div id="master-bg-ocean" class="fixed inset-0 bg-ocean-waves -z-10"></div>
+    <div id="master-bg-radial" class="fixed inset-0 -z-10" style="background: 
         radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.3), transparent 40%), 
         radial-gradient(circle at 80% 30%, rgba(20, 184, 166, 0.25), transparent 45%), 
         radial-gradient(circle at 50% 80%, rgba(14, 116, 144, 0.2), transparent 50%),
         radial-gradient(circle at 10% 90%, rgba(34, 211, 238, 0.15), transparent 35%),
         radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.15), transparent 40%);"></div>
-    <div class="fixed inset-0 store-grid-pattern -z-10"></div>
+    <div id="master-bg-grid" class="fixed inset-0 store-grid-pattern -z-10"></div>
     {{-- Animated Floating Orbs --}}
-    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div id="master-bg-orbs" class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div class="absolute -top-32 -left-32 w-[500px] h-[500px] bg-gradient-to-br from-cyan-400/15 via-teal-400/10 to-transparent rounded-full blur-[100px]" style="animation: floatOrb 20s ease-in-out infinite;"></div>
         <div class="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-gradient-to-tl from-teal-500/15 via-ocean-400/10 to-transparent rounded-full blur-[120px]" style="animation: floatOrb 25s ease-in-out infinite; animation-delay: -5s;"></div>
         <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-gradient-to-br from-mint-400/10 to-transparent rounded-full blur-[90px]" style="animation: floatOrb 18s ease-in-out infinite; animation-delay: -8s;"></div>
@@ -54,8 +75,8 @@
     {{-- ========================================
          PREMIUM NAVBAR
          ======================================== --}}
-    <nav class="sticky top-0 z-50 border-b border-white/10">
-        <div class="absolute inset-0 bg-white/8 backdrop-blur-xl"></div>
+    <nav class="nav-blur sticky top-0 z-50 border-b border-white/10" x-data="{ scrolled: false }" @scroll.window="scrolled = (window.pageYOffset > 20)" :class="{ 'scrolled': scrolled }">
+        <div class="absolute inset-0 bg-white/8 backdrop-blur-xl transition-all duration-300"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 sm:h-18">
                 {{-- Logo --}}

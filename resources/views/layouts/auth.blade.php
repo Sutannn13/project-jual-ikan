@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" class="scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +15,16 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
     <style>
-      
+        /* Hide horizontal scrollbar & prevent white corners */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw;
+        }
+        body {
+            background: url('{{ asset('images/hero-background.jpg') }}') no-repeat center center fixed !important;
+            background-size: cover !important;
+        }
+        
         @keyframes floatUp {
             0% { transform: translateY(100vh) scale(0); opacity: 0; }
             10% { opacity: 1; }
@@ -40,17 +49,13 @@
 <body class="min-h-screen flex flex-col antialiased text-gray-800 overflow-x-hidden">
 
     {{-- ========================================
-         GLOSSY AUTH BACKGROUND (like admin dashboard)
+         HERO BACKGROUND OVERLAY
          ======================================== --}}
-    <div class="fixed inset-0 bg-auth-glossy -z-10"></div>
-    <div class="fixed inset-0 -z-10" style="background: 
-        radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.2), transparent 40%), 
-        radial-gradient(circle at 80% 50%, rgba(20, 184, 166, 0.15), transparent 50%), 
-        radial-gradient(circle at 40% 90%, rgba(14, 116, 144, 0.12), transparent 40%);"></div>
-    <div class="fixed inset-0 grid-pattern -z-10"></div>
+    <div class="fixed inset-0 w-full h-full" style="background: linear-gradient(135deg, rgba(7,21,37,0.55) 0%, rgba(8,80,120,0.45) 50%, rgba(14,116,144,0.55) 100%); z-index: 0; pointer-events: none;"></div>
+    <div class="fixed inset-0 grid-pattern" style="z-index: 0; pointer-events: none;"></div>
 
     {{-- Floating particles --}}
-    <div class="fixed inset-0 -z-5 overflow-hidden pointer-events-none">
+    <div class="fixed inset-0 overflow-hidden pointer-events-none" style="z-index: 0;">
         <div class="particle w-1 h-1 bg-ocean-400/30" style="left: 10%; animation-duration: 15s; animation-delay: 0s;"></div>
         <div class="particle w-1.5 h-1.5 bg-teal-400/20" style="left: 25%; animation-duration: 20s; animation-delay: 3s;"></div>
         <div class="particle w-1 h-1 bg-ocean-300/25" style="left: 45%; animation-duration: 18s; animation-delay: 7s;"></div>
@@ -62,8 +67,8 @@
     {{-- ========================================
          COMPACT TOP BAR
          ======================================== --}}
-    <nav class="relative z-10 border-b border-white/10">
-        <div class="absolute inset-0 bg-white/5 backdrop-blur-xl"></div>
+    <nav class="sticky top-0 z-10 border-b border-white/10" style="background: rgba(7, 21, 37, 0.5); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+        <div class="absolute inset-0 bg-white/5"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 {{-- Logo --}}
