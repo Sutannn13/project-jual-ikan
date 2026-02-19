@@ -106,7 +106,7 @@
                 <p class="text-sm font-semibold text-white/80">{{ $order->user->name }}</p>
                 <div class="text-xs text-white/50 mt-1 line-clamp-2">
                     @foreach($order->items as $item)
-                        {{ $item->produk->nama }} ({{ $item->qty }}Kg){{ !$loop->last ? ', ' : '' }}
+                        {{ $item->nama_produk ?? $item->produk?->nama ?? '-' }} ({{ $item->qty }}Kg){{ !$loop->last ? ', ' : '' }}
                     @endforeach
                 </div>
             </div>
@@ -138,7 +138,7 @@
                     <td class="px-6 py-4 font-medium text-white">{{ $order->user->name }}</td>
                     <td class="px-6 py-4 text-white/60">
                         @foreach($order->items as $item)
-                            <span class="text-xs">{{ $item->produk->nama }} ({{ $item->qty }}Kg)</span>{{ !$loop->last ? ', ' : '' }}
+                            <span class="text-xs">{{ $item->nama_produk ?? $item->produk?->nama ?? '-' }} ({{ $item->qty }}Kg)</span>{{ !$loop->last ? ', ' : '' }}
                         @endforeach
                     </td>
                     <td class="px-6 py-4 text-right font-semibold">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>

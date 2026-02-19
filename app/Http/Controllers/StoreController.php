@@ -152,7 +152,7 @@ class StoreController extends Controller
             return redirect()->route('cart.index')->with('error', 'Silakan lengkapi alamat pengiriman di profil Anda terlebih dahulu.');
         }
 
-        // Check if user already has pending order (prevent double checkout)
+        // Pre-check outside transaction (non-authoritative, just for UX)
         $existingPending = Order::where('user_id', Auth::id())
             ->whereIn('status', ['pending', 'waiting_payment'])
             ->exists();
@@ -161,75 +161,101 @@ class StoreController extends Controller
             return redirect()->route('my.orders')->with('error', 'Anda masih memiliki pesanan yang belum dibayar. Selesaikan pembayaran terlebih dahulu.');
         }
 
-        $order = DB::transaction(function () use ($cart, $request, $userAddress, $paymentMethod) {
-            $orderNumber = Order::generateOrderNumber();
-            $totalPrice = 0;
-
-            // Detect shipping zone based on user address
-            $shippingZone = \App\Models\ShippingZone::where('is_active', true)->get()
-                ->first(fn($zone) => $zone->coversArea($userAddress));
-            
-            $shippingCost = $shippingZone ? $shippingZone->cost : 0;
-
-            // Validate and RESERVE stock (don't deduct yet)
-            $totalPrice = 0;
-            foreach ($cart as $produkId => $item) {
-                $produk = Produk::lockForUpdate()->find($produkId);
-
-                // Cek apakah produk masih ada (belum di-soft delete)
-                if (!$produk) {
-                    throw new \Exception("Produk tidak tersedia lagi. Silakan perbarui keranjang Anda.");
-                }
-
-                if (!$produk->reserveStock($item['qty'])) {
-                    throw new \Exception("Stok {$produk->nama} tidak mencukupi. Tersedia: {$produk->availableStock} Kg");
-                }
+        try {
+            $order = DB::transaction(function () use ($cart, $request, $userAddress, $paymentMethod) {
+                // AUTHORITATIVE double-checkout check inside transaction
+                // This prevents race conditions from double-clicking the checkout button
+                $existingPending = Order::where('user_id', Auth::id())
+                    ->whereIn('status', ['pending', 'waiting_payment'])
+                    ->lockForUpdate()
+                    ->exists();
                 
-                // Calculate total while we have the product
-                $totalPrice += $produk->harga_per_kg * $item['qty'];
-            }
+                if ($existingPending) {
+                    throw new \RuntimeException('Anda masih memiliki pesanan yang belum dibayar.');
+                }
 
-            $grandTotal = $totalPrice + $shippingCost;
+                // generateOrderNumber() uses lockForUpdate() internally — safe inside this transaction
+                $orderNumber = Order::generateOrderNumber();
 
-            $order = Order::create([
-                'user_id'          => Auth::id(),
-                'order_number'     => $orderNumber,
-                'total_price'      => $grandTotal,
-                'shipping_cost'    => $shippingCost,
-                'shipping_zone_id' => $shippingZone?->id,
-                'status'           => $paymentMethod === 'cod' ? 'confirmed' : 'pending',
-                'payment_method'   => $paymentMethod === 'cod' ? 'cod' : ($paymentMethod === 'ewallet' ? 'ewallet_pending' : null),
-                'payment_deadline' => $paymentMethod === 'cod' ? null : now()->addHours(24),
-            ]);
+                // Detect shipping zone based on user address
+                $shippingZone = \App\Models\ShippingZone::where('is_active', true)->get()
+                    ->first(fn($zone) => $zone->coversArea($userAddress));
+                
+                $shippingCost = $shippingZone ? $shippingZone->cost : 0;
 
-            foreach ($cart as $produkId => $item) {
-                $produk = Produk::findOrFail($produkId);
-                $subtotal = $produk->harga_per_kg * $item['qty'];
+                // Validate and RESERVE stock with per-product locks (don't deduct yet)
+                $totalPrice = 0;
+                $itemsData = []; // Collect data to avoid second query loop
+                foreach ($cart as $produkId => $item) {
+                    $produk = Produk::lockForUpdate()->find($produkId);
 
-                OrderItem::create([
-                    'order_id'      => $order->id,
-                    'produk_id'     => $produk->id,
-                    'price_per_kg'  => $produk->harga_per_kg, // Snapshot price
-                    'qty'           => $item['qty'],
-                    'subtotal'      => $subtotal,
-                    'cost_price'    => $produk->harga_modal,
+                    if (!$produk) {
+                        throw new \RuntimeException("Produk tidak tersedia lagi. Silakan perbarui keranjang Anda.");
+                    }
+
+                    if (!$produk->reserveStock($item['qty'])) {
+                        throw new \RuntimeException("Stok {$produk->nama} tidak mencukupi. Tersedia: {$produk->availableStock} Kg");
+                    }
+                    
+                    $subtotal = $produk->harga_per_kg * $item['qty'];
+                    $totalPrice += $subtotal;
+                    
+                    // Cache product data to avoid second findOrFail loop
+                    $itemsData[$produkId] = [
+                        'nama'         => $produk->nama,
+                        'harga_per_kg' => $produk->harga_per_kg,
+                        'harga_modal'  => $produk->harga_modal,
+                        'qty'          => $item['qty'],
+                        'subtotal'     => $subtotal,
+                    ];
+                }
+
+                $grandTotal = $totalPrice + $shippingCost;
+
+                $order = Order::create([
+                    'user_id'          => Auth::id(),
+                    'order_number'     => $orderNumber,
+                    'total_price'      => $grandTotal,
+                    'shipping_cost'    => $shippingCost,
+                    'shipping_zone_id' => $shippingZone?->id,
+                    'status'           => $paymentMethod === 'cod' ? 'confirmed' : 'pending',
+                    'payment_method'   => $paymentMethod === 'cod' ? 'cod' : ($paymentMethod === 'ewallet' ? 'ewallet_pending' : null),
+                    'payment_deadline' => $paymentMethod === 'cod' ? null : now()->addHours(24),
                 ]);
-            }
 
-            // Clear cart
-            session()->forget('cart');
+                // Create order items using cached product data (no second query needed)
+                foreach ($itemsData as $produkId => $data) {
+                    OrderItem::create([
+                        'order_id'      => $order->id,
+                        'produk_id'     => $produkId,
+                        'nama_produk'   => $data['nama'], // SNAPSHOT: product name at time of purchase
+                        'price_per_kg'  => $data['harga_per_kg'], // Snapshot price
+                        'qty'           => $data['qty'],
+                        'subtotal'      => $data['subtotal'],
+                        'cost_price'    => $data['harga_modal'],
+                    ]);
+                }
 
-            // Log initial status
-            if ($paymentMethod === 'cod') {
-                $order->logStatusChange('confirmed', null, 'Pesanan COD — bayar saat diterima');
-            } elseif ($paymentMethod === 'ewallet') {
-                $order->logStatusChange('pending', null, 'Pesanan dibuat - Menunggu pembayaran E-Wallet');
-            } else {
-                $order->logStatusChange('pending', null, 'Pesanan dibuat oleh customer');
-            }
+                // Clear cart
+                session()->forget('cart');
 
-            return $order;
-        });
+                // Log initial status
+                if ($paymentMethod === 'cod') {
+                    $order->logStatusChange('confirmed', null, 'Pesanan COD — bayar saat diterima');
+                } elseif ($paymentMethod === 'ewallet') {
+                    $order->logStatusChange('pending', null, 'Pesanan dibuat - Menunggu pembayaran E-Wallet');
+                } else {
+                    $order->logStatusChange('pending', null, 'Pesanan dibuat oleh customer');
+                }
+
+                return $order;
+            });
+        } catch (\RuntimeException $e) {
+            return redirect()->route('cart.index')->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Checkout failed', ['error' => $e->getMessage(), 'user' => Auth::id()]);
+            return redirect()->route('cart.index')->with('error', $e->getMessage());
+        }
 
         // Send low stock alerts OUTSIDE transaction (async)
         try {

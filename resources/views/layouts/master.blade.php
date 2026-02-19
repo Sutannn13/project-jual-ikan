@@ -19,7 +19,7 @@
         html, body {
             overflow-x: hidden !important;
             max-width: 100vw;
-            background-color: #0c4a6e !important;
+            background-color: #0e7490 !important;
         }
         
         /* Store Premium Scrollbar (vertical only) */
@@ -36,18 +36,18 @@
             75% { transform: translate(-30px, -10px) scale(1.02); }
         }
         
-        /* Navbar sticky blur effect - always blurred */
+        /* Navbar sticky blur effect - matching cyan theme */
         .nav-blur {
             transition: all 0.3s ease;
-            background: rgba(14, 116, 144, 0.35);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: rgba(6, 182, 212, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
         .nav-blur.scrolled {
-            background: rgba(14, 116, 144, 0.7) !important;
+            background: rgba(6, 182, 212, 0.5) !important;
             backdrop-filter: blur(24px) !important;
             -webkit-backdrop-filter: blur(24px) !important;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
         }
     </style>
 </head>
@@ -58,18 +58,14 @@
          ======================================== --}}
     <div id="master-bg-ocean" class="fixed inset-0 bg-ocean-waves -z-10"></div>
     <div id="master-bg-radial" class="fixed inset-0 -z-10" style="background: 
-        radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.3), transparent 40%), 
-        radial-gradient(circle at 80% 30%, rgba(20, 184, 166, 0.25), transparent 45%), 
-        radial-gradient(circle at 50% 80%, rgba(14, 116, 144, 0.2), transparent 50%),
-        radial-gradient(circle at 10% 90%, rgba(34, 211, 238, 0.15), transparent 35%),
-        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.15), transparent 40%);"></div>
+        radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.15), transparent 45%), 
+        radial-gradient(circle at 80% 30%, rgba(6, 182, 212, 0.12), transparent 50%), 
+        radial-gradient(circle at 50% 80%, rgba(20, 184, 166, 0.1), transparent 55%);"></div>
     <div id="master-bg-grid" class="fixed inset-0 store-grid-pattern -z-10"></div>
     {{-- Animated Floating Orbs --}}
     <div id="master-bg-orbs" class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div class="absolute -top-32 -left-32 w-[500px] h-[500px] bg-gradient-to-br from-cyan-400/15 via-teal-400/10 to-transparent rounded-full blur-[100px]" style="animation: floatOrb 20s ease-in-out infinite;"></div>
-        <div class="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-gradient-to-tl from-teal-500/15 via-ocean-400/10 to-transparent rounded-full blur-[120px]" style="animation: floatOrb 25s ease-in-out infinite; animation-delay: -5s;"></div>
-        <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-gradient-to-br from-mint-400/10 to-transparent rounded-full blur-[90px]" style="animation: floatOrb 18s ease-in-out infinite; animation-delay: -8s;"></div>
-        <div class="absolute bottom-1/4 left-1/3 w-[350px] h-[350px] bg-gradient-to-tr from-cyan-300/10 to-transparent rounded-full blur-[80px]" style="animation: floatOrb 22s ease-in-out infinite; animation-delay: -12s;"></div>
+        <div class="absolute -top-32 -left-32 w-[500px] h-[500px] bg-gradient-to-br from-cyan-300/12 via-teal-400/8 to-transparent rounded-full blur-[100px]" style="animation: floatOrb 20s ease-in-out infinite;"></div>
+        <div class="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-gradient-to-tl from-sky-400/10 via-cyan-500/8 to-transparent rounded-full blur-[110px]" style="animation: floatOrb 25s ease-in-out infinite; animation-delay: -5s;"></div>
     </div>
 
     {{-- ========================================
@@ -349,7 +345,7 @@
                         <span class="text-xl font-bold text-white">FishMarket</span>
                     </div>
                     <p class="text-ocean-200 text-sm leading-relaxed">
-                        Marketplace ikan air tawar terpercaya. Lele & Ikan Mas berkualitas langsung dari kolam petani.
+                        Marketplace ikan air tawar terpercaya. Ikan Nila & Ikan Mas berkualitas langsung dari kolam petani.
                     </p>
                 </div>
                 <div>
@@ -363,20 +359,20 @@
                     <h4 class="font-semibold text-white mb-4">Hubungi Kami</h4>
                     <ul class="space-y-2.5 text-sm text-ocean-200">
                         <li class="flex items-center gap-2.5">
-                            <i class="fas fa-phone w-4 text-ocean-400"></i> +62 812-3456-7890
+                            <i class="fas fa-phone w-4 text-ocean-400"></i> +62 819-1704-3981
                         </li>
                         <li class="flex items-center gap-2.5">
                             <i class="fas fa-envelope w-4 text-ocean-400"></i> info@fishmarket.id
                         </li>
                         <li class="flex items-center gap-2.5">
-                            <i class="fas fa-map-marker-alt w-4 text-ocean-400"></i> Jl. Ikan Segar No. 1
+                            <i class="fas fa-map-marker-alt w-4 text-ocean-400"></i> Jl. Kav. Polri 2 No.14B, Cilangkap, Kec. Tapos, Kota Depok, Jawa Barat 16458
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-white/10 mt-10 pt-8 text-center">
                 <p class="text-ocean-300 text-sm">
-                    &copy; {{ date('Y') }} FishMarket &mdash; Web Programming 2
+                    &copy; {{ date('Y') }} FishMarket &mdash; Sutan Arlie
                 </p>
             </div>
         </div>

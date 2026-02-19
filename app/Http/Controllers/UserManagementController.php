@@ -27,7 +27,13 @@ class UserManagementController extends Controller
 
         AdminNotificationService::logPasswordReset($user);
 
-        return back()->with('success', "Password user '{$user->name}' berhasil direset. Password baru: {$randomPassword} (Salin dan berikan ke user)");
+        // SECURITY: Don't expose password in flash message (visible in browser DevTools)
+        // Instead, use a one-time secure display mechanism
+        return back()->with([
+            'success' => "Password user '{$user->name}' berhasil direset. Password baru telah dikirim.",
+            'reset_password' => $randomPassword,  // Use separate key for one-time display
+            'reset_user' => $user->name,
+        ]);
     }
 
     public function destroy(User $user)

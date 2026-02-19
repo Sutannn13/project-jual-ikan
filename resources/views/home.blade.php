@@ -65,7 +65,7 @@
                 </h1>
                 
                 <p class="text-base sm:text-lg md:text-xl text-white/95 mb-8 max-w-2xl lg:max-w-none mx-auto lg:mx-0 leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
-                    Dapatkan <strong class="text-amber-200">Lele & Ikan Mas</strong> segar berkualitas premium dengan harga terbaik. Tanpa perantara!
+                    Dapatkan <strong class="text-amber-200">Ikan Nila & Ikan Mas</strong> segar berkualitas premium dengan harga terbaik. Tanpa perantara!
                 </p>
                 
                 {{-- CTA Buttons --}}
@@ -459,7 +459,7 @@
                 </div>
                 <div class="p-3 sm:p-4 md:p-5 flex flex-col flex-1">
                     <div class="flex items-center justify-between gap-2 mb-2">
-                        <span class="{{ $produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }} text-xs">
+                        <span class="{{ $produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }} text-xs">
                             {{ $produk->kategori }}
                         </span>
                         <span class="text-xs text-white/40">{{ number_format($produk->stok, 1) }} Kg</span>

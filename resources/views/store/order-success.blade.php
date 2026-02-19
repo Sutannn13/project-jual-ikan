@@ -122,7 +122,7 @@
                                 @endif
                             </div>
                             <div>
-                                <p class="font-semibold text-white text-sm">{{ $item->produk->nama }}</p>
+                                <p class="font-semibold text-white text-sm">{{ $item->nama_produk ?? $item->produk?->nama ?? 'Produk Dihapus' }}</p>
                                 <p class="text-xs text-white/40">{{ $item->qty }} Kg</p>
                             </div>
                         </div>

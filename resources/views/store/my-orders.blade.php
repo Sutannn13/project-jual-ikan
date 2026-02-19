@@ -98,9 +98,9 @@
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-white text-sm truncate">{{ $item->produk->nama }}</p>
+                                <p class="font-semibold text-white text-sm truncate">{{ $item->nama_produk ?? $item->produk?->nama ?? 'Produk Dihapus' }}</p>
                                 <div class="flex items-center gap-2 mt-0.5">
-                                    <span class="{{ $item->produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }} text-[10px] px-2 py-0.5">
+                                    <span class="{{ $item->produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }} text-[10px] px-2 py-0.5">
                                         {{ $item->produk->kategori }}
                                     </span>
                                     <span class="text-xs text-white/50">{{ number_format($item->qty, 1) }} Kg</span>
@@ -134,7 +134,7 @@
                                                 <i class="fas fa-fish text-white/40 text-xs"></i>
                                             @endif
                                         </div>
-                                        <p class="text-xs font-medium text-white truncate">{{ $item->produk->nama }}</p>
+                                        <p class="text-xs font-medium text-white truncate">{{ $item->nama_produk ?? $item->produk?->nama ?? 'Produk Dihapus' }}</p>
                                     </div>
                                     @if($hasReview)
                                         <div class="flex items-center gap-1 text-xs">
@@ -184,6 +184,46 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                @endif
+
+                {{-- Refund Status Alert --}}
+                @if($order->refund_status !== 'none')
+                <div class="px-5 sm:px-6 pb-0 bg-white/5">
+                    @if($order->refund_status === 'requested')
+                    <div class="bg-amber-500/15 border border-amber-500/30 rounded-xl p-3">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-clock text-amber-400 mt-0.5"></i>
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-amber-300">Permintaan Refund Sedang Diproses</p>
+                                <p class="text-xs text-amber-400/80 mt-1"><strong>Alasan:</strong> {{ $order->refund_reason }}</p>
+                                <p class="text-[10px] text-white/40 mt-1.5">Diajukan: {{ $order->refund_requested_at?->format('d M Y, H:i') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @elseif($order->refund_status === 'approved')
+                    <div class="bg-green-500/15 border border-green-500/30 rounded-xl p-3">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-green-400 mt-0.5"></i>
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-green-300">Refund Disetujui</p>
+                                <p class="text-xs text-green-400/80 mt-1">{{ $order->refund_admin_note }}</p>
+                                <p class="text-[10px] text-white/40 mt-1.5">Diproses: {{ $order->refund_processed_at?->format('d M Y, H:i') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @elseif($order->refund_status === 'rejected')
+                    <div class="bg-red-500/15 border border-red-500/30 rounded-xl p-3">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-times-circle text-red-400 mt-0.5"></i>
+                            <div class="flex-1">
+                                <p class="text-xs font-bold text-red-300">Refund Ditolak</p>
+                                <p class="text-xs text-red-400 mt-1"><strong>Alasan penolakan:</strong> {{ $order->refund_admin_note }}</p>
+                                <p class="text-[10px] text-white/40 mt-1.5">Diproses: {{ $order->refund_processed_at?->format('d M Y, H:i') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
                 @endif
 
@@ -352,6 +392,16 @@
                         </a>
                         @endif
 
+                        {{-- REFUND BUTTON for paid/confirmed (if refund not yet requested) --}}
+                        @if(in_array($order->status, ['paid', 'confirmed']) && $order->refund_status === 'none')
+                        <button type="button" onclick="openRefundModal({{ $order->id }}, '{{ $order->order_number }}')" 
+                                class="flex-shrink-0 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm text-amber-400 transition-all duration-300 active:scale-[0.97] touch-manipulation"
+                                style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);">
+                            <i class="fas fa-undo"></i>
+                            <span>Ajukan Refund</span>
+                        </button>
+                        @endif
+
                         {{-- COMPLETED: Lihat Detail --}}
                         @if($order->status === 'completed')
                         <a href="{{ route('order.track', $order) }}" 
@@ -425,4 +475,114 @@
         @endif
     </div>
 </section>
+
+{{-- Modal Refund --}}
+<div id="refundModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);">
+    <div class="store-glass-card rounded-2xl max-w-md w-full p-6 sm:p-8 relative animate-scale-in">
+        <button type="button" onclick="closeRefundModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="mb-6">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                 style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);">
+                <i class="fas fa-undo text-white text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white mb-1">Ajukan Refund</h2>
+            <p class="text-sm text-white/60">Pesanan: <span id="refundOrderNumber" class="text-cyan-300 font-semibold"></span></p>
+        </div>
+
+        <form id="refundForm" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label for="refund_reason" class="block text-sm font-semibold text-white mb-2">
+                    Alasan Refund <span class="text-red-400">*</span>
+                </label>
+                <textarea id="refund_reason" name="refund_reason" rows="4" required
+                          class="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-white/40 outline-none resize-none"
+                          style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);"
+                          placeholder="Jelaskan alasan Anda ingin refund (misal: produk tidak sesuai, berubah pikiran, dll.)"></textarea>
+                <p class="text-xs text-white/40 mt-1.5">
+                    <i class="fas fa-info-circle"></i> Permintaan refund hanya bisa diajukan sebelum pesanan dikirim
+                </p>
+            </div>
+
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
+                <div class="flex items-start gap-2">
+                    <i class="fas fa-exclamation-triangle text-amber-400 mt-0.5 text-sm"></i>
+                    <div>
+                        <p class="text-xs font-semibold text-amber-300 mb-0.5">Perhatian:</p>
+                        <p class="text-xs text-amber-400/80 leading-relaxed">Admin akan meninjau permintaan Anda. Jika disetujui, dana akan dikembalikan dan stok produk akan direstore.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeRefundModal()" 
+                        class="flex-1 px-5 py-3 rounded-xl font-bold text-sm text-white/70 transition-all"
+                        style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);">
+                    Batal
+                </button>
+                <button type="submit" 
+                        class="flex-1 px-5 py-3 rounded-xl font-bold text-sm text-white transition-all active:scale-[0.97]"
+                        style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); box-shadow: 0 4px 15px rgba(245,158,11,0.4);">
+                    Kirim Permintaan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.animate-scale-in {
+    animation: scale-in 0.2s ease-out;
+}
+</style>
+
+<script>
+function openRefundModal(orderId, orderNumber) {
+    const modal = document.getElementById('refundModal');
+    const form = document.getElementById('refundForm');
+    const orderNumberSpan = document.getElementById('refundOrderNumber');
+    
+    form.action = `/order/${orderId}/refund`;
+    orderNumberSpan.textContent = orderNumber;
+    document.getElementById('refund_reason').value = '';
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeRefundModal() {
+    const modal = document.getElementById('refundModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+}
+
+// Close on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeRefundModal();
+    }
+});
+
+// Close on backdrop click
+document.getElementById('refundModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRefundModal();
+    }
+});
+</script>
 @endsection

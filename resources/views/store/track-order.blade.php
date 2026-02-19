@@ -150,22 +150,22 @@
 
         {{-- Detailed Status History --}}
         @if($order->statusHistories && $order->statusHistories->count())
-        <div class="store-glass-card rounded-3xl overflow-hidden p-6 sm:p-8">
-            <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
+        <div class="store-glass-card rounded-3xl overflow-hidden p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6">
+            <h3 class="text-base sm:text-lg font-bold text-white mb-4 sm:mb-5 flex items-center gap-2">
                 <i class="fas fa-clipboard-list text-cyan-400"></i> Riwayat Status
             </h3>
-            <div class="space-y-3">
+            <div class="space-y-2 sm:space-y-3">
                 @foreach($order->statusHistories as $history)
-                    <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background: rgba(6,182,212,0.1);">
-                            <i class="{{ $history->status_icon }} text-xs" style="color: {{ $history->status_color }};"></i>
+                    <div class="flex items-start gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl hover:bg-white/5 transition-colors">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background: rgba(6,182,212,0.1);">
+                            <i class="{{ $history->status_icon }} text-[10px] sm:text-xs" style="color: {{ $history->status_color }};"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-white">{{ $history->status_label }}</p>
+                            <p class="text-xs sm:text-sm font-semibold text-white">{{ $history->status_label }}</p>
                             @if($history->notes)
-                                <p class="text-xs text-white/50 mt-0.5">{{ $history->notes }}</p>
+                                <p class="text-[10px] sm:text-xs text-white/50 mt-0.5">{{ $history->notes }}</p>
                             @endif
-                            <p class="text-xs text-white/30 mt-1">{{ $history->created_at->format('d M Y, H:i') }}</p>
+                            <p class="text-[10px] sm:text-xs text-white/30 mt-1">{{ $history->created_at->format('d M Y, H:i') }}</p>
                         </div>
                     </div>
                 @endforeach
@@ -174,38 +174,38 @@
         @endif
 
         {{-- Order Items --}}
-        <div class="store-glass-card rounded-3xl overflow-hidden p-6 sm:p-8">
-            <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+        <div class="store-glass-card rounded-3xl overflow-hidden p-4 sm:p-6 lg:p-8">
+            <h3 class="text-base sm:text-lg font-bold text-white mb-4 sm:mb-6 flex items-center gap-2">
                 <i class="fas fa-shopping-basket text-cyan-400"></i> Detail Item
             </h3>
             
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
                 @foreach($order->items as $item)
-                <div class="flex items-center gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/5 p-2 rounded-xl transition-colors">
-                    <div class="w-14 h-14 rounded-xl bg-white/5 flex-shrink-0 overflow-hidden border border-white/10">
+                <div class="flex items-center gap-2.5 sm:gap-3 lg:gap-4 py-2 sm:py-3 border-b border-white/5 last:border-0 hover:bg-white/5 p-2 rounded-xl transition-colors">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-white/5 flex-shrink-0 overflow-hidden border border-white/10">
                         @if($item->produk->foto)
                             <img src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover">
                         @else
                             <div class="w-full h-full flex items-center justify-center text-white/20">
-                                <i class="fas fa-fish"></i>
+                                <i class="fas fa-fish text-sm"></i>
                             </div>
                         @endif
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h4 class="font-bold text-white text-sm sm:text-base truncate">{{ $item->produk->nama }}</h4>
-                            <span class="{{ $item->produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }} text-[10px] px-2 py-0.5">{{ $item->produk->kategori }}</span>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+                            <h4 class="font-bold text-white text-xs sm:text-sm lg:text-base truncate">{{ $item->nama_produk ?? $item->produk?->nama ?? 'Produk Dihapus' }}</h4>
+                            <span class="{{ $item->produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }} text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5">{{ $item->produk->kategori }}</span>
                         </div>
-                        <p class="text-xs text-white/40">{{ number_format($item->qty, 1) }} Kg × Rp {{ number_format($item->produk->harga_per_kg, 0, ',', '.') }}</p>
+                        <p class="text-[10px] sm:text-xs text-white/40">{{ number_format($item->qty, 1) }} Kg × Rp {{ number_format($item->price_per_kg, 0, ',', '.') }}</p>
                     </div>
-                    <p class="font-bold text-white text-sm sm:text-base">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</p>
+                    <p class="font-bold text-white text-xs sm:text-sm lg:text-base whitespace-nowrap">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</p>
                 </div>
                 @endforeach
             </div>
             
-            <div class="mt-6 pt-6 border-t border-white/10 flex justify-between items-center">
-                <span class="text-white/50 font-medium">Total Pembayaran</span>
-                <span class="text-2xl sm:text-3xl font-black text-cyan-300">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+            <div class="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/10 flex justify-between items-center">
+                <span class="text-white/50 font-medium text-sm sm:text-base">Total Pembayaran</span>
+                <span class="text-xl sm:text-2xl lg:text-3xl font-black text-cyan-300">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
             </div>
         </div>
     </div>

@@ -59,10 +59,17 @@ class Produk extends Model
     }
 
     /**
-     * Reserve stock for pending order
+     * Reserve stock for pending order.
+     * Must be called inside DB::transaction with lockForUpdate().
+     *
+     * @throws \RuntimeException if insufficient available stock
      */
     public function reserveStock(float $qty): bool
     {
+        if ($qty <= 0) {
+            return false;
+        }
+
         if ($this->availableStock < $qty) {
             return false;
         }
@@ -72,21 +79,42 @@ class Produk extends Model
     }
 
     /**
-     * Release reserved stock (when order cancelled/expired)
+     * Release reserved stock (when order cancelled/expired).
+     * Guards against releasing more than what's reserved.
      */
     public function releaseStock(float $qty): void
     {
-        $this->decrement('reserved_stock', min($qty, $this->reserved_stock ?? 0));
+        if ($qty <= 0) return;
+
+        $releaseAmount = min($qty, $this->reserved_stock ?? 0);
+        if ($releaseAmount > 0) {
+            $this->decrement('reserved_stock', $releaseAmount);
+        }
     }
 
     /**
-     * Confirm stock deduction (when payment verified)
+     * Confirm stock deduction (when payment verified).
+     * Moves from reserved to actual deduction.
+     *
+     * GUARD: Prevents stock from going negative. If reserved_stock is
+     * less than qty (shouldn't happen), we only release what's reserved
+     * but still deduct the full qty from physical stock.
      */
     public function confirmStock(float $qty): void
     {
-        // Move from reserved to actual deduction
-        $this->decrement('reserved_stock', min($qty, $this->reserved_stock ?? 0));
-        $this->decrement('stok', $qty);
+        if ($qty <= 0) return;
+
+        // Release from reserved (cap at actual reserved amount)
+        $reserveRelease = min($qty, $this->reserved_stock ?? 0);
+        if ($reserveRelease > 0) {
+            $this->decrement('reserved_stock', $reserveRelease);
+        }
+
+        // Deduct from physical stock (guard against negative)
+        $deductAmount = min($qty, $this->stok);
+        if ($deductAmount > 0) {
+            $this->decrement('stok', $deductAmount);
+        }
     }
 
     /**

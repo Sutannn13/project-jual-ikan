@@ -74,7 +74,7 @@ class AdminDashboardController extends Controller
             $chartProfitData[] = $dayOrders->sum(fn($o) => $o->gross_profit);
         }
 
-        // Doughnut chart: Lele vs Ikan Mas
+        // Doughnut chart: Ikan Nila vs Ikan Mas
         $categoryDistribution = OrderItem::join('produks', 'order_items.produk_id', '=', 'produks.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.status', 'completed')

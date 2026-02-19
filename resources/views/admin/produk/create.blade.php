@@ -48,7 +48,7 @@
                     </span>
                     <input type="text" name="nama" 
                            class="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:bg-white/10 focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all outline-none text-white font-medium placeholder-white/30 @error('nama') !border-red-400 !bg-red-500/10 @enderror"
-                           value="{{ old('nama') }}" placeholder="Contoh: Lele Segar Super" required>
+                           value="{{ old('nama') }}" placeholder="Contoh: Ikan Nila Segar Super" required>
                 </div>
                 @error('nama') <p class="text-red-500 text-xs mt-1 font-medium"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p> @enderror
             </div>
@@ -63,7 +63,7 @@
                         </span>
                         <select name="kategori" class="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:bg-white/10 focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all outline-none text-white font-medium appearance-none cursor-pointer @error('kategori') !border-red-400 !bg-red-500/10 @enderror" required>
                             <option value="">Pilih Kategori</option>
-                            <option value="Lele" {{ old('kategori') == 'Lele' ? 'selected' : '' }} class="bg-gray-800 text-white">Lele</option>
+                            <option value="Ikan Nila" {{ old('kategori') == 'Ikan Nila' ? 'selected' : '' }} class="bg-gray-800 text-white">Ikan Nila</option>
                             <option value="Ikan Mas" {{ old('kategori') == 'Ikan Mas' ? 'selected' : '' }} class="bg-gray-800 text-white">Ikan Mas</option>
                         </select>
                         <span class="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none">

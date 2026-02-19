@@ -243,7 +243,7 @@
                     @foreach($reorderSuggestions as $item)
                         <div class="p-3 rounded-xl bg-rose-500/5 border border-rose-500/10">
                             <div class="flex items-center justify-between mb-1">
-                                <p class="text-sm font-semibold text-white truncate">{{ $item->produk->nama }}</p>
+                                <p class="text-sm font-semibold text-white truncate">{{ $item->nama_produk ?? $item->produk?->nama ?? '-' }}</p>
                                 <span class="text-xs px-2 py-0.5 rounded-full {{ $item->days_remaining <= 3 ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400' }}">
                                     {{ $item->days_remaining }} hari lagi
                                 </span>

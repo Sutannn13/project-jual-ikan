@@ -187,7 +187,7 @@
                             </div>
                             <div class="min-w-0">
                                 <p class="font-semibold text-white text-sm truncate">{{ $product->nama }}</p>
-                                <span class="text-xs {{ $product->kategori === 'Lele' ? 'text-amber-400' : 'text-cyan-400' }}">{{ $product->kategori }}</span>
+                                <span class="text-xs {{ $product->kategori === 'Ikan Nila' ? 'text-amber-400' : 'text-cyan-400' }}">{{ $product->kategori }}</span>
                             </div>
                         </div>
                         <span class="px-3 py-1.5 rounded-lg text-xs font-bold {{ $product->stok <= 0 ? 'bg-red-500/80 text-white' : 'bg-red-500/15 text-red-400 border border-red-500/20' }}">

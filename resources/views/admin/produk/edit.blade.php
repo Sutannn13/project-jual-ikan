@@ -62,7 +62,7 @@
                             <i class="fas fa-list"></i>
                         </span>
                         <select name="kategori" class="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:bg-white/10 focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all outline-none text-white font-medium appearance-none cursor-pointer @error('kategori') !border-red-400 !bg-red-500/10 @enderror" required>
-                            <option value="Lele" {{ old('kategori', $produk->kategori) == 'Lele' ? 'selected' : '' }} class="bg-gray-800 text-white">Lele</option>
+                            <option value="Ikan Nila" {{ old('kategori', $produk->kategori) == 'Ikan Nila' ? 'selected' : '' }} class="bg-gray-800 text-white">Ikan Nila</option>
                             <option value="Ikan Mas" {{ old('kategori', $produk->kategori) == 'Ikan Mas' ? 'selected' : '' }} class="bg-gray-800 text-white">Ikan Mas</option>
                         </select>
                         <span class="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none">

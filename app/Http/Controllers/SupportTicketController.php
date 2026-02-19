@@ -7,6 +7,7 @@ use App\Models\TicketMessage;
 use App\Services\AdminNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class SupportTicketController extends Controller
@@ -56,29 +57,34 @@ class SupportTicketController extends Controller
             }
         }
 
-        $ticket = SupportTicket::create([
-            'ticket_number' => SupportTicket::generateTicketNumber(),
-            'user_id'       => Auth::id(),
-            'order_id'      => $request->order_id,
-            'subject'       => $request->subject,
-            'category'      => $request->category,
-            'priority'      => $request->priority ?? 'medium',
-            'status'        => 'open',
-        ]);
+        // Wrap in transaction because generateTicketNumber() uses lockForUpdate()
+        $ticket = DB::transaction(function () use ($request) {
+            $attachmentPath = null;
+            if ($request->hasFile('attachment')) {
+                $attachmentPath = $request->file('attachment')->store('ticket_attachments', 'public');
+            }
 
-        $attachmentPath = null;
-        if ($request->hasFile('attachment')) {
-            $attachmentPath = $request->file('attachment')->store('ticket_attachments', 'public');
-        }
+            $ticket = SupportTicket::create([
+                'ticket_number' => SupportTicket::generateTicketNumber(),
+                'user_id'       => Auth::id(),
+                'order_id'      => $request->order_id,
+                'subject'       => $request->subject,
+                'category'      => $request->category,
+                'priority'      => $request->priority ?? 'medium',
+                'status'        => 'open',
+            ]);
 
-        TicketMessage::create([
-            'ticket_id'  => $ticket->id,
-            'user_id'    => Auth::id(),
-            'message'    => $request->message,
-            'is_admin'   => false,
-            'attachment'  => $attachmentPath,
-            'created_at' => now(),
-        ]);
+            TicketMessage::create([
+                'ticket_id'  => $ticket->id,
+                'user_id'    => Auth::id(),
+                'message'    => $request->message,
+                'is_admin'   => false,
+                'attachment'  => $attachmentPath,
+                'created_at' => now(),
+            ]);
+
+            return $ticket;
+        });
 
         // Notify admin
         try {

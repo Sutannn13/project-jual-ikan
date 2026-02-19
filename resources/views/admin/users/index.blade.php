@@ -3,6 +3,64 @@
 @section('title', 'User Management')
 
 @section('content')
+{{-- Secure One-Time Password Display Modal --}}
+@if(session('reset_password'))
+<div id="passwordModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 max-w-md w-full border border-white/10 shadow-2xl">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 bg-amber-500/15 rounded-full flex items-center justify-center">
+                <i class="fas fa-key text-amber-400 text-xl"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-white">Password Berhasil Direset</h3>
+                <p class="text-xs text-white/40">User: {{ session('reset_user') }}</p>
+            </div>
+        </div>
+        
+        <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-4">
+            <p class="text-xs text-amber-400/80 mb-2">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                Password ini hanya ditampilkan sekali. Pastikan untuk menyalinnya sekarang.
+            </p>
+            <div class="bg-black/30 rounded-lg p-3 flex items-center justify-between gap-3">
+                <code id="resetPassword" class="text-2xl font-mono font-bold text-white tracking-wider">{{ session('reset_password') }}</code>
+                <button onclick="copyPassword()" class="btn-warning text-xs px-3 py-2 whitespace-nowrap">
+                    <i class="fas fa-copy mr-1"></i> Salin
+                </button>
+            </div>
+        </div>
+        
+        <button onclick="closePasswordModal()" class="w-full btn-primary">
+            Saya Sudah Menyalin Password
+        </button>
+    </div>
+</div>
+
+<script>
+function copyPassword() {
+    const password = document.getElementById('resetPassword').innerText;
+    navigator.clipboard.writeText(password).then(() => {
+        // Show feedback
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check mr-1"></i> Tersalin!';
+        btn.classList.remove('btn-warning');
+        btn.classList.add('bg-green-500/20', 'text-green-400');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.add('btn-warning');
+            btn.classList.remove('bg-green-500/20', 'text-green-400');
+        }, 2000);
+    });
+}
+
+function closePasswordModal() {
+    document.getElementById('passwordModal').style.display = 'none';
+}
+</script>
+@endif
+
 <div class="flex items-center justify-between mb-6">
     <div>
         <h2 class="text-lg font-bold text-white">User Management</h2>

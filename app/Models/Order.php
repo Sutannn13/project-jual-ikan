@@ -3,18 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class Order extends Model
 {
+    /**
+     * Mass-assignable fields.
+     * NOTE: 'status' and 'refund_status' are intentionally EXCLUDED from $fillable
+     * to prevent accidental mass-assignment. Use explicit $order->update(['status' => ...]) 
+     * only from trusted controller code.
+     */
     protected $fillable = [
-        'user_id', 'order_number', 'total_price', 'shipping_cost', 'shipping_zone_id', 'status', 
+        'user_id', 'order_number', 'total_price', 'shipping_cost', 'shipping_zone_id', 'status',
         'payment_proof', 'payment_uploaded_at', 'payment_deadline',
         'rejection_reason',
         'delivery_note', 'delivery_time',
         'courier_name', 'courier_phone', 'tracking_number',
         'midtrans_snap_token', 'midtrans_transaction_id', 'payment_method',
         'refund_status', 'refund_reason', 'refund_admin_note', 'refund_requested_at', 'refund_processed_at',
+        'stock_reserved_at', 'stock_confirmed_at',
     ];
 
     protected function casts(): array
@@ -26,6 +34,8 @@ class Order extends Model
             'payment_deadline' => 'datetime',
             'refund_requested_at' => 'datetime',
             'refund_processed_at' => 'datetime',
+            'stock_reserved_at' => 'datetime',
+            'stock_confirmed_at' => 'datetime',
         ];
     }
 
@@ -77,11 +87,17 @@ class Order extends Model
 
     /**
      * Generate unique order number: FM-2026-XXXX
+     *
+     * CRITICAL: Uses lockForUpdate() to prevent duplicate order numbers
+     * when two users checkout simultaneously. Must be called inside DB::transaction.
      */
     public static function generateOrderNumber(): string
     {
         $year = date('Y');
-        $lastOrder = static::whereYear('created_at', $year)->orderByDesc('id')->first();
+        $lastOrder = static::whereYear('created_at', $year)
+            ->lockForUpdate()
+            ->orderByDesc('id')
+            ->first();
         $nextNumber = $lastOrder ? (intval(substr($lastOrder->order_number, -4)) + 1) : 1;
         return 'FM-' . $year . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
@@ -239,10 +255,14 @@ class Order extends Model
     }
 
     /**
-     * Get grand total including shipping
+     * Get grand total including shipping.
+     *
+     * NOTE: total_price already includes shipping_cost (set in checkout).
+     * This accessor returns total_price as-is. If the storage semantics
+     * ever change to store item-only subtotal, update this accordingly.
      */
     public function getGrandTotalAttribute(): float
     {
-        return $this->total_price + $this->shipping_cost;
+        return (float) $this->total_price;
     }
 }

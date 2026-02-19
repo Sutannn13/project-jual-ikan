@@ -68,10 +68,12 @@
                     @foreach($order->items as $item)
                     <div class="flex items-center justify-between py-3 border-b border-white/5">
                         <div class="flex items-center gap-3">
-                            <span class="{{ $item->produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }}">{{ $item->produk->kategori }}</span>
+                            <span class="{{ $item->produk?->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }}">{{ $item->produk?->kategori ?? '-' }}</span>
                             <div>
-                                <p class="font-medium text-white">{{ $item->produk->nama }}</p>
-                                <p class="text-xs text-white/40">{{ $item->qty }} Kg × Rp {{ number_format($item->produk->harga_per_kg, 0, ',', '.') }}</p>
+                                {{-- Use snapshot nama_produk for historical accuracy; fallback to live data --}}
+                                <p class="font-medium text-white">{{ $item->nama_produk ?? $item->produk?->nama ?? 'Produk Dihapus' }}</p>
+                                {{-- Use snapshot price_per_kg, NOT live produk->harga_per_kg --}}
+                                <p class="text-xs text-white/40">{{ $item->qty }} Kg × Rp {{ number_format($item->price_per_kg, 0, ',', '.') }}</p>
                             </div>
                         </div>
                         <p class="font-semibold text-white">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</p>

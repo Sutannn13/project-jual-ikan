@@ -22,7 +22,7 @@
         .total-row td { border: none; padding: 12px; }
         .footer { text-align: center; padding: 20px; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; margin-top: 30px; }
         .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; }
-        .badge-lele { background: #fef3c7; color: #92400e; }
+        .badge-nila { background: #fef3c7; color: #92400e; }
         .badge-mas { background: #e0f2fe; color: #075985; }
     </style>
 </head>
@@ -53,8 +53,8 @@
                     <td>{{ $order->user->name }}</td>
                     <td>
                         @foreach($order->items as $item)
-                            <span class="badge {{ $item->produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }}">{{ $item->produk->kategori }}</span>
-                            {{ $item->produk->nama }}{{ !$loop->last ? ', ' : '' }}
+                            <span class="badge {{ $item->produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }}">{{ $item->produk->kategori }}</span>
+                            {{ $item->nama_produk ?? $item->produk?->nama ?? '-' }}{{ !$loop->last ? ', ' : '' }}
                         @endforeach
                     </td>
                     <td>

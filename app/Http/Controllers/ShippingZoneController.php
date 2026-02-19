@@ -71,6 +71,16 @@ class ShippingZoneController extends Controller
 
     public function destroy(ShippingZone $shippingZone)
     {
+        // Prevent deletion if orders reference this shipping zone
+        $activeOrderCount = \App\Models\Order::where('shipping_zone_id', $shippingZone->id)
+            ->whereNotIn('status', ['cancelled', 'completed'])
+            ->count();
+
+        if ($activeOrderCount > 0) {
+            return redirect()->route('admin.shipping-zones.index')
+                ->with('error', "Zona pengiriman tidak bisa dihapus karena masih digunakan oleh {$activeOrderCount} pesanan aktif. Nonaktifkan saja.");
+        }
+
         $shippingZone->delete();
         
         return redirect()->route('admin.shipping-zones.index')

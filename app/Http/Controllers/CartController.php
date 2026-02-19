@@ -58,9 +58,11 @@ class CartController extends Controller
 
         $produk = Produk::findOrFail($request->produk_id);
 
-        // Validasi stok
-        if ($produk->stok < $request->qty) {
-            return back()->with('error', "Stok {$produk->nama} tidak mencukupi. Tersedia: {$produk->stok} Kg");
+        // Validate against AVAILABLE stock (physical - reserved), not raw stock.
+        // This prevents users from adding items that are reserved by pending orders.
+        $available = $produk->availableStock;
+        if ($available < $request->qty) {
+            return back()->with('error', "Stok {$produk->nama} tidak mencukupi. Tersedia: {$available} Kg");
         }
 
         $cart = session()->get('cart', []);
@@ -70,9 +72,9 @@ class CartController extends Controller
         if (isset($cart[$produkId])) {
             $newQty = $cart[$produkId]['qty'] + $request->qty;
             
-            // Validasi total qty tidak melebihi stok
-            if ($newQty > $produk->stok) {
-                return back()->with('error', "Total qty melebihi stok tersedia ({$produk->stok} Kg)");
+            // Validasi total qty tidak melebihi AVAILABLE stock
+            if ($newQty > $available) {
+                return back()->with('error', "Total qty melebihi stok tersedia ({$available} Kg)");
             }
             
             $cart[$produkId]['qty'] = $newQty;
@@ -105,8 +107,8 @@ class CartController extends Controller
             return back()->with('error', 'Item tidak ditemukan di keranjang.');
         }
 
-        if ($request->qty > $produk->stok) {
-            return back()->with('error', "Stok {$produk->nama} tidak mencukupi. Tersedia: {$produk->stok} Kg");
+        if ($request->qty > $produk->availableStock) {
+            return back()->with('error', "Stok {$produk->nama} tidak mencukupi. Tersedia: {$produk->availableStock} Kg");
         }
 
         $cart[$produkId]['qty'] = $request->qty;

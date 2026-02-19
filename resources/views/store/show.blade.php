@@ -85,7 +85,7 @@
             {{-- Product Detail --}}
             <div class="flex flex-col">
                 {{-- Category Badge --}}
-                <span class="{{ $produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }} w-fit mb-3">
+                <span class="{{ $produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }} w-fit mb-3">
                     {{ $produk->kategori }}
                 </span>
                 
@@ -339,7 +339,7 @@
                         @endif
                     </div>
                     <div class="p-4 flex flex-col flex-1">
-                        <span class="{{ $related->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }} w-fit text-xs mb-2">{{ $related->kategori }}</span>
+                        <span class="{{ $related->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }} w-fit text-xs mb-2">{{ $related->kategori }}</span>
                         <h3 class="font-bold text-white text-sm line-clamp-1">{{ $related->nama }}</h3>
                         <p class="text-cyan-300 font-extrabold text-lg mt-auto">
                             Rp {{ number_format($related->harga_per_kg, 0, ',', '.') }}

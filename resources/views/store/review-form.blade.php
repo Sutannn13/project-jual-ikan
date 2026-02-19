@@ -63,7 +63,7 @@
                 <div class="flex-1 min-w-0">
                     <h4 class="font-bold text-white truncate">{{ $produk->nama }}</h4>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="{{ $produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }} text-[10px] px-2 py-0.5">
+                        <span class="{{ $produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }} text-[10px] px-2 py-0.5">
                             {{ $produk->kategori }}
                         </span>
                         <span class="text-xs text-white/50">{{ number_format($orderItem->qty, 1) }} Kg</span>

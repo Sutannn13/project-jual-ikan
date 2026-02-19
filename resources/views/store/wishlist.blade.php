@@ -49,7 +49,7 @@
                 {{-- Content --}}
                 <div class="p-4 sm:p-5 flex flex-col flex-1">
                     <div class="flex items-center justify-between gap-2 mb-2">
-                        <span class="{{ $wishlist->produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }}">
+                        <span class="{{ $wishlist->produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }}">
                             {{ $wishlist->produk->kategori }}
                         </span>
                         <span class="text-xs font-medium px-2 py-0.5 rounded-full

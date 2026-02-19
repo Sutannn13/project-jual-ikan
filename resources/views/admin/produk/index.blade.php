@@ -48,7 +48,7 @@
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0">
                             <h3 class="font-bold text-white truncate">{{ $produk->nama }}</h3>
-                            <span class="{{ $produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }} text-[10px]">{{ $produk->kategori }}</span>
+                            <span class="{{ $produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }} text-[10px]">{{ $produk->kategori }}</span>
                         </div>
                         <span class="text-xs font-bold px-2 py-1 rounded-lg flex-shrink-0
                             {{ $produk->stok > 5 ? 'bg-emerald-500/15 text-emerald-400' : ($produk->stok > 0 ? 'bg-amber-500/15 text-amber-400' : 'bg-red-500/15 text-red-400') }}">
@@ -108,7 +108,7 @@
                     </td>
                     <td class="px-6 py-4 font-semibold text-white">{{ $produk->nama }}</td>
                     <td class="px-6 py-4">
-                        <span class="{{ $produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }}">{{ $produk->kategori }}</span>
+                        <span class="{{ $produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }}">{{ $produk->kategori }}</span>
                     </td>
                     <td class="px-6 py-4 text-right font-bold text-white">Rp {{ number_format($produk->harga_per_kg, 0, ',', '.') }}</td>
                     <td class="px-6 py-4 text-center">

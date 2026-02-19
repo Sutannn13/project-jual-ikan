@@ -84,16 +84,16 @@
    ===================================================== */
 
 @layer utilities {
-    /* === Main App Background - Premium Ocean Gradient === */
+    /* === Main App Background - Cyan Teal Harmony === */
     .bg-ocean-waves {
         background: linear-gradient(
             135deg,
-            #0c4a6e 0%,
+            #155e75 0%,
             #0e7490 20%,
             #0891b2 40%,
-            #0d9488 60%,
-            #0e7490 80%,
-            #0c4a6e 100%
+            #06b6d4 60%,
+            #0891b2 80%,
+            #0e7490 100%
         );
     }
 
@@ -591,7 +591,7 @@
     }
 
     /* === Category Badges === */
-    .badge-lele {
+    .badge-nila {
         @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold;
         background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
         color: #b45309;

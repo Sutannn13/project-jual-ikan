@@ -26,7 +26,7 @@
                 <div>
                     <label class="label-field">Judul Banner</label>
                     <input type="text" name="title" value="{{ old('title', $banner?->title) }}" 
-                           class="input-field" placeholder="Contoh: Promo Lele Segar 50% OFF!" required>
+                           class="input-field" placeholder="Contoh: Promo Ikan Nila Segar 50% OFF!" required>
                     @error('title') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 

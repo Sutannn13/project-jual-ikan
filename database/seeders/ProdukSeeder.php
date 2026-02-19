@@ -11,25 +11,25 @@ class ProdukSeeder extends Seeder
     {
         $produks = [
             [
-                'nama'        => 'Lele Segar Jumbo',
-                'kategori'    => 'Lele',
+                'nama'        => 'Ikan Nila Segar Jumbo',
+                'kategori'    => 'Ikan Nila',
                 'harga_per_kg'=> 28000,
                 'stok'        => 150,
-                'deskripsi'   => 'Lele segar ukuran jumbo langsung dari kolam. Cocok untuk lalapan, pecel lele, dan menu restoran.',
+                'deskripsi'   => 'Ikan nila segar ukuran jumbo langsung dari kolam. Cocok untuk digoreng, dibakar, dan menu restoran.',
             ],
             [
-                'nama'        => 'Lele Sangkal Premium',
-                'kategori'    => 'Lele',
+                'nama'        => 'Ikan Nila Sangkal Premium',
+                'kategori'    => 'Ikan Nila',
                 'harga_per_kg'=> 32000,
                 'stok'        => 80,
-                'deskripsi'   => 'Lele sangkal pilihan dengan daging tebal dan rasa gurih. Ukuran seragam dan sudah disortir.',
+                'deskripsi'   => 'Ikan nila sangkal pilihan dengan daging tebal dan rasa gurih. Ukuran seragam dan sudah disortir.',
             ],
             [
-                'nama'        => 'Lele Phyton Super',
-                'kategori'    => 'Lele',
+                'nama'        => 'Ikan Nila Phyton Super',
+                'kategori'    => 'Ikan Nila',
                 'harga_per_kg'=> 35000,
                 'stok'        => 50,
-                'deskripsi'   => 'Lele jenis phyton dengan ukuran ekstra besar. Ideal untuk usaha pecel lele dan warung makan.',
+                'deskripsi'   => 'Ikan nila jenis phyton dengan ukuran ekstra besar. Ideal untuk usaha rumah makan dan warung.',
             ],
             [
                 'nama'        => 'Ikan Mas Segar',
@@ -53,11 +53,11 @@ class ProdukSeeder extends Seeder
                 'deskripsi'   => 'Ikan mas koki premium yang siap masak. Ukuran besar dengan warna kuning keemasan.',
             ],
             [
-                'nama'        => 'Lele Dumbo',
-                'kategori'    => 'Lele',
+                'nama'        => 'Ikan Nila Dumbo',
+                'kategori'    => 'Ikan Nila',
                 'harga_per_kg'=> 25000,
                 'stok'        => 200,
-                'deskripsi'   => 'Lele dumbo ekonomis dengan harga terjangkau. Cocok untuk kebutuhan rumah tangga sehari-hari.',
+                'deskripsi'   => 'Ikan nila dumbo ekonomis dengan harga terjangkau. Cocok untuk kebutuhan rumah tangga sehari-hari.',
             ],
             [
                 'nama'        => 'Ikan Mas Lokal',

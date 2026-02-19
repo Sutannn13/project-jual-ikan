@@ -28,7 +28,7 @@
                     <div class="flex gap-3">
                         <select name="kategori" class="px-4 py-3.5 rounded-xl text-sm text-white bg-white/10 border border-white/15 focus:bg-white/15 focus:border-white/30 focus:outline-none sm:w-44">
                             <option value="" class="bg-gray-800">Semua Kategori</option>
-                            <option value="Lele" class="bg-gray-800" {{ request('kategori') === 'Lele' ? 'selected' : '' }}>Lele</option>
+                            <option value="Ikan Nila" class="bg-gray-800" {{ request('kategori') === 'Ikan Nila' ? 'selected' : '' }}>Ikan Nila</option>
                             <option value="Mas" class="bg-gray-800" {{ request('kategori') === 'Mas' ? 'selected' : '' }}>Ikan Mas</option>
                         </select>
                         <button type="button" @click="showAdvanced = !showAdvanced" 
@@ -177,7 +177,7 @@
                 {{-- Content --}}
                 <div class="p-4 sm:p-5 flex flex-col flex-1">
                     <div class="flex items-center justify-between gap-2 mb-2">
-                        <span class="{{ $produk->kategori === 'Lele' ? 'badge-lele' : 'badge-mas' }}">
+                        <span class="{{ $produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }}">
                             {{ $produk->kategori }}
                         </span>
                         <span class="text-xs font-medium px-2 py-0.5 rounded-full

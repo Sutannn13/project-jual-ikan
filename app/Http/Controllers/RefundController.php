@@ -15,15 +15,14 @@ use Illuminate\Support\Facades\Log;
 class RefundController extends Controller
 {
     /**
-     * Customer mengajukan refund
+     * Customer mengajukan refund.
+     *
+     * Uses lockForUpdate() to prevent duplicate refund requests
+     * from concurrent form submissions (double-click, etc.)
      */
     public function request(Request $request, Order $order)
     {
         if ($order->user_id !== Auth::id()) abort(403);
-
-        if (!$order->canRequestRefund()) {
-            return back()->with('error', 'Pesanan ini tidak bisa diajukan refund.');
-        }
 
         $request->validate([
             'refund_reason' => 'required|string|max:1000',
@@ -31,13 +30,26 @@ class RefundController extends Controller
             'refund_reason.required' => 'Alasan refund wajib diisi.',
         ]);
 
-        $order->update([
-            'refund_status' => 'requested',
-            'refund_reason' => $request->refund_reason,
-            'refund_requested_at' => now(),
-        ]);
+        try {
+            DB::transaction(function () use ($order, $request) {
+                // Lock order row to prevent concurrent refund requests
+                $order = Order::lockForUpdate()->findOrFail($order->id);
 
-        // Notify admin
+                if (!$order->canRequestRefund()) {
+                    throw new \RuntimeException('Pesanan ini tidak bisa diajukan refund.');
+                }
+
+                $order->update([
+                    'refund_status' => 'requested',
+                    'refund_reason' => $request->refund_reason,
+                    'refund_requested_at' => now(),
+                ]);
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        // Notifications OUTSIDE transaction
         AdminNotification::create([
             'type'         => 'refund_request',
             'priority'     => 'urgent',
@@ -86,33 +98,42 @@ class RefundController extends Controller
     }
 
     /**
-     * Admin: Approve refund
+     * Admin: Approve refund.
+     *
+     * CRITICAL: Double-check refund_status inside lock to prevent double approval.
      */
     public function approve(Request $request, Order $order)
     {
-        if ($order->refund_status !== 'requested') {
-            return back()->with('error', 'Refund ini sudah diproses.');
-        }
+        try {
+            DB::transaction(function () use ($order, $request) {
+                $order = Order::lockForUpdate()->findOrFail($order->id);
 
-        DB::transaction(function () use ($order, $request) {
-            $order = Order::lockForUpdate()->findOrFail($order->id);
-
-            // Restore stock
-            foreach ($order->items as $item) {
-                $produk = Produk::lockForUpdate()->find($item->produk_id);
-                if ($produk) {
-                    // Kembalikan stok fisik (karena sudah di-confirmStock sebelumnya)
-                    $produk->increment('stok', $item->qty);
+                // Double-check inside lock — another admin may have already processed
+                if ($order->refund_status !== 'requested') {
+                    throw new \RuntimeException('Refund ini sudah diproses.');
                 }
-            }
 
-            $order->update([
-                'refund_status' => 'approved',
-                'refund_admin_note' => $request->input('admin_note', 'Refund disetujui.'),
-                'refund_processed_at' => now(),
-                'status' => 'cancelled',
-            ]);
-        });
+                // Restore stock
+                foreach ($order->items as $item) {
+                    $produk = Produk::lockForUpdate()->find($item->produk_id);
+                    if ($produk) {
+                        // Kembalikan stok fisik (karena sudah di-confirmStock sebelumnya)
+                        $produk->increment('stok', $item->qty);
+                    }
+                }
+
+                $order->update([
+                    'refund_status' => 'approved',
+                    'refund_admin_note' => $request->input('admin_note', 'Refund disetujui.'),
+                    'refund_processed_at' => now(),
+                    'status' => 'cancelled',
+                ]);
+
+                $order->logStatusChange('cancelled', $order->getOriginal('status'), 'Refund disetujui, pesanan dibatalkan', auth()->id());
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         ActivityLog::log('refund_approved', "Refund pesanan #{$order->order_number} disetujui. Stok dikembalikan.", 'Order', $order->id);
 
@@ -128,25 +149,35 @@ class RefundController extends Controller
     }
 
     /**
-     * Admin: Reject refund
+     * Admin: Reject refund.
+     *
+     * Uses lock to prevent race condition with concurrent approve/reject.
      */
     public function reject(Request $request, Order $order)
     {
-        if ($order->refund_status !== 'requested') {
-            return back()->with('error', 'Refund ini sudah diproses.');
-        }
-
         $request->validate([
             'admin_note' => 'required|string|max:1000',
         ], [
             'admin_note.required' => 'Alasan penolakan wajib diisi.',
         ]);
 
-        $order->update([
-            'refund_status' => 'rejected',
-            'refund_admin_note' => $request->admin_note,
-            'refund_processed_at' => now(),
-        ]);
+        try {
+            DB::transaction(function () use ($order, $request) {
+                $order = Order::lockForUpdate()->findOrFail($order->id);
+
+                if ($order->refund_status !== 'requested') {
+                    throw new \RuntimeException('Refund ini sudah diproses.');
+                }
+
+                $order->update([
+                    'refund_status' => 'rejected',
+                    'refund_admin_note' => $request->admin_note,
+                    'refund_processed_at' => now(),
+                ]);
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         ActivityLog::log('refund_rejected', "Refund pesanan #{$order->order_number} ditolak: {$request->admin_note}", 'Order', $order->id);
 

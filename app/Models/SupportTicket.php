@@ -44,11 +44,17 @@ class SupportTicket extends Model
 
     /**
      * Generate unique ticket number: TK-2026-XXXX
+     *
+     * CRITICAL: Uses lockForUpdate() to prevent duplicate ticket numbers.
+     * Must be called inside DB::transaction.
      */
     public static function generateTicketNumber(): string
     {
         $year = date('Y');
-        $lastTicket = static::whereYear('created_at', $year)->orderByDesc('id')->first();
+        $lastTicket = static::whereYear('created_at', $year)
+            ->lockForUpdate()
+            ->orderByDesc('id')
+            ->first();
         $nextNumber = $lastTicket ? (intval(substr($lastTicket->ticket_number, -4)) + 1) : 1;
         return 'TK-' . $year . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }

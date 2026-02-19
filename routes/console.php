@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Auto-cancel expired orders every hour
 Schedule::command('orders:cancel-expired')->hourly();
+
+// Confirm stock for COD orders every 30 minutes
+Schedule::command('orders:confirm-cod-stock')->everyThirtyMinutes();
