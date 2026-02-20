@@ -24,19 +24,20 @@
             display: none; /* Chrome, Safari, Opera */
         }
 
-        /* Custom Scrollbar for Main Content - Dark Theme */
+        /* Custom Scrollbar for Main Content - Premium Purple Theme */
         .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.02);
+            background: linear-gradient(180deg, rgba(147,51,234,0.1) 0%, rgba(168,85,247,0.1) 100%);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.12);
+            background: linear-gradient(180deg, #9333ea 0%, #a855f7 100%);
             border-radius: 10px;
+            box-shadow: 0 0 10px rgba(147,51,234,0.5);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.2);
+            background: linear-gradient(180deg, #a855f7 0%, #c084fc 100%);
         }
 
         /* Dark Glassmorphism Card */
@@ -85,9 +86,48 @@
         /* Grid pattern overlay */
         .admin-grid-pattern {
             background-image: 
-                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+                linear-gradient(rgba(147,51,234,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(147,51,234,0.03) 1px, transparent 1px);
             background-size: 50px 50px;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+        }
+        
+        /* Particle Animation */
+        @keyframes floatParticle {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1); 
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { 
+                transform: translate(var(--tx), var(--ty)) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        /* Geometric shapes animation */
+        @keyframes rotateShape {
+            0% { transform: rotate(0deg) translateY(0px); }
+            50% { transform: rotate(180deg) translateY(-20px); }
+            100% { transform: rotate(360deg) translateY(0px); }
+        }
+        
+        @keyframes floatShape {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+        
+        /* Light ray animation */
+        @keyframes lightRay {
+            0% { transform: translateX(-100%) rotate(-45deg); }
+            100% { transform: translateX(200%) rotate(-45deg); }
+        }
+        
+        /* Pulse glow */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
         }
 
         /* === Admin Form Fields === */
@@ -139,11 +179,135 @@
         }
     </style>
 </head>
-<body class="antialiased text-white" x-data="{ sidebarOpen: false }">
-    {{-- Glossy Premium Background --}}
-    <div class="fixed inset-0 bg-admin-glossy -z-10"></div>
-    <div class="fixed inset-0 -z-10" style="background: radial-gradient(circle at 30% 20%, rgba(239, 68, 68, 0.15), transparent 40%), radial-gradient(circle at 70% 60%, rgba(251, 146, 60, 0.15), transparent 50%), radial-gradient(circle at 50% 100%, rgba(217, 70, 239, 0.1), transparent 40%);"></div>
+<body class="antialiased text-white" 
+      x-data="{ 
+          sidebarOpen: false,
+          particles: [],
+          shapes: [],
+          init() {
+              // Generate floating particles
+              for (let i = 0; i < 30; i++) {
+                  this.particles.push({
+                      id: i,
+                      x: Math.random() * 100,
+                      y: Math.random() * 100,
+                      size: 2 + Math.random() * 4,
+                      duration: 15 + Math.random() * 20,
+                      delay: Math.random() * 10,
+                      tx: (Math.random() - 0.5) * 200,
+                      ty: -100 - Math.random() * 100
+                  });
+              }
+              
+              // Generate geometric shapes
+              const shapeTypes = ['square', 'triangle', 'hexagon', 'circle'];
+              for (let i = 0; i < 12; i++) {
+                  this.shapes.push({
+                      id: i,
+                      type: shapeTypes[Math.floor(Math.random() * shapeTypes.length)],
+                      x: Math.random() * 100,
+                      y: Math.random() * 100,
+                      size: 40 + Math.random() * 80,
+                      duration: 20 + Math.random() * 15,
+                      delay: Math.random() * 8,
+                      opacity: 0.03 + Math.random() * 0.07
+                  });
+              }
+          }
+      }">
+    
+    {{-- ========================================
+         🌌 PREMIUM ADMIN BACKGROUND - GALAXY PARTICLES
+         ======================================== --}}
+    {{-- Base Purple Gradient --}}
+    <div class="fixed inset-0 -z-10" style="background: 
+        linear-gradient(135deg, 
+            #1a0c2e 0%, 
+            #2d1b4e 15%, 
+            #4a2c6d 30%, 
+            #6b21a8 45%, 
+            #4a2c6d 60%, 
+            #2d1b4e 80%, 
+            #1a0c2e 100%
+        );"></div>
+    
+    {{-- Animated Radial Glows --}}
+    <div class="fixed inset-0 -z-10" style="background: 
+        radial-gradient(circle at 20% 30%, rgba(239, 68, 68, 0.2), transparent 35%), 
+        radial-gradient(circle at 80% 20%, rgba(251, 146, 60, 0.18), transparent 40%), 
+        radial-gradient(circle at 50% 80%, rgba(217, 70, 239, 0.15), transparent 45%),
+        radial-gradient(circle at 10% 90%, rgba(147, 51, 234, 0.2), transparent 40%),
+        radial-gradient(circle at 90% 70%, rgba(168, 85, 247, 0.15), transparent 35%);"></div>
+    
+    {{-- Pulsing Glow Orbs --}}
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div class="absolute top-10 left-20 w-[600px] h-[600px] rounded-full blur-[120px]" 
+             style="background: radial-gradient(circle, rgba(147, 51, 234, 0.25) 0%, transparent 70%); animation: pulseGlow 8s ease-in-out infinite;"></div>
+        <div class="absolute bottom-20 right-32 w-[500px] h-[500px] rounded-full blur-[100px]" 
+             style="background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, transparent 70%); animation: pulseGlow 10s ease-in-out infinite; animation-delay: -3s;"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[140px]" 
+             style="background: radial-gradient(circle, rgba(251, 146, 60, 0.15) 0%, transparent 70%); animation: pulseGlow 12s ease-in-out infinite; animation-delay: -6s;"></div>
+    </div>
+    
+    {{-- Grid Pattern with mask --}}
     <div class="fixed inset-0 admin-grid-pattern -z-10"></div>
+    
+    {{-- Floating Particles dengan Alpine.js --}}
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <template x-for="particle in particles" :key="particle.id">
+            <div class="absolute rounded-full"
+                 :style="`
+                    left: ${particle.x}%; 
+                    top: ${particle.y}%; 
+                    width: ${particle.size}px; 
+                    height: ${particle.size}px;
+                    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(147,51,234,0.4) 50%, transparent 100%);
+                    box-shadow: 0 0 ${particle.size * 2}px rgba(147,51,234,0.6);
+                    animation: floatParticle ${particle.duration}s ease-in-out infinite;
+                    animation-delay: ${particle.delay}s;
+                    --tx: ${particle.tx}px;
+                    --ty: ${particle.ty}px;
+                 `">
+            </div>
+        </template>
+    </div>
+    
+    {{-- Geometric Shapes dengan Alpine.js --}}
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <template x-for="shape in shapes" :key="shape.id">
+            <div class="absolute"
+                 :style="`
+                    left: ${shape.x}%; 
+                    top: ${shape.y}%; 
+                    width: ${shape.size}px; 
+                    height: ${shape.size}px;
+                    opacity: ${shape.opacity};
+                    animation: ${shape.id % 2 === 0 ? 'rotateShape' : 'floatShape'} ${shape.duration}s ease-in-out infinite;
+                    animation-delay: ${shape.delay}s;
+                 `">
+                <div x-show="shape.type === 'square'" 
+                     class="w-full h-full border-2 rounded-lg"
+                     style="border-color: rgba(168, 85, 247, 0.4); background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(168, 85, 247, 0.05));"></div>
+                <div x-show="shape.type === 'circle'" 
+                     class="w-full h-full rounded-full border-2"
+                     style="border-color: rgba(239, 68, 68, 0.4); background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(251, 146, 60, 0.05));"></div>
+                <div x-show="shape.type === 'triangle'" 
+                     class="w-full h-full"
+                     style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%); background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(239, 68, 68, 0.08)); border: 2px solid rgba(251, 146, 60, 0.3);"></div>
+                <div x-show="shape.type === 'hexagon'" 
+                     class="w-full h-full"
+                     style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); background: linear-gradient(135deg, rgba(217, 70, 239, 0.12), rgba(168, 85, 247, 0.06)); border: 2px solid rgba(217, 70, 239, 0.35);"></div>
+            </div>
+        </template>
+    </div>
+    
+    {{-- Light Rays Effect --}}
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none opacity-20">
+        <div class="absolute top-0 left-1/4 w-2 h-full bg-gradient-to-b from-transparent via-purple-400 to-transparent transform -skew-x-12 blur-sm" 
+             style="animation: lightRay 20s linear infinite;"></div>
+        <div class="absolute top-0 right-1/3 w-1 h-full bg-gradient-to-b from-transparent via-pink-400 to-transparent transform skew-x-12 blur-sm" 
+             style="animation: lightRay 25s linear infinite; animation-delay: -8s;"></div>
+    </div>
 
     <style>
         /* Mobile-first Layout */
