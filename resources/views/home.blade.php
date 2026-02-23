@@ -247,7 +247,7 @@
                 <div class="hero-badge-anim inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-5 sm:mb-6"
                      style="background: rgba(20,20,40,0.7); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(20px); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
                     <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(251,191,36,0.7)]"></div>
-                    <span class="text-white font-semibold text-xs sm:text-sm drop-shadow-lg hero-text-xs">Platform Jual Beli Ikan #1 di Indonesia</span>
+                    <span class="text-white font-semibold text-xs sm:text-sm drop-shadow-lg hero-text-xs">Platform Jual Beli Ikan #1 di Tapos</span>
                 </div>
                 
                 <h1 class="hero-title-anim text-3xl xs:text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.1] mb-5 sm:mb-6">
@@ -310,7 +310,7 @@
                         <div class="grid grid-cols-2 gap-3 sm:gap-4 stats-grid-mobile">
                             <div class="stats-card text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
                                 <div class="stat-number text-2xl sm:text-3xl md:text-4xl font-extrabold text-amber-300 mb-1 drop-shadow-[0_2px_15px_rgba(251,191,36,0.6)]"
-                                     data-counter="{{ $produks->count() }}" data-suffix="+">{{ $produks->count() }}+</div>
+                                     data-counter="3" data-suffix="+">3+</div>
                                 <p class="text-white/95 text-xs sm:text-sm drop-shadow-md font-medium">Produk Tersedia</p>
                             </div>
                             <div class="stats-card text-center p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">

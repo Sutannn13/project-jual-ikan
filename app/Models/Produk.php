@@ -12,6 +12,29 @@ class Produk extends Model
         'nama', 'kategori', 'harga_per_kg', 'harga_modal', 'stok', 'low_stock_threshold', 'low_stock_notified', 'foto', 'deskripsi',
     ];
 
+    public function productImages()
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
+    public function primaryImage(): ?ProductImage
+    {
+        return $this->productImages()->where('is_primary', true)->first()
+            ?? $this->productImages()->first();
+    }
+
+    /**
+     * Get photos array (productImages paths + legacy foto field)
+     */
+    public function getAllPhotosAttribute(): array
+    {
+        $images = $this->productImages()->get();
+        if ($images->isEmpty() && $this->foto) {
+            return [asset('storage/' . $this->foto)];
+        }
+        return $images->map(fn($img) => asset('storage/' . $img->path))->toArray();
+    }
+
     protected function casts(): array
     {
         return [

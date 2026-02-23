@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
@@ -19,8 +19,9 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-    'name', 'email', 'password', 'role', 'no_hp', 'alamat', 'foto_profil',
-];
+        'name', 'email', 'password', 'role', 'no_hp', 'alamat', 'foto_profil',
+        'email_verified_at', 'must_change_password',
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -74,6 +75,16 @@ class User extends Authenticatable
     public function wishlistProducts()
     {
         return $this->belongsToMany(\App\Models\Produk::class, 'wishlists');
+    }
+
+    public function cartItems()
+    {
+        return $this->hasMany(\App\Models\CartItem::class);
+    }
+
+    public function salesTargets()
+    {
+        return $this->hasMany(\App\Models\SalesTarget::class, 'created_by');
     }
 
     public function sentMessages()

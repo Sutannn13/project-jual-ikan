@@ -36,17 +36,11 @@
                             <p class="text-lg sm:text-xl font-extrabold text-cyan-300">Rp {{ number_format($total, 0, ',', '.') }}</p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                    <div class="grid grid-cols-2 gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                         <label class="cursor-pointer">
                             <input type="radio" name="mobile_pm" value="transfer" x-model="mobilePayMethod" class="sr-only peer">
                             <div class="text-center py-1.5 sm:py-2 rounded-lg border text-[10px] sm:text-xs font-medium transition-all peer-checked:bg-cyan-500/20 peer-checked:border-cyan-500/50 peer-checked:text-cyan-300 border-white/10 text-white/50">
                                 <i class="fas fa-university block mb-0.5 sm:mb-1 text-xs sm:text-sm"></i>Transfer
-                            </div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="mobile_pm" value="ewallet" x-model="mobilePayMethod" class="sr-only peer">
-                            <div class="text-center py-1.5 sm:py-2 rounded-lg border text-[10px] sm:text-xs font-medium transition-all peer-checked:bg-violet-500/20 peer-checked:border-violet-500/50 peer-checked:text-violet-300 border-white/10 text-white/50">
-                                <i class="fas fa-wallet block mb-0.5 sm:mb-1 text-xs sm:text-sm"></i>E-Wallet
                             </div>
                         </label>
                         <label class="cursor-pointer">
@@ -61,7 +55,7 @@
                         <input type="hidden" name="payment_method" :value="mobilePayMethod">
                         <button type="submit" class="btn-primary w-full py-2.5 sm:py-3 text-xs sm:text-sm btn-shiny">
                             <i class="fas fa-credit-card mr-1.5 sm:mr-2"></i>
-                            <span x-text="mobilePayMethod === 'cod' ? 'Pesan COD' : (mobilePayMethod === 'ewallet' ? 'Bayar E-Wallet' : 'Checkout')">Checkout</span>
+                            <span x-text="mobilePayMethod === 'cod' ? 'Pesan COD' : 'Checkout'">Checkout</span>
                         </button>
                     </form>
                 </div>
@@ -196,15 +190,6 @@
                                     <i class="fas fa-university text-white/30 text-sm"></i>
                                 </label>
                                 <label class="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border cursor-pointer transition-all"
-                                       :class="payMethod === 'ewallet' ? 'border-violet-500/50 bg-violet-500/10' : 'border-white/10 hover:border-white/20'">
-                                    <input type="radio" name="payment_method" value="ewallet" x-model="payMethod" class="text-violet-500 focus:ring-violet-500">
-                                    <div class="flex-1">
-                                        <span class="text-xs sm:text-sm font-medium text-white">E-Wallet</span>
-                                        <p class="text-[10px] sm:text-xs text-white/40">⚡ Pembayaran otomatis & instan</p>
-                                    </div>
-                                    <i class="fas fa-wallet text-white/30 text-sm"></i>
-                                </label>
-                                <label class="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border cursor-pointer transition-all"
                                        :class="payMethod === 'cod' ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 hover:border-white/20'">
                                     <input type="radio" name="payment_method" value="cod" x-model="payMethod" class="text-emerald-500 focus:ring-emerald-500">
                                     <div class="flex-1">
@@ -218,7 +203,7 @@
 
                         <button type="submit" class="btn-primary w-full py-3 sm:py-4 text-sm sm:text-base btn-shiny">
                             <i class="fas fa-credit-card mr-2"></i>
-                            <span x-text="payMethod === 'cod' ? 'Pesan COD' : (payMethod === 'ewallet' ? 'Bayar dengan E-Wallet' : 'Checkout Sekarang')">Checkout Sekarang</span>
+                            <span x-text="payMethod === 'cod' ? 'Pesan COD' : 'Checkout Sekarang'">Checkout Sekarang</span>
                         </button>
                     </form>
 

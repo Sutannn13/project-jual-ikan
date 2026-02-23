@@ -63,6 +63,19 @@
                            class="input-field" placeholder="Nama pemasok ikan">
                 </div>
 
+                {{-- Tanggal Kedaluwarsa --}}
+                <div>
+                    <label class="label-field">Tanggal Kedaluwarsa (opsional)</label>
+                    <input type="date" name="expiry_date" value="{{ old('expiry_date') }}"
+                           min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                           class="input-field">
+                    @error('expiry_date') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                    <p class="text-white/30 text-xs mt-1">
+                        <i class="fas fa-info-circle mr-1"></i> 
+                        Sangat disarankan untuk ikan segar. Sistem akan memberi peringatan sebelum kedaluwarsa.
+                    </p>
+                </div>
+
                 {{-- Catatan --}}
                 <div>
                     <label class="label-field">Catatan (opsional)</label>

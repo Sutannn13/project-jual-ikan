@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use App\Models\Produk;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -12,81 +14,75 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cart = session()->get('cart', []);
-        $cartItems = [];
-        $total = 0;
-        $removedItems = [];
+        $items = CartItem::with('produk')
+            ->where('user_id', Auth::id())
+            ->get();
 
-        foreach ($cart as $id => $item) {
-            $produk = Produk::find($id); // SoftDeletes: otomatis filter deleted_at
-            if ($produk) {
-                $subtotal = $produk->harga_per_kg * $item['qty'];
-                $cartItems[] = [
-                    'produk' => $produk,
-                    'qty' => $item['qty'],
-                    'subtotal' => $subtotal,
-                ];
-                $total += $subtotal;
-            } else {
-                // Produk sudah dihapus (soft deleted) — hapus dari cart
-                $deletedProduk = Produk::withTrashed()->find($id);
-                $removedItems[] = $deletedProduk?->nama ?? "Produk #$id";
-                unset($cart[$id]);
+        $removedItems = [];
+        $cartItems    = [];
+        $total        = 0;
+
+        foreach ($items as $item) {
+            $produk = $item->produk;
+
+            if (!$produk || $produk->trashed()) {
+                $removedItems[] = $produk ? $produk->nama : "Produk #" . $item->produk_id;
+                $item->delete();
+                continue;
             }
+
+            $subtotal = $produk->harga_per_kg * $item->qty;
+            $cartItems[] = [
+                'produk'   => $produk,
+                'qty'      => $item->qty,
+                'subtotal' => $subtotal,
+            ];
+            $total += $subtotal;
         }
 
-        // Update cart session jika ada produk yang dihapus
         if (!empty($removedItems)) {
-            session()->put('cart', $cart);
-            session()->flash('warning', 'Beberapa produk telah dihapus dari keranjang karena sudah tidak tersedia: ' . implode(', ', $removedItems));
+            session()->flash('warning', 'Beberapa produk dihapus dari keranjang karena tidak tersedia: ' . implode(', ', $removedItems));
         }
 
         return view('store.cart', compact('cartItems', 'total'));
     }
 
     /**
-     * Menambah item ke keranjang
+     * Menambah item ke keranjang (database)
      */
     public function add(Request $request)
     {
         $request->validate([
             'produk_id' => 'required|exists:produks,id',
-            'qty' => 'required|numeric|min:0.5|max:500',
+            'qty'       => 'required|numeric|min:0.5|max:500',
         ], [
             'qty.max' => 'Maksimal pembelian 500 Kg per produk.',
         ]);
 
-        $produk = Produk::findOrFail($request->produk_id);
-
-        // Validate against AVAILABLE stock (physical - reserved), not raw stock.
-        // This prevents users from adding items that are reserved by pending orders.
+        $produk    = Produk::findOrFail($request->produk_id);
         $available = $produk->availableStock;
+
         if ($available < $request->qty) {
             return back()->with('error', "Stok {$produk->nama} tidak mencukupi. Tersedia: {$available} Kg");
         }
 
-        $cart = session()->get('cart', []);
-        $produkId = $request->produk_id;
+        $cartItem = CartItem::firstOrNew([
+            'user_id'   => Auth::id(),
+            'produk_id' => $request->produk_id,
+        ]);
 
-        // Jika produk sudah ada di keranjang, tambahkan qty
-        if (isset($cart[$produkId])) {
-            $newQty = $cart[$produkId]['qty'] + $request->qty;
-            
-            // Validasi total qty tidak melebihi AVAILABLE stock
-            if ($newQty > $available) {
-                return back()->with('error', "Total qty melebihi stok tersedia ({$available} Kg)");
-            }
-            
-            $cart[$produkId]['qty'] = $newQty;
-        } else {
-            $cart[$produkId] = [
-                'qty' => $request->qty,
-            ];
+        $newQty = ($cartItem->exists ? $cartItem->qty : 0) + $request->qty;
+
+        if ($newQty > $available) {
+            return back()->with('error', "Total qty melebihi stok tersedia ({$available} Kg)");
         }
 
-        session()->put('cart', $cart);
+        $cartItem->qty = $newQty;
+        $cartItem->save();
 
-        return back()->with('success', "{$produk->nama} ({$request->qty} Kg) ditambahkan ke keranjang!");
+        return back()
+            ->with('success', "{$produk->nama} ({$request->qty} Kg) ditambahkan ke keranjang!")
+            ->with('cart_added', true);
     }
 
     /**
@@ -101,18 +97,14 @@ class CartController extends Controller
         ]);
 
         $produk = Produk::findOrFail($produkId);
-        $cart = session()->get('cart', []);
-
-        if (!isset($cart[$produkId])) {
-            return back()->with('error', 'Item tidak ditemukan di keranjang.');
-        }
 
         if ($request->qty > $produk->availableStock) {
             return back()->with('error', "Stok {$produk->nama} tidak mencukupi. Tersedia: {$produk->availableStock} Kg");
         }
 
-        $cart[$produkId]['qty'] = $request->qty;
-        session()->put('cart', $cart);
+        CartItem::where('user_id', Auth::id())
+                ->where('produk_id', $produkId)
+                ->update(['qty' => $request->qty]);
 
         return back()->with('success', 'Keranjang berhasil diperbarui!');
     }
@@ -122,13 +114,13 @@ class CartController extends Controller
      */
     public function remove($produkId)
     {
-        $cart = session()->get('cart', []);
+        $produk  = Produk::withTrashed()->find($produkId);
+        $deleted = CartItem::where('user_id', Auth::id())
+                           ->where('produk_id', $produkId)
+                           ->delete();
 
-        if (isset($cart[$produkId])) {
-            $produk = Produk::find($produkId);
-            unset($cart[$produkId]);
-            session()->put('cart', $cart);
-            return back()->with('success', "{$produk->nama} dihapus dari keranjang.");
+        if ($deleted) {
+            return back()->with('success', ($produk?->nama ?? 'Item') . ' dihapus dari keranjang.');
         }
 
         return back()->with('error', 'Item tidak ditemukan di keranjang.');
@@ -139,7 +131,7 @@ class CartController extends Controller
      */
     public function clear()
     {
-        session()->forget('cart');
+        CartItem::where('user_id', Auth::id())->delete();
         return back()->with('success', 'Keranjang berhasil dikosongkan!');
     }
 
@@ -148,8 +140,10 @@ class CartController extends Controller
      */
     public static function getCartCount(): int
     {
-        $cart = session()->get('cart', []);
-        return count($cart);
+        if (!Auth::check()) {
+            return 0;
+        }
+        return CartItem::where('user_id', Auth::id())->count();
     }
 
     /**
@@ -157,23 +151,25 @@ class CartController extends Controller
      */
     public function getCartData()
     {
-        $cart = session()->get('cart', []);
-        $cartItems = [];
-        $total = 0;
-        $count = count($cart);
+        $items = CartItem::with('produk')
+            ->where('user_id', Auth::id())
+            ->get();
 
-        foreach ($cart as $id => $item) {
-            $produk = Produk::find($id);
-            if ($produk) {
-                $subtotal = $produk->harga_per_kg * $item['qty'];
+        $cartItems = [];
+        $total     = 0;
+
+        foreach ($items as $item) {
+            $produk = $item->produk;
+            if ($produk && !$produk->trashed()) {
+                $subtotal    = $produk->harga_per_kg * $item->qty;
                 $cartItems[] = [
-                    'id' => $produk->id,
-                    'nama' => $produk->nama,
-                    'kategori' => $produk->kategori,
+                    'id'           => $produk->id,
+                    'nama'         => $produk->nama,
+                    'kategori'     => $produk->kategori,
                     'harga_per_kg' => $produk->harga_per_kg,
-                    'qty' => $item['qty'],
-                    'subtotal' => $subtotal,
-                    'foto' => $produk->foto ? asset('storage/' . $produk->foto) : null,
+                    'qty'          => $item->qty,
+                    'subtotal'     => $subtotal,
+                    'foto'         => $produk->foto ? asset('storage/' . $produk->foto) : null,
                 ];
                 $total += $subtotal;
             }
@@ -182,7 +178,24 @@ class CartController extends Controller
         return response()->json([
             'items' => $cartItems,
             'total' => $total,
-            'count' => $count,
+            'count' => count($cartItems),
         ]);
+    }
+
+    /**
+     * Get cart items as array for checkout (used by StoreController)
+     */
+    public static function getDbCartItems(int $userId): array
+    {
+        return CartItem::with('produk')
+            ->where('user_id', $userId)
+            ->get()
+            ->filter(fn($item) => $item->produk && !$item->produk->trashed())
+            ->map(fn($item) => [
+                'produk' => $item->produk,
+                'qty'    => (float) $item->qty,
+            ])
+            ->values()
+            ->toArray();
     }
 }

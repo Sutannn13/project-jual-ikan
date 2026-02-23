@@ -48,6 +48,7 @@ class StockInController extends Controller
             'harga_modal' => 'nullable|numeric|min:0',
             'supplier'    => 'nullable|string|max:255',
             'catatan'     => 'nullable|string|max:1000',
+            'expiry_date' => 'nullable|date|after:today',
         ], [
             'qty.min' => 'Jumlah stok minimal 0.5 Kg.',
             'qty.max' => 'Jumlah stok maksimal 10.000 Kg per input.',
@@ -80,13 +81,15 @@ class StockInController extends Controller
                 'harga_modal'  => $validated['harga_modal'] ?? $produk->harga_modal,
                 'supplier'     => $validated['supplier'] ?? null,
                 'catatan'      => $validated['catatan'] ?? null,
+                'expiry_date'  => $validated['expiry_date'] ?? null,
             ]);
 
             // Activity Log
             ActivityLog::log(
                 'stock_in',
                 "Restok {$produk->nama}: +{$validated['qty']} Kg (Stok: {$stokSebelum} → " . ($stokSebelum + $validated['qty']) . " Kg)" .
-                    ($validated['supplier'] ? " dari {$validated['supplier']}" : ''),
+                    ($validated['supplier'] ? " dari {$validated['supplier']}" : '') .
+                    (!empty($validated['expiry_date']) ? " | Exp: {$validated['expiry_date']}" : ''),
                 'Produk',
                 $produk->id,
                 [
@@ -94,6 +97,7 @@ class StockInController extends Controller
                     'stok_sebelum' => $stokSebelum,
                     'stok_sesudah' => $stokSebelum + $validated['qty'],
                     'supplier'     => $validated['supplier'] ?? null,
+                    'expiry_date'  => $validated['expiry_date'] ?? null,
                 ]
             );
 
@@ -102,5 +106,23 @@ class StockInController extends Controller
 
         return redirect()->route('admin.stock-in.index')
             ->with('success', "Berhasil menambah stok {$result->qty} Kg untuk {$result->produk->nama}!");
+    }
+
+    /**
+     * Expiry date alert: list stok yang expired/hampir expired
+     */
+    public function expiryAlert()
+    {
+        $expiring = StockIn::with(['produk', 'user'])
+            ->whereNotNull('expiry_date')
+            ->whereDate('expiry_date', '<=', now()->addDays(7))
+            ->orderBy('expiry_date')
+            ->get();
+
+        $expired  = $expiring->filter(fn($s) => $s->isExpired());
+        $critical = $expiring->filter(fn($s) => !$s->isExpired() && $s->isExpiringSoon(1));
+        $warning  = $expiring->filter(fn($s) => !$s->isExpired() && !$s->isExpiringSoon(1) && $s->isExpiringSoon(7));
+
+        return view('admin.stock-in.expiry-alert', compact('expired', 'critical', 'warning'));
     }
 }

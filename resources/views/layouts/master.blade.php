@@ -244,13 +244,13 @@
                 @auth
                 <div class="hidden md:flex items-center">
                     @php
-                        $cartCount = count(session()->get('cart', []));
+                        $cartCount = \App\Http\Controllers\CartController::getCartCount();
                     @endphp
                     <a href="{{ route('cart.index') }}" 
                        class="relative w-12 h-12 flex items-center justify-center rounded-xl text-white/90 hover:bg-gradient-to-br hover:from-cyan-500/30 hover:to-teal-500/30 hover:text-white transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/40 {{ request()->routeIs('cart.*') ? 'bg-gradient-to-br from-cyan-500/40 to-teal-500/40 shadow-lg shadow-cyan-500/30 border border-white/30' : '' }}">
                         <i class="fas fa-shopping-cart text-lg"></i>
                         @if($cartCount > 0)
-                        <span class="absolute -top-1 -right-1 w-6 h-6 rounded-full text-xs font-bold text-white flex items-center justify-center animate-pulse"
+                        <span class="absolute -top-1 -right-1 w-6 h-6 rounded-full text-xs font-bold text-white flex items-center justify-center {{ session('cart_added') ? 'badge-cart-pop' : 'animate-pulse' }}"
                               style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 4px 12px rgba(249,115,22,0.6), 0 0 20px rgba(249,115,22,0.4);">
                             {{ $cartCount }}
                         </span>
@@ -344,10 +344,10 @@
                        class="relative w-11 h-11 flex items-center justify-center rounded-xl text-white/90 hover:bg-gradient-to-br hover:from-cyan-500/30 hover:to-teal-500/30 hover:text-white transition-all {{ request()->routeIs('cart.*') ? 'bg-gradient-to-br from-cyan-500/40 to-teal-500/40 border border-white/30' : '' }}">
                         <i class="fas fa-shopping-cart text-lg"></i>
                         @php
-                            $mobileCartCount = count(session()->get('cart', []));
+                            $mobileCartCount = \App\Http\Controllers\CartController::getCartCount();
                         @endphp
                         @if($mobileCartCount > 0)
-                        <span class="absolute -top-1 -right-1 w-6 h-6 rounded-full text-xs font-bold text-white flex items-center justify-center animate-pulse"
+                        <span class="absolute -top-1 -right-1 w-6 h-6 rounded-full text-xs font-bold text-white flex items-center justify-center {{ session('cart_added') ? 'badge-cart-pop' : 'animate-pulse' }}"
                               style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 3px 10px rgba(249,115,22,0.6);">
                             {{ $mobileCartCount }}
                         </span>
@@ -378,9 +378,9 @@
                     @auth
                         <a href="{{ route('cart.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('cart.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-shopping-cart w-5 text-center"></i> Keranjang
-                            @php $menuCartCount = count(session()->get('cart', [])); @endphp
+                            @php $menuCartCount = \App\Http\Controllers\CartController::getCartCount(); @endphp
                             @if($menuCartCount > 0)
-                                <span class="ml-auto px-2.5 py-1 rounded-full text-xs font-bold text-white" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">{{ $menuCartCount }}</span>
+                                <span class="ml-auto px-2.5 py-1 rounded-full text-xs font-bold text-white {{ session('cart_added') ? 'badge-cart-pop' : '' }}" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">{{ $menuCartCount }}</span>
                             @endif
                         </a>
                         <a href="{{ route('my.orders') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('my.orders') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
@@ -632,11 +632,9 @@
         }, 5000);
     ">
         <a href="{{ route('chat.index') }}" 
-           class="group relative w-16 h-16 rounded-2xl flex items-center justify-center text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:rotate-6"
-           style="background: linear-gradient(135deg, #0891b2 0%, #14b8a6 100%); box-shadow: 0 10px 40px rgba(6,182,212,0.6), 0 0 60px rgba(20,184,166,0.3);">
-            <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-500 opacity-30 blur-xl group-hover:opacity-50 transition-opacity"></div>
-            <i class="fas fa-comments text-2xl relative z-10 group-hover:scale-110 transition-transform"></i>
+           class="group relative w-14 h-14 rounded-2xl flex items-center justify-center text-white/80 transition-all duration-300 hover:scale-105"
+           style="background: rgba(8,145,178,0.25); border: 1px solid rgba(6,182,212,0.3); box-shadow: 0 4px 15px rgba(6,182,212,0.2);">
+            <i class="fas fa-comments text-xl relative z-10"></i>
             <span x-show="unread > 0" x-transition
                   class="absolute -top-2 -right-2 min-w-[28px] h-7 px-2 rounded-full text-xs font-bold text-white flex items-center justify-center animate-bounce"
                   style="background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); box-shadow: 0 4px 15px rgba(239,68,68,0.6);"

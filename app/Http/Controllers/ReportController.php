@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Produk;
+use App\Exports\TransactionsExport;
+use App\Exports\StockExport;
+use App\Exports\ProfitMarginExport;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 
 class ReportController extends Controller
@@ -95,6 +100,61 @@ class ReportController extends Controller
         $filename = 'Laporan-Penjualan-' . now()->format('Y-m-d') . '.pdf';
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Export transaksi ke Excel/CSV
+     */
+    public function exportExcel(Request $request)
+    {
+        $filters = $request->only(['from', 'to', 'status']);
+        $format  = $request->input('format', 'xlsx');
+        $filename = 'Transaksi-' . now()->format('Y-m-d');
+
+        if ($format === 'csv') {
+            return Excel::download(new TransactionsExport($filters), $filename . '.csv', \Maatwebsite\Excel\Excel::CSV);
+        }
+
+        return Excel::download(new TransactionsExport($filters), $filename . '.xlsx');
+    }
+
+    /**
+     * Export stok ke Excel
+     */
+    public function exportStock(Request $request)
+    {
+        $filters  = $request->only(['produk_id', 'from', 'to']);
+        $filename = 'Laporan-Stok-' . now()->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(new StockExport($filters), $filename);
+    }
+
+    /**
+     * Laporan margin keuntungan per produk
+     */
+    public function profitMargin()
+    {
+        $products = Produk::withTrashed()
+            ->select('produks.*')
+            ->selectRaw('(SELECT COALESCE(SUM(oi.qty), 0) FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE oi.produk_id = produks.id AND o.status = "completed") AS total_qty_sold')
+            ->selectRaw('(SELECT COALESCE(SUM(oi.total_price), 0) FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE oi.produk_id = produks.id AND o.status = "completed") AS total_revenue')
+            ->selectRaw('(SELECT COALESCE(SUM(oi.qty * COALESCE(oi.harga_modal, produks.harga_modal, 0)), 0) FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE oi.produk_id = produks.id AND o.status = "completed") AS total_cost')
+            ->orderByDesc('total_revenue')
+            ->paginate(20);
+
+        $totalRevenue = Order::where('status', 'completed')->sum('total_price');
+        $totalProfit  = $products->sum(fn($p) => max(0, (float)$p->total_revenue - (float)$p->total_cost));
+
+        return view('admin.reports.profit-margin', compact('products', 'totalRevenue', 'totalProfit'));
+    }
+
+    /**
+     * Export margin keuntungan ke Excel
+     */
+    public function exportProfitMargin()
+    {
+        $filename = 'Laporan-Margin-Keuntungan-' . now()->format('Y-m-d') . '.xlsx';
+        return Excel::download(new ProfitMarginExport(), $filename);
     }
 }
 

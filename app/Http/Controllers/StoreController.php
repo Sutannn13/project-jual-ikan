@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Services\AdminNotificationService;
 
+use App\Http\Controllers\CartController;
+use App\Models\CartItem;
+
 class StoreController extends Controller
 {
     public function index()
@@ -134,7 +137,7 @@ class StoreController extends Controller
      */
     public function checkout(Request $request)
     {
-        $cart = session()->get('cart', []);
+        $cart = CartController::getDbCartItems(Auth::id());
 
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Keranjang belanja kosong!');
@@ -186,26 +189,26 @@ class StoreController extends Controller
                 // Validate and RESERVE stock with per-product locks (don't deduct yet)
                 $totalPrice = 0;
                 $itemsData = []; // Collect data to avoid second query loop
-                foreach ($cart as $produkId => $item) {
-                    $produk = Produk::lockForUpdate()->find($produkId);
+                foreach ($cart as $cartItemData) {
+                    $produk = Produk::lockForUpdate()->find($cartItemData['produk']->id);
 
                     if (!$produk) {
                         throw new \RuntimeException("Produk tidak tersedia lagi. Silakan perbarui keranjang Anda.");
                     }
 
-                    if (!$produk->reserveStock($item['qty'])) {
+                    if (!$produk->reserveStock($cartItemData['qty'])) {
                         throw new \RuntimeException("Stok {$produk->nama} tidak mencukupi. Tersedia: {$produk->availableStock} Kg");
                     }
                     
-                    $subtotal = $produk->harga_per_kg * $item['qty'];
+                    $subtotal = $produk->harga_per_kg * $cartItemData['qty'];
                     $totalPrice += $subtotal;
                     
                     // Cache product data to avoid second findOrFail loop
-                    $itemsData[$produkId] = [
+                    $itemsData[$produk->id] = [
                         'nama'         => $produk->nama,
                         'harga_per_kg' => $produk->harga_per_kg,
                         'harga_modal'  => $produk->harga_modal,
-                        'qty'          => $item['qty'],
+                        'qty'          => $cartItemData['qty'],
                         'subtotal'     => $subtotal,
                     ];
                 }
@@ -236,8 +239,8 @@ class StoreController extends Controller
                     ]);
                 }
 
-                // Clear cart
-                session()->forget('cart');
+                // Clear cart from database
+                CartItem::where('user_id', Auth::id())->delete();
 
                 // Log initial status
                 if ($paymentMethod === 'cod') {
@@ -289,6 +292,25 @@ class StoreController extends Controller
         if ($order->user_id !== Auth::id()) abort(403);
         $order->load('items.produk');
         return view('store.order-success', compact('order'));
+    }
+
+    /**
+     * Download invoice PDF
+     */
+    public function downloadInvoice(Order $order)
+    {
+        // Only owner or admin can download invoice
+        if ($order->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
+            abort(403);
+        }
+
+        $order->load(['user', 'items.produk', 'shippingZone']);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('store.invoice-pdf', compact('order'))
+            ->setPaper('a4');
+
+        $filename = 'Invoice-' . $order->order_number . '.pdf';
+        return $pdf->download($filename);
     }
 
     /**
@@ -444,8 +466,10 @@ class StoreController extends Controller
     private function checkLowStockAlerts(array $cart): void
     {
         try {
-            foreach (array_keys($cart) as $produkId) {
-                $produk = Produk::find($produkId);
+            foreach ($cart as $cartItemData) {
+                $produk = $cartItemData['produk'] ?? null;
+                if (!$produk) continue;
+                $produk = Produk::find($produk->id); // refresh from DB
                 if ($produk && $produk->isLowStock() && !$produk->low_stock_notified) {
                     $admins = User::where('role', 'admin')->get();
                     foreach ($admins as $admin) {

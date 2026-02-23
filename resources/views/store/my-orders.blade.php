@@ -392,8 +392,8 @@
                         </a>
                         @endif
 
-                        {{-- REFUND BUTTON for paid/confirmed (if refund not yet requested) --}}
-                        @if(in_array($order->status, ['paid', 'confirmed']) && $order->refund_status === 'none')
+                        {{-- REFUND BUTTON for pending/waiting_payment/paid/confirmed (if refund not yet requested) --}}
+                        @if(in_array($order->status, ['pending', 'waiting_payment', 'paid', 'confirmed']) && $order->refund_status === 'none')
                         <button type="button" onclick="openRefundModal({{ $order->id }}, '{{ $order->order_number }}')" 
                                 class="flex-shrink-0 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm text-amber-400 transition-all duration-300 active:scale-[0.97] touch-manipulation"
                                 style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);">
@@ -402,7 +402,7 @@
                         </button>
                         @endif
 
-                        {{-- COMPLETED: Lihat Detail --}}
+                        {{-- COMPLETED: Lihat Detail + Download Invoice --}}
                         @if($order->status === 'completed')
                         <a href="{{ route('order.track', $order) }}" 
                            class="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300 active:scale-[0.97] touch-manipulation"
@@ -410,20 +410,12 @@
                             <i class="fas fa-receipt"></i>
                             <span>Lihat Detail</span>
                         </a>
-                        @endif
-
-                        {{-- CANCEL BUTTON for pending/waiting_payment --}}
-                        @if(in_array($order->status, ['pending', 'waiting_payment']))
-                        <form action="{{ route('order.cancel', $order) }}" method="POST" class="flex-shrink-0"
-                              onsubmit="event.preventDefault(); userConfirm(this, 'Batalkan Pesanan', 'Yakin ingin membatalkan pesanan {{ $order->order_number }}? Pesanan yang dibatalkan tidak bisa dikembalikan.', 'danger', 'Ya, Batalkan');">
-                            @csrf
-                            <button type="submit" 
-                                    class="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-bold text-sm text-red-400 transition-all duration-300 active:scale-[0.97] touch-manipulation"
-                                    style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);">
-                                <i class="fas fa-times"></i>
-                                <span>Batalkan</span>
-                            </button>
-                        </form>
+                        <a href="{{ route('order.invoice', $order) }}" target="_blank"
+                           class="flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold text-sm text-red-300 transition-all duration-300 active:scale-[0.97] touch-manipulation"
+                           style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25);">
+                            <i class="fas fa-file-pdf"></i>
+                            <span class="hidden sm:inline">Invoice</span>
+                        </a>
                         @endif
 
                     </div>

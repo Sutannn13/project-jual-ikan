@@ -22,6 +22,9 @@ use App\Http\Controllers\StockInController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AdminAnalyticsController;
+use App\Http\Controllers\CourierDriverController;
+use App\Http\Controllers\SalesTargetController;
+use App\Http\Controllers\WhatsappTemplateController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================================
@@ -62,6 +65,16 @@ Route::middleware('auth')->group(function () {
     Route::match(['GET', 'POST'], '/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/change-password', [AuthController::class, 'showChangePassword'])->name('password.change');
     Route::post('/change-password', [AuthController::class, 'processChangePassword'])->name('password.change.proses');
+
+    // Email Verification
+    Route::get('/email/verify', [AuthController::class, 'showVerificationNotice'])->name('verification.notice');
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])
+        ->middleware('throttle:3,1')
+        ->name('verification.send');
+    Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route('home')->with('success', 'Email berhasil diverifikasi! Selamat berbelanja!');
+    })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 });
 
 // ============================================================
@@ -88,6 +101,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/order/{order}/cancel', [StoreController::class, 'cancelOrder'])->name('order.cancel');
     Route::get('/my-orders', [StoreController::class, 'myOrders'])->name('my.orders');
     Route::get('/order/{order}/track', [StoreController::class, 'trackOrder'])->name('order.track');
+    Route::get('/order/{order}/invoice', [StoreController::class, 'downloadInvoice'])->name('order.invoice');
 
     // Reviews
     Route::get('/order/{order}/review/{produk}', [ReviewController::class, 'create'])->name('review.create');
@@ -149,6 +163,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/chart-data', [AdminDashboardController::class, 'chartData'])->name('dashboard.chart');
+    Route::get('/dashboard/live-stats', [AdminDashboardController::class, 'liveStats'])->name('dashboard.live-stats');
 
     // Product CRUD
     Route::resource('produk', ProdukController::class);
@@ -165,6 +180,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');
+    Route::get('/reports/excel', [ReportController::class, 'exportExcel'])->name('reports.excel');
+    Route::get('/reports/stock', [ReportController::class, 'exportStock'])->name('reports.stock');
+    Route::get('/reports/profit-margin', [ReportController::class, 'profitMargin'])->name('reports.profit-margin');
+    Route::get('/reports/profit-margin/export', [ReportController::class, 'exportProfitMargin'])->name('reports.profit-margin.export');
 
     // User Management
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
@@ -197,6 +216,29 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/stock-in', [StockInController::class, 'index'])->name('stock-in.index');
     Route::get('/stock-in/create', [StockInController::class, 'create'])->name('stock-in.create');
     Route::post('/stock-in', [StockInController::class, 'store'])->name('stock-in.store');
+    Route::get('/stock-in/expiry-alert', [StockInController::class, 'expiryAlert'])->name('stock-in.expiry-alert');
+
+    // Product Import
+    Route::get('/produk/import', [ProdukController::class, 'importForm'])->name('produk.import.form');
+    Route::post('/produk/import', [ProdukController::class, 'import'])->name('produk.import');
+    Route::get('/produk/import/template', [ProdukController::class, 'importTemplate'])->name('produk.import.template');
+
+    // Product Images
+    Route::delete('/produk-image/{image}', [ProdukController::class, 'deleteImage'])->name('produk-image.destroy');
+    Route::post('/produk-image/{image}/set-primary', [ProdukController::class, 'setPrimaryImage'])->name('produk-image.set-primary');
+
+    // Courier/Driver Management
+    Route::resource('courier-drivers', CourierDriverController::class);
+    Route::post('/orders/{order}/assign-driver', [CourierDriverController::class, 'assignToOrder'])->name('orders.assign-driver');
+
+    // Sales Targets
+    Route::resource('sales-targets', SalesTargetController::class);
+
+    // WhatsApp Templates & Blast
+    Route::resource('whatsapp-templates', WhatsappTemplateController::class);
+    Route::get('/whatsapp-templates/{whatsappTemplate}/preview', [WhatsappTemplateController::class, 'preview'])->name('whatsapp-templates.preview');
+    Route::get('/whatsapp-templates/{whatsappTemplate}/blast', [WhatsappTemplateController::class, 'blastForm'])->name('whatsapp-templates.blast.form');
+    Route::post('/whatsapp-templates/{whatsappTemplate}/blast', [WhatsappTemplateController::class, 'blast'])->name('whatsapp-templates.blast');
 
     // Banner / Promo Management
     Route::resource('banners', BannerController::class)->except(['show']);

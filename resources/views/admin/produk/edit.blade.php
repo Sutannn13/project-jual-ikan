@@ -140,37 +140,87 @@
                           class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:bg-white/10 focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/10 transition-all outline-none text-white font-medium placeholder-white/30 resize-none">{{ old('deskripsi', $produk->deskripsi) }}</textarea>
             </div>
 
-            {{-- Foto Upload --}}
+            {{-- Foto Utama --}}
             <div>
-                <label class="block text-sm font-semibold text-white/70 mb-2">Foto Produk</label>
+                <label class="block text-sm font-semibold text-white/70 mb-2">Foto Utama Produk</label>
                 <div class="rounded-xl p-4 mb-3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
                     <div class="flex items-center gap-4">
                     @if($produk->foto)
                         <div class="relative group">
                             <img src="{{ asset('storage/' . $produk->foto) }}" alt="Foto" class="w-20 h-20 rounded-lg object-cover shadow-sm">
-                            <div class="absolute inset-0 bg-black/10 rounded-lg"></div>
                         </div>
                         <div>
                             <p class="text-sm font-medium text-white/70">Foto Saat Ini</p>
-                            <p class="text-xs text-white/40">Akan diganti jika Anda mengupload baru.</p>
+                            <p class="text-xs text-white/40">Upload baru untuk mengganti.</p>
                         </div>
                     @else
                         <div class="w-20 h-20 rounded-lg bg-white/5 flex items-center justify-center text-white/30">
                             <i class="fas fa-image text-2xl"></i>
                         </div>
-                        <p class="text-sm text-white/50">Belum ada foto.</p>
+                        <p class="text-sm text-white/50">Belum ada foto utama.</p>
                     @endif
                     </div>
                 </div>
-                
                 <div class="relative group">
-                    <input type="file" name="foto" 
+                    <input type="file" name="foto"
                            class="w-full px-4 py-3 bg-white/5 border border-dashed border-white/20 rounded-xl cursor-pointer hover:border-cyan-500/50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-500/15 file:text-cyan-400 hover:file:bg-cyan-500/25 transition-all text-sm text-white/50"
                            accept="image/*">
                 </div>
-                <p class="text-xs text-white/30 mt-2 flex items-center">
-                    <i class="fas fa-info-circle mr-1"></i> Format: JPG, PNG, WEBP. Maks: 5MB.
-                </p>
+                <p class="text-xs text-white/30 mt-2"><i class="fas fa-info-circle mr-1"></i> Format: JPG, PNG, WEBP. Maks: 5MB.</p>
+            </div>
+
+            {{-- Galeri Foto Tambahan --}}
+            @if($produk->productImages->count() > 0)
+            <div>
+                <label class="block text-sm font-semibold text-white/70 mb-2">
+                    Galeri Foto <span class="text-xs text-white/40">({{ $produk->productImages->count() }} foto)</span>
+                </label>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    @foreach($produk->productImages as $img)
+                    <div class="relative group rounded-xl overflow-hidden" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                        <img src="{{ $img->url }}" class="w-full aspect-square object-cover">
+                        @if($img->is_primary)
+                        <div class="absolute top-1.5 left-1.5">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold text-white"
+                                  style="background: linear-gradient(135deg, #0891b2, #14b8a6);">Utama</span>
+                        </div>
+                        @endif
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                            @if(!$img->is_primary)
+                            <form action="{{ route('admin.produk-image.set-primary', $img) }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" title="Jadikan foto utama"
+                                        class="w-8 h-8 rounded-lg bg-cyan-500/80 text-white flex items-center justify-center hover:bg-cyan-500 transition-all">
+                                    <i class="fas fa-star text-xs"></i>
+                                </button>
+                            </form>
+                            @endif
+                            <form action="{{ route('admin.produk-image.destroy', $img) }}" method="POST" class="inline"
+                                  onsubmit="return confirm('Hapus foto ini?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" title="Hapus foto"
+                                        class="w-8 h-8 rounded-lg bg-red-500/80 text-white flex items-center justify-center hover:bg-red-500 transition-all">
+                                    <i class="fas fa-trash text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                <p class="text-xs text-white/30 mt-2"><i class="fas fa-info-circle mr-1"></i>Hover foto untuk opsi hapus atau jadikan foto utama.</p>
+            </div>
+            @endif
+
+            {{-- Upload Foto Tambahan Baru --}}
+            <div>
+                <label class="block text-sm font-semibold text-white/70 mb-2">
+                    Tambah Foto Lagi
+                    <span class="text-xs text-cyan-400 ml-1">— bisa upload beberapa foto sekaligus</span>
+                </label>
+                <input type="file" name="fotos[]" id="fotosInput" multiple accept="image/*"
+                       class="w-full px-4 py-3 bg-white/5 border border-dashed border-white/15 rounded-xl cursor-pointer hover:border-cyan-500/30 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white/50 hover:file:bg-white/10 transition-all text-sm text-white/40"
+                       onchange="previewAdditionalPhotos(this)">
+                <div id="additionalPreview" class="flex flex-wrap gap-2 mt-2"></div>
             </div>
 
             {{-- Actions --}}
@@ -186,4 +236,22 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function previewAdditionalPhotos(input) {
+    const preview = document.getElementById('additionalPreview');
+    preview.innerHTML = '';
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.innerHTML = `<img src="${e.target.result}" class="w-16 h-16 rounded-lg object-cover border border-white/10">`;
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+</script>
+@endpush
 @endsection

@@ -20,6 +20,7 @@ class Order extends Model
         'rejection_reason',
         'delivery_note', 'delivery_time',
         'courier_name', 'courier_phone', 'tracking_number',
+        'courier_driver_id',
         'midtrans_snap_token', 'midtrans_transaction_id', 'payment_method',
         'refund_status', 'refund_reason', 'refund_admin_note', 'refund_requested_at', 'refund_processed_at',
         'stock_reserved_at', 'stock_confirmed_at',
@@ -37,6 +38,11 @@ class Order extends Model
             'stock_reserved_at' => 'datetime',
             'stock_confirmed_at' => 'datetime',
         ];
+    }
+
+    public function courierDriver()
+    {
+        return $this->belongsTo(CourierDriver::class);
     }
 
     public function user()

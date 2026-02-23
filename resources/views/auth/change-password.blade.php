@@ -26,6 +26,25 @@
             <form action="{{ route('password.change.proses') }}" method="POST" class="space-y-5">
                 @csrf
 
+                @auth
+                @unless(auth()->user()->must_change_password)
+                {{-- Only show current password when user voluntarily changes password --}}
+                <div>
+                    <label class="block text-sm font-semibold text-white/80 mb-2">Password Lama</label>
+                    <div class="relative">
+                        <i class="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-yellow-400/70"></i>
+                        <input type="password" name="current_password"
+                               class="w-full px-4 py-3.5 pl-12 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none @error('current_password') !border-red-400/50 @enderror"
+                               style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);"
+                               onfocus="this.style.borderColor='rgba(245,158,11,0.5)'; this.style.boxShadow='0 0 0 3px rgba(245,158,11,0.15)';"
+                               onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.boxShadow='none';"
+                               placeholder="Password saat ini" required>
+                    </div>
+                    @error('current_password') <p class="text-red-400 text-xs mt-1.5 flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> {{ $message }}</p> @enderror
+                </div>
+                @endunless
+                @endauth
+
                 <div>
                     <label class="block text-sm font-semibold text-white/80 mb-2">Password Baru</label>
                     <div class="relative">

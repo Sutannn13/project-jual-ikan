@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Produk;
 use App\Models\OrderItem;
+use App\Models\SalesTarget;
+use App\Models\StockIn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -88,12 +90,22 @@ class AdminDashboardController extends Controller
         // Recent orders
         $recentOrders = Order::with('user')->latest()->take(5)->get();
 
+        // Sales targets progress
+        $dailyTarget  = SalesTarget::todayTarget();
+        $monthTarget  = SalesTarget::thisMonthTarget();
+
+        // Stock expiry alerts (within 3 days)
+        $expiringStockCount = StockIn::whereNotNull('expiry_date')
+            ->whereDate('expiry_date', '<=', now()->addDays(3))
+            ->count();
+
         return view('admin.dashboard', compact(
             'totalSales', 'totalOrders', 'todayOrders', 'totalProducts', 'lowStockProducts',
             'pendingOrders', 'chartLabels', 'chartSalesData', 'chartProfitData', 'doughnutLabels',
             'doughnutData', 'recentOrders', 'waitingVerification', 'todaySales', 
             'monthSales', 'pendingRevenue', 'expiredOrders',
-            'totalProfit', 'todayProfit', 'monthProfit'
+            'totalProfit', 'todayProfit', 'monthProfit',
+            'dailyTarget', 'monthTarget', 'expiringStockCount'
         ));
     }
 
@@ -127,6 +139,43 @@ class AdminDashboardController extends Controller
             'chartData'      => $chartData,
             'doughnutLabels' => $categoryDistribution->pluck('kategori')->toArray(),
             'doughnutData'   => $categoryDistribution->pluck('total')->map(fn($v) => (float) $v)->toArray(),
+        ]);
+    }
+
+    /**
+     * Live stats API — polling every 30s from dashboard JS
+     */
+    public function liveStats()
+    {
+        $pendingOrders      = Order::where('status', 'pending')->count();
+        $waitingVerification = Order::where('status', 'waiting_payment')->count();
+        $needsAttention     = $pendingOrders + $waitingVerification;
+        $todayOrders        = Order::whereDate('created_at', today())->count();
+        $todaySales         = Order::where('status', 'completed')->whereDate('created_at', today())->sum('total_price');
+        $pendingRevenue     = Order::whereIn('status', ['paid', 'confirmed', 'out_for_delivery'])->sum('total_price');
+        $unreadNotifs       = \App\Models\AdminNotification::unreadCount();
+
+        // Last 5 orders for recent orders table
+        $recent = Order::with('user')->latest()->take(5)->get()->map(fn($o) => [
+            'id'           => $o->id,
+            'order_number' => $o->order_number,
+            'user_name'    => $o->user->name ?? 'Guest',
+            'status'       => $o->status,
+            'status_label' => $o->status_label,
+            'created_at'   => $o->created_at->diffForHumans(),
+            'url'          => route('admin.orders.show', $o),
+        ]);
+
+        return response()->json([
+            'pendingOrders'       => $pendingOrders,
+            'waitingVerification' => $waitingVerification,
+            'needsAttention'      => $needsAttention,
+            'todayOrders'         => $todayOrders,
+            'todaySales'          => $todaySales,
+            'pendingRevenue'      => $pendingRevenue,
+            'unreadNotifs'        => $unreadNotifs,
+            'recentOrders'        => $recent,
+            'timestamp'           => now()->toISOString(),
         ]);
     }
 }

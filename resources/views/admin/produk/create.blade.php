@@ -146,19 +146,34 @@
                           placeholder="Jelaskan kualitas dan detail produk...">{{ old('deskripsi') }}</textarea>
             </div>
 
-            {{-- Foto Upload --}}
+            {{-- Foto Utama --}}
             <div>
-                <label class="block text-sm font-semibold text-white/70 mb-2">Foto Produk</label>
+                <label class="block text-sm font-semibold text-white/70 mb-2">Foto Utama Produk</label>
                 <div class="relative group">
                     <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-teal-500 rounded-xl opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none"></div>
                     <input type="file" name="foto" 
                            class="w-full px-4 py-3 bg-white/5 border border-dashed border-white/20 rounded-xl cursor-pointer hover:border-cyan-500/50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-500/15 file:text-cyan-400 hover:file:bg-cyan-500/25 transition-all text-sm text-white/50 @error('foto') !border-red-400 @enderror"
-                           accept="image/*" required>
+                           accept="image/*">
                 </div>
                 <p class="text-xs text-white/30 mt-2 flex items-center">
-                    <i class="fas fa-info-circle mr-1"></i> Format: JPG, PNG, WEBP. Maks: 5MB.
+                    <i class="fas fa-info-circle mr-1"></i> Format: JPG, PNG, WEBP. Maks: 5MB. Foto utama yang tampil di halaman produk.
                 </p>
                 @error('foto') <p class="text-red-500 text-xs mt-1 font-medium"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</p> @enderror
+            </div>
+
+            {{-- Foto Tambahan --}}
+            <div>
+                <label class="block text-sm font-semibold text-white/70 mb-2">
+                    Foto Tambahan 
+                    <span class="text-xs text-cyan-400 ml-1">— opsional, bisa upload beberapa</span>
+                </label>
+                <div class="relative group">
+                    <input type="file" name="fotos[]" id="fotosInput" multiple accept="image/*"
+                           class="w-full px-4 py-3 bg-white/5 border border-dashed border-white/15 rounded-xl cursor-pointer hover:border-cyan-500/30 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-white/50 hover:file:bg-white/10 transition-all text-sm text-white/40"
+                           onchange="previewAditionalPhotos(this)">
+                </div>
+                <div id="additionalPreview" class="flex flex-wrap gap-2 mt-2"></div>
+                @error('fotos.*') <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
             </div>
 
             {{-- Actions --}}
@@ -174,4 +189,23 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function previewAditionalPhotos(input) {
+    const preview = document.getElementById('additionalPreview');
+    preview.innerHTML = '';
+    Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'relative';
+            div.innerHTML = `<img src="${e.target.result}" class="w-16 h-16 rounded-lg object-cover border border-white/10">`;
+            preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+</script>
+@endpush
 @endsection

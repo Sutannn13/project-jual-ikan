@@ -49,6 +49,16 @@ class AutoCancelExpiredOrders extends Command
                     'status' => 'cancelled',
                     'rejection_reason' => 'Dibatalkan otomatis: Batas waktu pembayaran telah terlewati.',
                 ]);
+
+                // Log the status change
+                $order->logStatusChange('cancelled', $order->getOriginal('status'), 'Auto-cancelled: batas waktu pembayaran terlewati (24 jam).');
+
+                // Notify customer via cart and admin notification
+                try {
+                    \App\Services\AdminNotificationService::orderCancelled($order, 'Auto-cancel: expired payment deadline');
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning("Failed to send auto-cancel notification for order {$order->order_number}: " . $e->getMessage());
+                }
             });
 
             $count++;

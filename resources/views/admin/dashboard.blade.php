@@ -33,7 +33,7 @@
                 <span class="text-[9px] sm:text-[10px] text-cyan-400 font-semibold"><i class="fas fa-calendar-alt"></i> Hari ini</span>
             </div>
             <p class="text-[10px] sm:text-xs text-white/40 font-semibold uppercase tracking-wider">Penjualan Hari Ini</p>
-            <p class="text-sm sm:text-lg md:text-xl font-extrabold text-white mt-1 break-all leading-tight">Rp {{ number_format($todaySales ?? 0, 0, ',', '.') }}</p>
+            <p id="stat-today-sales" class="text-sm sm:text-lg md:text-xl font-extrabold text-white mt-1 break-all leading-tight">Rp {{ number_format($todaySales ?? 0, 0, ',', '.') }}</p>
             <p class="text-[10px] sm:text-xs text-cyan-400/80 mt-1 sm:mt-1.5 font-medium truncate">Bulan ini: Rp {{ number_format($monthSales ?? 0, 0, ',', '.') }}</p>
         </div>
     </div>
@@ -56,7 +56,7 @@
                 <span class="text-[9px] sm:text-[10px] text-orange-400 font-semibold"><i class="fas fa-clock"></i> Cek</span>
             </div>
             <p class="text-[10px] sm:text-xs text-white/40 font-semibold uppercase tracking-wider">Perlu Verifikasi</p>
-            <p class="text-sm sm:text-lg md:text-xl font-extrabold text-white mt-1">{{ $waitingVerification ?? 0 }}</p>
+            <p id="stat-waiting-verification" class="text-sm sm:text-lg md:text-xl font-extrabold text-white mt-1">{{ $waitingVerification ?? 0 }}</p>
             @if(($expiredOrders ?? 0) > 0)<p class="text-[10px] text-red-400 font-bold mt-1">{{ $expiredOrders }} expired!</p>@endif
         </div>
     </a>
@@ -73,7 +73,7 @@
                 <span class="text-[9px] sm:text-[10px] text-emerald-400 font-semibold"><i class="fas fa-shipping-fast"></i> Aktif</span>
             </div>
             <p class="text-[10px] sm:text-xs text-white/40 font-semibold uppercase tracking-wider">Dalam Proses</p>
-            <p class="text-sm sm:text-lg md:text-xl font-extrabold text-white mt-1 break-all leading-tight">Rp {{ number_format($pendingRevenue ?? 0, 0, ',', '.') }}</p>
+            <p id="stat-pending-revenue" class="text-sm sm:text-lg md:text-xl font-extrabold text-white mt-1 break-all leading-tight">Rp {{ number_format($pendingRevenue ?? 0, 0, ',', '.') }}</p>
         </div>
     </div>
 
@@ -101,11 +101,11 @@
         <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-sm">
             <div class="flex items-center gap-1.5">
                 <div class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></div>
-                <span class="text-white/60">Menunggu Bayar: <strong class="text-white/90">{{ $pendingOrders }}</strong></span>
+                <span class="text-white/60">Menunggu Bayar: <strong id="stat-pending-orders" class="text-white/90">{{ $pendingOrders }}</strong></span>
             </div>
             <div class="flex items-center gap-1.5">
                 <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400/50"></div>
-                <span class="text-white/60">Pesanan Hari Ini: <strong class="text-white/90">{{ $todayOrders }}</strong></span>
+                <span class="text-white/60">Pesanan Hari Ini: <strong id="stat-today-orders" class="text-white/90">{{ $todayOrders }}</strong></span>
             </div>
             <div class="flex items-center gap-1.5">
                 <div class="w-2.5 h-2.5 rounded-full bg-teal-400 shadow-sm shadow-teal-400/50"></div>
@@ -118,10 +118,97 @@
     </div>
 </div>
 
+{{-- SALES TARGET + EXPIRY ALERT WIDGETS --}}
+@if(isset($dailyTarget) || isset($monthTarget) || isset($expiringStockCount))
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5 mb-4">
+    {{-- Daily Target --}}
+    @if(isset($dailyTarget) && $dailyTarget)
+    <div class="dark-glass-card rounded-xl p-3.5 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                     style="background: linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(251,146,60,0.15) 100%); border: 1px solid rgba(245,158,11,0.15);">
+                    <i class="fas fa-sun text-amber-400 text-xs"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-white">Target Hari Ini</h4>
+                    <p class="text-[10px] text-white/40">{{ $dailyTarget->target_date->format('d M Y') }}</p>
+                </div>
+            </div>
+            <span class="text-sm font-extrabold {{ $dailyTarget->is_achieved ? 'text-emerald-400' : 'text-white' }}">
+                {{ number_format($dailyTarget->progress_percent, 0) }}%
+                @if($dailyTarget->is_achieved) <i class="fas fa-trophy text-amber-400 text-xs"></i> @endif
+            </span>
+        </div>
+        <div class="w-full h-1.5 rounded-full overflow-hidden mb-2" style="background: rgba(255,255,255,0.08);">
+            <div class="h-1.5 rounded-full transition-all duration-700"
+                 style="width: {{ min($dailyTarget->progress_percent, 100) }}%;
+                        background: {{ $dailyTarget->is_achieved ? 'linear-gradient(90deg,#10b981,#059669)' : 'linear-gradient(90deg,#f59e0b,#f97316)' }};"></div>
+        </div>
+        <div class="flex items-center justify-between text-[10px] text-white/40">
+            <span>Rp {{ number_format($dailyTarget->actual_sales, 0, ',', '.') }}</span>
+            <span>/ Rp {{ number_format($dailyTarget->target_amount, 0, ',', '.') }}</span>
+        </div>
+    </div>
+    @endif
+
+    {{-- Monthly Target --}}
+    @if(isset($monthTarget) && $monthTarget)
+    <div class="dark-glass-card rounded-xl p-3.5 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                     style="background: linear-gradient(135deg, rgba(139,92,246,0.25) 0%, rgba(124,58,237,0.15) 100%); border: 1px solid rgba(139,92,246,0.15);">
+                    <i class="fas fa-calendar text-violet-400 text-xs"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-white">Target Bulan Ini</h4>
+                    <p class="text-[10px] text-white/40">{{ $monthTarget->target_date->format('M Y') }}</p>
+                </div>
+            </div>
+            <span class="text-sm font-extrabold {{ $monthTarget->is_achieved ? 'text-emerald-400' : 'text-white' }}">
+                {{ number_format($monthTarget->progress_percent, 0) }}%
+                @if($monthTarget->is_achieved) <i class="fas fa-trophy text-amber-400 text-xs"></i> @endif
+            </span>
+        </div>
+        <div class="w-full h-1.5 rounded-full overflow-hidden mb-2" style="background: rgba(255,255,255,0.08);">
+            <div class="h-1.5 rounded-full transition-all duration-700"
+                 style="width: {{ min($monthTarget->progress_percent, 100) }}%;
+                        background: {{ $monthTarget->is_achieved ? 'linear-gradient(90deg,#10b981,#059669)' : 'linear-gradient(90deg,#8b5cf6,#7c3aed)' }};"></div>
+        </div>
+        <div class="flex items-center justify-between text-[10px] text-white/40">
+            <span>Rp {{ number_format($monthTarget->actual_sales, 0, ',', '.') }}</span>
+            <span>/ Rp {{ number_format($monthTarget->target_amount, 0, ',', '.') }}</span>
+        </div>
+    </div>
+    @endif
+
+    {{-- Expiring Stock Alert --}}
+    @if(isset($expiringStockCount) && $expiringStockCount > 0)
+    <a href="{{ route('admin.stock-in.expiry-alert') }}" 
+       class="dark-glass-card rounded-xl p-3.5 relative overflow-hidden group hover:scale-[1.02] transition-all {{ $expiringStockCount > 3 ? 'border border-red-500/30' : 'border border-amber-500/20' }}">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 {{ $expiringStockCount > 3 ? 'animate-pulse' : '' }}"
+                 style="background: {{ $expiringStockCount > 3 ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)' }};">
+                <i class="fas fa-exclamation-triangle {{ $expiringStockCount > 3 ? 'text-red-400' : 'text-amber-400' }} text-sm"></i>
+            </div>
+            <div class="flex-1">
+                <p class="text-xs font-bold {{ $expiringStockCount > 3 ? 'text-red-400' : 'text-amber-400' }}">
+                    {{ $expiringStockCount }} Stok Akan Kedaluwarsa
+                </p>
+                <p class="text-[10px] text-white/40 mt-0.5">Dalam 3 hari ke depan — Klik untuk detail</p>
+            </div>
+            <i class="fas fa-arrow-right text-white/30 text-xs group-hover:text-white/60 transition-colors"></i>
+        </div>
+    </a>
+    @endif
+</div>
+@endif
+
 {{-- CHARTS SECTION --}}
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-2.5 mb-4">
     {{-- Sales Trend Chart --}}
-    <div class="dark-glass-card rounded-xl p-4 overflow-hidden">
+    <div class="dark-glass-card rounded-xl p-4">
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h3 class="text-sm sm:text-base font-bold text-white">Tren Penjualan & Profit</h3>
@@ -132,13 +219,13 @@
                 <i class="fas fa-chart-line text-cyan-400 text-xs"></i>
             </div>
         </div>
-        <div class="h-56 sm:h-64" id="salesChartContainer">
-            <canvas id="salesChart"></canvas>
+        <div class="relative h-56 sm:h-64" id="salesChartContainer">
+            <canvas id="salesChart" style="width:100%;height:100%;"></canvas>
         </div>
     </div>
 
     {{-- Category Distribution Chart --}}
-    <div class="dark-glass-card rounded-xl p-4 overflow-hidden">
+    <div class="dark-glass-card rounded-xl p-4">
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h3 class="text-sm sm:text-base font-bold text-white">Distribusi Penjualan</h3>
@@ -149,8 +236,8 @@
                 <i class="fas fa-pie-chart text-orange-400 text-xs"></i>
             </div>
         </div>
-        <div class="h-56 sm:h-64 flex items-center justify-center" id="categoryChartContainer">
-            <canvas id="categoryChart"></canvas>
+        <div class="relative h-56 sm:h-64" id="categoryChartContainer">
+            <canvas id="categoryChart" style="width:100%;height:100%;"></canvas>
         </div>
     </div>
 </div>
@@ -229,7 +316,7 @@
         </div>
         <div class="p-3">
             @if($recentOrders->count() > 0)
-                <div class="space-y-2">
+                <div id="recent-orders-list" class="space-y-2">
                     @foreach($recentOrders as $order)
                     <a href="{{ route('admin.orders.show', $order) }}" 
                        class="block p-3 rounded-lg hover:bg-white/5 transition-colors border border-white/5">
@@ -424,6 +511,97 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // ── Live Dashboard Stats Polling ──────────────────────────────────────────
+    (function () {
+        let prevNeedsAttention = {{ ($pendingOrders ?? 0) + ($waitingVerification ?? 0) }};
+
+        const statusClasses = {
+            pending:          'bg-amber-500/15 text-amber-400 border border-amber-500/20',
+            waiting_payment:  'bg-yellow-500/15 text-yellow-400 border border-yellow-500/20',
+            paid:             'bg-sky-500/15 text-sky-400 border border-sky-500/20',
+            confirmed:        'bg-blue-500/15 text-blue-400 border border-blue-500/20',
+            out_for_delivery: 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/20',
+            completed:        'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20',
+            cancelled:        'bg-red-500/15 text-red-400 border border-red-500/20',
+        };
+
+        function fmtRupiah(val) {
+            return 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
+        }
+
+        function showToast(count) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 right-4 z-[9999] flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border';
+            toast.style.cssText = 'background:rgba(6,182,212,0.15);border-color:rgba(6,182,212,0.4);backdrop-filter:blur(14px);transition:opacity .5s';
+            toast.innerHTML = `
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-500/20 animate-pulse">
+                    <i class="fas fa-shopping-cart text-cyan-400 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-white">Pesanan Baru!</p>
+                    <p class="text-xs text-white/60">${count} pesanan perlu perhatian</p>
+                </div>
+                <a href="{{ route('admin.orders.index') }}" class="ml-2 text-xs text-cyan-400 font-semibold hover:text-cyan-300">Lihat →</a>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 6000);
+        }
+
+        function updateEl(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
+
+        function renderRecentOrders(orders) {
+            const container = document.getElementById('recent-orders-list');
+            if (!container || !orders || !orders.length) return;
+            container.innerHTML = orders.map(o => `
+                <a href="${o.url}"
+                   class="block p-3 rounded-lg hover:bg-white/5 transition-colors border border-white/5">
+                    <div class="flex items-center justify-between">
+                        <div class="min-w-0">
+                            <p class="font-bold text-cyan-400 text-sm">${o.order_number}</p>
+                            <p class="text-white/40 text-xs truncate">${o.user_name} — ${o.created_at}</p>
+                        </div>
+                        <span class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase ${statusClasses[o.status] || 'bg-white/10 text-white/60 border border-white/10'}">
+                            ${o.status_label}
+                        </span>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        async function pollLiveStats() {
+            try {
+                const res  = await fetch('{{ route('admin.dashboard.live-stats') }}', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+
+                updateEl('stat-pending-orders',      data.pendingOrders);
+                updateEl('stat-today-orders',         data.todayOrders);
+                updateEl('stat-waiting-verification', data.waitingVerification);
+                updateEl('stat-today-sales',          fmtRupiah(data.todaySales));
+                updateEl('stat-pending-revenue',      fmtRupiah(data.pendingRevenue));
+
+                if (Array.isArray(data.recentOrders)) {
+                    renderRecentOrders(data.recentOrders);
+                }
+
+                if (data.needsAttention > prevNeedsAttention) {
+                    showToast(data.needsAttention);
+                }
+                prevNeedsAttention = data.needsAttention;
+            } catch (e) {
+                console.warn('Live-stats poll failed:', e);
+            }
+        }
+
+        setInterval(pollLiveStats, 30000);
+    })();
+    // ─────────────────────────────────────────────────────────────────────────
 });
 </script>
 @endpush

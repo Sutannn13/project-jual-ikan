@@ -19,10 +19,7 @@
         html, body {
             overflow-x: hidden !important;
             max-width: 100vw;
-        }
-        body {
-            background: url('{{ asset('images/hero-background.jpg') }}') no-repeat center center fixed !important;
-            background-size: cover !important;
+            background-color: #071525 !important;
         }
         
         @keyframes floatUp {
@@ -49,13 +46,17 @@
 <body class="min-h-screen flex flex-col antialiased text-gray-800 overflow-x-hidden">
 
     {{-- ========================================
-         HERO BACKGROUND OVERLAY
+         GLOSSY AUTH BACKGROUND (like admin dashboard)
          ======================================== --}}
-    <div class="fixed inset-0 w-full h-full" style="background: linear-gradient(135deg, rgba(7,21,37,0.55) 0%, rgba(8,80,120,0.45) 50%, rgba(14,116,144,0.55) 100%); z-index: 0; pointer-events: none;"></div>
-    <div class="fixed inset-0 grid-pattern" style="z-index: 0; pointer-events: none;"></div>
+    <div class="fixed inset-0 bg-auth-glossy -z-10"></div>
+    <div class="fixed inset-0 -z-10" style="background: 
+        radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.2), transparent 40%), 
+        radial-gradient(circle at 80% 50%, rgba(20, 184, 166, 0.15), transparent 50%), 
+        radial-gradient(circle at 40% 90%, rgba(14, 116, 144, 0.12), transparent 40%);"></div>
+    <div class="fixed inset-0 grid-pattern -z-10"></div>
 
     {{-- Floating particles --}}
-    <div class="fixed inset-0 overflow-hidden pointer-events-none" style="z-index: 0;">
+    <div class="fixed inset-0 -z-5 overflow-hidden pointer-events-none">
         <div class="particle w-1 h-1 bg-ocean-400/30" style="left: 10%; animation-duration: 15s; animation-delay: 0s;"></div>
         <div class="particle w-1.5 h-1.5 bg-teal-400/20" style="left: 25%; animation-duration: 20s; animation-delay: 3s;"></div>
         <div class="particle w-1 h-1 bg-ocean-300/25" style="left: 45%; animation-duration: 18s; animation-delay: 7s;"></div>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -27,6 +29,15 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $user = Auth::user();
+
+            // Check email verification (skip for admin)
+            if (!$user->isAdmin() && !$user->hasVerifiedEmail()) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect()->route('verification.notice')
+                    ->with('warning', 'Silakan verifikasi email Anda sebelum login. Cek inbox/spam email Anda.');
+            }
 
             if ($user->must_change_password) {
                 return redirect()->route('password.change')
@@ -71,7 +82,11 @@ class AuthController extends Controller
         $user = \App\Models\User::create($validated);
         Auth::login($user);
 
-        return redirect()->route('home')->with('success', 'Registrasi berhasil! Selamat datang.');
+        // Fire Registered event — this triggers the email verification notification
+        event(new Registered($user));
+
+        return redirect()->route('verification.notice')
+            ->with('success', 'Registrasi berhasil! Silakan cek email Anda untuk verifikasi akun.');
     }
 
     public function showChangePassword()
@@ -81,17 +96,62 @@ class AuthController extends Controller
 
     public function processChangePassword(Request $request)
     {
-        $request->validate([
+        $user = Auth::user();
+
+        // When must_change_password is true (admin reset), skip old password check
+        // Otherwise require confirmation of current password
+        $rules = [
             'password' => 'required|min:6|confirmed',
+        ];
+
+        if (!$user->must_change_password) {
+            $rules['current_password'] = 'required';
+        }
+
+        $request->validate($rules, [
+            'current_password.required' => 'Password lama wajib diisi.',
         ]);
 
-        $user = Auth::user();
+        // Verify old password if required
+        if (!$user->must_change_password) {
+            if (!Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Password lama tidak sesuai.'])->withInput();
+            }
+        }
+
         $user->update([
             'password' => bcrypt($request->password),
             'must_change_password' => false,
         ]);
 
         return redirect()->route('home')->with('success', 'Password berhasil diubah!');
+    }
+
+    // ==============================
+    // EMAIL VERIFICATION
+    // ==============================
+
+    public function showVerificationNotice()
+    {
+        if (Auth::check() && Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('home');
+        }
+        return view('auth.verify-email');
+    }
+
+    public function resendVerification(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        if (Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('home');
+        }
+
+        Auth::user()->sendEmailVerificationNotification();
+
+        return back()->with('success', 'Link verifikasi telah dikirim ulang ke email Anda!');
     }
 
     public function logout(Request $request)
