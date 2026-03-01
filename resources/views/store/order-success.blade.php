@@ -116,7 +116,7 @@
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);">
                                 @if($item->produk->foto)
-                                    <img src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover rounded-lg">
+                                    <img loading="lazy" src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover rounded-lg">
                                 @else
                                     <i class="fas fa-fish text-white/30 text-xs"></i>
                                 @endif
@@ -219,9 +219,9 @@
                         <i class="fas fa-building text-2xl text-cyan-400"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-white/50">Bank BCA</p>
-                        <p class="text-2xl font-black text-white tracking-wide">1234567890</p>
-                        <p class="text-sm font-semibold text-white/70">a.n. FishMarket Indonesia</p>
+                        <p class="text-sm text-white/50">Bank Mandiri</p>
+                        <p class="text-2xl font-black text-white tracking-wide">1180008828260</p>
+                        <p class="text-sm font-semibold text-white/70">a.n. Sutan Ranndy</p>
                     </div>
                 </div>
                 <div class="flex items-center justify-between rounded-xl p-4" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);">
@@ -253,7 +253,7 @@
                             <p class="text-sm text-white/40">Format: JPG, PNG (Maks. 5MB)</p>
                         </div>
                         <div id="image-preview" class="hidden">
-                            <img id="preview-img" src="" alt="Preview" class="max-h-48 mx-auto rounded-xl shadow-lg">
+                            <img loading="lazy" id="preview-img" src="" alt="Preview" class="max-h-48 mx-auto rounded-xl shadow-lg">
                             <p class="text-sm text-white/40 mt-3">Klik untuk ganti gambar</p>
                         </div>
                     </label>
@@ -312,7 +312,7 @@
             <h3 class="font-bold text-white flex items-center gap-2 mb-4">
                 <i class="fas fa-image text-cyan-400"></i> Bukti Pembayaran Anda
             </h3>
-            <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="Bukti Pembayaran" 
+            <img loading="lazy" src="{{ asset('storage/' . $order->payment_proof) }}" alt="Bukti Pembayaran" 
                  class="max-h-64 mx-auto rounded-xl shadow-lg">
         </div>
         @endif

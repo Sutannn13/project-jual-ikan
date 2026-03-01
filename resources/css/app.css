@@ -976,6 +976,73 @@
     .fixed.bottom-6 {
         bottom: max(1.5rem, env(safe-area-inset-bottom));
     }
+
+    /* Navbar safe area for notched phones */
+    nav.sticky {
+        padding-top: env(safe-area-inset-top);
+    }
+}
+
+/* =====================================================
+   Safari / iOS Compatibility Fixes
+   ===================================================== */
+
+/* Fix -webkit-backdrop-filter for older Safari */
+@supports not (backdrop-filter: blur(1px)) {
+    .nav-blur,
+    .store-glass-card,
+    .dark-glass-card {
+        background: rgba(8, 51, 68, 0.95) !important;
+    }
+}
+
+/* Fix sticky positioning on iOS Safari */
+nav.sticky {
+    position: -webkit-sticky;
+    position: sticky;
+}
+
+/* Fix 100vh on mobile (address bar issue) */
+@supports (height: 100dvh) {
+    .min-h-screen {
+        min-height: 100dvh;
+    }
+}
+
+/* Prevent iOS text size adjust on rotate */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Fix iOS input zoom (font-size < 16px causes zoom) */
+@media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="search"],
+    input[type="url"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Fix iOS momentum scrolling */
+.overflow-y-auto,
+.overflow-y-scroll {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fix iOS tap highlight */
+a,
+button,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Print styles */

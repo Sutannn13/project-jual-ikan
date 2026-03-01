@@ -200,7 +200,7 @@ function previewAditionalPhotos(input) {
         reader.onload = e => {
             const div = document.createElement('div');
             div.className = 'relative';
-            div.innerHTML = `<img src="${e.target.result}" class="w-16 h-16 rounded-lg object-cover border border-white/10">`;
+            div.innerHTML = `<img loading="lazy" src="${e.target.result}" class="w-16 h-16 rounded-lg object-cover border border-white/10">`;
             preview.appendChild(div);
         };
         reader.readAsDataURL(file);

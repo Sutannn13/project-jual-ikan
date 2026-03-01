@@ -37,7 +37,7 @@
         <div class="p-4">
             <div class="flex gap-3">
                 @if($produk->foto)
-                    <img src="{{ asset('storage/' . $produk->foto) }}" alt="Foto" 
+                    <img loading="lazy" src="{{ asset('storage/' . $produk->foto) }}" alt="Foto" 
                          class="w-16 h-16 rounded-xl object-cover border border-white/10 flex-shrink-0">
                 @else
                     <div class="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center text-white/20 flex-shrink-0">
@@ -99,7 +99,7 @@
                     <td class="px-6 py-4 text-white/40">{{ $loop->iteration + ($produks->currentPage() - 1) * $produks->perPage() }}</td>
                     <td class="px-6 py-4">
                         @if($produk->foto)
-                            <img src="{{ asset('storage/' . $produk->foto) }}" alt="Foto" class="w-12 h-12 rounded-xl object-cover border border-white/10">
+                            <img loading="lazy" src="{{ asset('storage/' . $produk->foto) }}" alt="Foto" class="w-12 h-12 rounded-xl object-cover border border-white/10">
                         @else
                             <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white/20">
                                 <i class="fas fa-fish"></i>

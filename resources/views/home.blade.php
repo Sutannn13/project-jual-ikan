@@ -212,17 +212,11 @@
 
 @section('content')
 @guest
-{{-- ========================================
-     PREMIUM LANDING PAGE FOR GUESTS
-     ======================================== --}}
 
-{{-- Page-load progress bar --}}
 @guest <div id="lp-progress"></div> @endguest
 
-{{-- Background overlay gradient only (image now in body background from styles) --}}
 <div class="fixed inset-0 w-full h-full bg-gradient-to-br from-ocean-900/70 via-ocean-800/60 to-cyan-900/70" style="z-index: -1;"></div>
 
-{{-- HERO SECTION with Background Image --}}
 <section class="relative overflow-x-hidden -mt-[1px] min-h-screen w-full flex items-center">
     
     {{-- Subtle shimmer effect --}}
@@ -276,21 +270,20 @@
                     </a>
                 </div>
 
-                {{-- Trust Badges --}}
-                <div class="hero-trust-anim flex flex-wrap items-center gap-3 sm:gap-5 justify-center lg:justify-start trust-wrap">
-                    <div class="flex items-center gap-1.5 sm:gap-2 text-white text-xs sm:text-sm">
+                <div class="hero-trust-anim flex flex-wrap items-center gap-4 sm:gap-5 justify-center lg:justify-start trust-wrap">
+                    <div class="flex items-center gap-1.5 sm:gap-2 text-white text-xs sm:text-sm whitespace-nowrap">
                         <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center border border-white/40 shadow-lg flex-shrink-0">
                             <i class="fas fa-truck text-amber-300 text-xs drop-shadow-md"></i>
                         </div>
                         <span class="drop-shadow-lg font-medium">Same-Day</span>
                     </div>
-                    <div class="flex items-center gap-1.5 sm:gap-2 text-white text-xs sm:text-sm">
+                    <div class="flex items-center gap-1.5 sm:gap-2 text-white text-xs sm:text-sm whitespace-nowrap">
                         <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center border border-white/40 shadow-lg flex-shrink-0">
                             <i class="fas fa-shield-alt text-amber-300 text-xs drop-shadow-md"></i>
                         </div>
                         <span class="drop-shadow-lg font-medium">100% Garansi</span>
                     </div>
-                    <div class="flex items-center gap-1.5 sm:gap-2 text-white text-xs sm:text-sm">
+                    <div class="flex items-center gap-1.5 sm:gap-2 text-white text-xs sm:text-sm whitespace-nowrap">
                         <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center border border-white/40 shadow-lg flex-shrink-0">
                             <i class="fas fa-tags text-amber-300 text-xs drop-shadow-md"></i>
                         </div>
@@ -453,7 +446,7 @@
             <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 px-4">Mudah & Cepat, Hanya 3 Langkah!</h2>
         </div>
 
-        <div class="grid sm:grid-cols-3 gap-6 sm:gap-8 relative">
+        <div class="grid md:grid-cols-3 gap-6 sm:gap-8 relative">
             {{-- Connection Line (hidden on mobile) --}}
             <div class="hidden sm:block absolute top-1/3 left-1/4 right-1/4 h-0.5" style="background: linear-gradient(to right, rgba(6,182,212,0.3), rgba(20,184,166,0.3), rgba(251,113,133,0.3));"></div>
             
@@ -512,7 +505,7 @@
             Bergabunglah dengan ribuan pelanggan yang sudah mempercayai FishMarket untuk kebutuhan ikan segar mereka.
         </p>
         
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <div class="flex flex-col md:flex-row gap-4 justify-center">
             <a href="{{ route('register') }}" class="btn-shine-wrap btn-shiny inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 font-bold text-ocean-900 rounded-2xl transition-all duration-300 hover:scale-105 text-sm sm:text-base"
                style="background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%); box-shadow: 0 8px 30px rgba(0,0,0,0.2);">
                 <i class="fas fa-rocket"></i> Daftar Sekarang - Gratis!
@@ -706,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="{{ $banner->link_url ?? route('catalog') }}" 
                    class="block rounded-2xl overflow-hidden group relative {{ $banners->count() === 1 ? 'md:col-span-1 max-w-3xl mx-auto w-full' : '' }}">
                     <div class="aspect-[16/7] overflow-hidden">
-                        <img src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}"
+                        <img loading="lazy" src="{{ asset('storage/' . $banner->image) }}" alt="{{ $banner->title }}"
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                     </div>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>

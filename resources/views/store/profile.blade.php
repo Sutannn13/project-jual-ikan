@@ -22,7 +22,7 @@
                  style="background: rgba(255,255,255,0.07); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.12);">
                 <div class="relative inline-block mb-4">
                     @if($user->foto_profil)
-                        <img src="{{ asset('storage/' . $user->foto_profil) }}" 
+                        <img loading="lazy" src="{{ asset('storage/' . $user->foto_profil) }}" 
                              alt="{{ $user->name }}"
                              class="w-32 h-32 rounded-full object-cover border-4 border-white/20 shadow-xl">
                     @else

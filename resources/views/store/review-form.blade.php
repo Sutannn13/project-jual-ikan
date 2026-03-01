@@ -52,7 +52,7 @@
             <div class="flex items-center gap-4">
                 <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-white/10 border border-white/10">
                     @if($produk->foto)
-                        <img src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama }}"
+                        <img loading="lazy" src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama }}"
                              class="w-full h-full object-cover">
                     @else
                         <div class="w-full h-full flex items-center justify-center">

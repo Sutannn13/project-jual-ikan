@@ -6,6 +6,26 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'FishMarket') | FishMarket</title>
     
+    {{-- Favicon --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}">
+    
+    {{-- OG Meta Tags for Social Sharing --}}
+    <meta name="description" content="@yield('meta_description', 'FishMarket - Marketplace ikan air tawar terpercaya. Ikan Nila & Ikan Mas berkualitas langsung dari kolam petani di Tapos, Depok.')">
+    <meta property="og:title" content="@yield('title', 'FishMarket') | FishMarket">
+    <meta property="og:description" content="@yield('meta_description', 'FishMarket - Marketplace ikan air tawar terpercaya. Ikan Nila & Ikan Mas berkualitas langsung dari kolam petani.')">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('images/hero-background.jpg') }}">
+    <meta property="og:site_name" content="FishMarket">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    {{-- iOS / Mobile Web App --}}
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0891b2">
+    
     {{-- Premium Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -91,6 +111,9 @@
           mobileOpen: false,
           bubbles: [],
           init() {
+              // Always close mobile nav on page load (fixes back-button / cache issues)
+              this.mobileOpen = false;
+
               // Generate random bubbles
               setInterval(() => {
                   if (this.bubbles.length < 15) {
@@ -273,13 +296,13 @@
                             </span>
                         </a>
                     @else
-                        <div class="relative" x-data="{ open: false }">
+                        <div class="relative" x-data="{ open: false }" @keydown.escape.window="open = false">
                             <button @click="open = !open" 
                                     class="flex items-center gap-3 pl-3 pr-4 py-2 rounded-xl text-sm font-medium text-white/95 hover:bg-white/15 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/30">
                                 <div class="relative w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ring-2 ring-white/30 group-hover:ring-cyan-400/60 transition-all"
                                      style="background: linear-gradient(135deg, rgba(34, 211, 238, 0.3), rgba(20, 184, 166, 0.3));">
                                     @if(Auth::user()->foto_profil)
-                                        <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}" alt="Foto Profil" class="w-full h-full object-cover">
+                                        <img loading="lazy" src="{{ asset('storage/' . Auth::user()->foto_profil) }}" alt="Foto Profil" class="w-full h-full object-cover">
                                     @else
                                         <i class="fas fa-user text-white text-sm"></i>
                                     @endif
@@ -287,7 +310,7 @@
                                 <span class="hidden sm:block max-w-[120px] truncate text-white font-semibold">{{ Auth::user()->name }}</span>
                                 <i class="fas fa-chevron-down text-xs text-white/70 transition-transform" :class="{ 'rotate-180': open }"></i>
                             </button>
-                            <div x-show="open" @click.away="open = false" 
+                            <div x-show="open" @click.outside="open = false" 
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
                                  x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -369,38 +392,38 @@
                  x-transition:enter-end="opacity-100 translate-y-0"
                  class="md:hidden pb-4 mt-4">
                 <div class="space-y-2 p-3 rounded-2xl" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(20, 184, 166, 0.15) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15);">
-                    <a href="{{ route('home') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('home') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                    <a href="{{ route('home') }}" @click="mobileOpen = false" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('home') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                         <i class="fas fa-home w-5 text-center"></i> Beranda
                     </a>
-                    <a href="{{ route('catalog') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('catalog') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                    <a href="{{ route('catalog') }}" @click="mobileOpen = false" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('catalog') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                         <i class="fas fa-fish w-5 text-center"></i> Katalog
                     </a>
                     @auth
-                        <a href="{{ route('cart.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('cart.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                        <a href="{{ route('cart.index') }}" @click="mobileOpen = false" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('cart.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-shopping-cart w-5 text-center"></i> Keranjang
                             @php $menuCartCount = \App\Http\Controllers\CartController::getCartCount(); @endphp
                             @if($menuCartCount > 0)
                                 <span class="ml-auto px-2.5 py-1 rounded-full text-xs font-bold text-white {{ session('cart_added') ? 'badge-cart-pop' : '' }}" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">{{ $menuCartCount }}</span>
                             @endif
                         </a>
-                        <a href="{{ route('my.orders') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('my.orders') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                        <a href="{{ route('my.orders') }}" @click="mobileOpen = false" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('my.orders') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-box w-5 text-center"></i> Pesanan Saya
                         </a>
-                        <a href="{{ route('wishlist.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('wishlist.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                        <a href="{{ route('wishlist.index') }}" @click="mobileOpen = false" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('wishlist.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-heart w-5 text-center"></i> Wishlist
                         </a>
-                        <a href="{{ route('profile.show') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('profile.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                        <a href="{{ route('profile.show') }}" @click="mobileOpen = false" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('profile.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-user-edit w-5 text-center"></i> Profil
                         </a>
-                        <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('chat.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                        <a href="{{ route('chat.index') }}" @click="mobileOpen = false" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('chat.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-comments w-5 text-center"></i> Chat Admin
                         </a>
-                        <a href="{{ route('tickets.index') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('tickets.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                        <a href="{{ route('tickets.index') }}" @click="mobileOpen = false" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('tickets.*') ? 'bg-gradient-to-r from-cyan-500/40 to-teal-500/40 text-white border border-white/20 shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                             <i class="fas fa-headset w-5 text-center"></i> Support Ticket
                         </a>
                         @if(Auth::user()->isAdmin())
                             <div class="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-2"></div>
-                            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all">
+                            <a href="{{ route('admin.dashboard') }}" @click="mobileOpen = false" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all">
                                 <i class="fas fa-tachometer-alt w-5 text-center text-cyan-400"></i> Dashboard Admin
                             </a>
                         @endif
@@ -821,6 +844,20 @@
             }
         });
     }
+
+    // Fix bfcache: close mobile nav & desktop dropdown when page is restored from cache (back button)
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            // Page restored from bfcache (back/forward nav)
+            document.querySelectorAll('[x-data]').forEach(el => {
+                if (el._x_dataStack && el._x_dataStack[0]) {
+                    const data = el._x_dataStack[0];
+                    if ('mobileOpen' in data) data.mobileOpen = false;
+                    if ('open' in data) data.open = false;
+                }
+            });
+        }
+    });
     </script>
 
     @stack('scripts')

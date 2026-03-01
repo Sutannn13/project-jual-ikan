@@ -42,7 +42,7 @@
                     <label class="label-field">Gambar Banner {{ !$isEdit ? '(wajib)' : '(kosongkan jika tidak ganti)' }}</label>
                     @if($isEdit && $banner->image)
                         <div class="mb-3 rounded-xl overflow-hidden" style="max-height: 200px;">
-                            <img src="{{ asset('storage/' . $banner->image) }}" alt="Current banner" class="w-full object-cover">
+                            <img loading="lazy" src="{{ asset('storage/' . $banner->image) }}" alt="Current banner" class="w-full object-cover">
                         </div>
                     @endif
                     <input type="file" name="image" accept="image/*" class="input-field" {{ !$isEdit ? 'required' : '' }}>

@@ -76,16 +76,20 @@ class AdminDashboardController extends Controller
             $chartProfitData[] = $dayOrders->sum(fn($o) => $o->gross_profit);
         }
 
-        // Doughnut chart: Ikan Nila vs Ikan Mas
+        // Doughnut chart: Semua kategori walau belum ada penjualan
+        $categories = Produk::select('kategori')->distinct()->pluck('kategori');
         $categoryDistribution = OrderItem::join('produks', 'order_items.produk_id', '=', 'produks.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.status', 'completed')
             ->selectRaw('produks.kategori, SUM(order_items.subtotal) as total')
             ->groupBy('produks.kategori')
-            ->get();
+            ->get()
+            ->keyBy('kategori');
 
-        $doughnutLabels = $categoryDistribution->pluck('kategori')->toArray();
-        $doughnutData = $categoryDistribution->pluck('total')->map(fn($v) => (float) $v)->toArray();
+        $doughnutLabels = $categories->toArray();
+        $doughnutData = $categories->map(function($category) use ($categoryDistribution) {
+            return $categoryDistribution->has($category) ? (float) $categoryDistribution[$category]->total : 0;
+        })->toArray();
 
         // Recent orders
         $recentOrders = Order::with('user')->latest()->take(5)->get();
@@ -127,18 +131,25 @@ class AdminDashboardController extends Controller
             $chartData[] = $found ? (float) $found->total : 0;
         }
 
+        $categories = Produk::select('kategori')->distinct()->pluck('kategori');
         $categoryDistribution = OrderItem::join('produks', 'order_items.produk_id', '=', 'produks.id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.status', 'completed')
             ->selectRaw('produks.kategori, SUM(order_items.subtotal) as total')
             ->groupBy('produks.kategori')
-            ->get();
+            ->get()
+            ->keyBy('kategori');
+
+        $doughnutLabelsList = $categories->toArray();
+        $doughnutDataList = $categories->map(function($category) use ($categoryDistribution) {
+            return $categoryDistribution->has($category) ? (float) $categoryDistribution[$category]->total : 0;
+        })->toArray();
 
         return response()->json([
             'chartLabels'    => $chartLabels,
             'chartData'      => $chartData,
-            'doughnutLabels' => $categoryDistribution->pluck('kategori')->toArray(),
-            'doughnutData'   => $categoryDistribution->pluck('total')->map(fn($v) => (float) $v)->toArray(),
+            'doughnutLabels' => $doughnutLabelsList,
+            'doughnutData'   => $doughnutDataList,
         ]);
     }
 

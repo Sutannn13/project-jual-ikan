@@ -147,7 +147,7 @@
                     <div class="flex items-center gap-4">
                     @if($produk->foto)
                         <div class="relative group">
-                            <img src="{{ asset('storage/' . $produk->foto) }}" alt="Foto" class="w-20 h-20 rounded-lg object-cover shadow-sm">
+                            <img loading="lazy" src="{{ asset('storage/' . $produk->foto) }}" alt="Foto" class="w-20 h-20 rounded-lg object-cover shadow-sm">
                         </div>
                         <div>
                             <p class="text-sm font-medium text-white/70">Foto Saat Ini</p>
@@ -178,7 +178,7 @@
                 <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
                     @foreach($produk->productImages as $img)
                     <div class="relative group rounded-xl overflow-hidden" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
-                        <img src="{{ $img->url }}" class="w-full aspect-square object-cover">
+                        <img loading="lazy" src="{{ $img->url }}" class="w-full aspect-square object-cover">
                         @if($img->is_primary)
                         <div class="absolute top-1.5 left-1.5">
                             <span class="px-1.5 py-0.5 rounded text-[9px] font-bold text-white"
@@ -246,7 +246,7 @@ function previewAdditionalPhotos(input) {
         const reader = new FileReader();
         reader.onload = e => {
             const div = document.createElement('div');
-            div.innerHTML = `<img src="${e.target.result}" class="w-16 h-16 rounded-lg object-cover border border-white/10">`;
+            div.innerHTML = `<img loading="lazy" src="${e.target.result}" class="w-16 h-16 rounded-lg object-cover border border-white/10">`;
             preview.appendChild(div);
         };
         reader.readAsDataURL(file);

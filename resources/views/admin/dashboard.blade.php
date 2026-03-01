@@ -267,7 +267,7 @@
                         <div class="flex items-center gap-3 min-w-0">
                             <div class="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0" style="background: rgba(255,255,255,0.06);">
                                 @if($product->foto)
-                                    <img src="{{ asset('storage/'.$product->foto) }}" class="w-full h-full object-cover">
+                                    <img loading="lazy" src="{{ asset('storage/'.$product->foto) }}" class="w-full h-full object-cover">
                                 @else
                                     <i class="fas fa-fish text-white/30"></i>
                                 @endif

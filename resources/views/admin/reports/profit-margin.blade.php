@@ -70,7 +70,7 @@
                     <td class="p-4">
                         <div class="flex items-center gap-3">
                             @if($product->foto)
-                            <img src="{{ asset('storage/'.$product->foto) }}" alt="" 
+                            <img loading="lazy" src="{{ asset('storage/'.$product->foto) }}" alt="" 
                                  class="w-9 h-9 rounded-lg object-cover flex-shrink-0">
                             @else
                             <div class="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
@@ -131,7 +131,7 @@
             <div class="flex items-center justify-between gap-3 mb-3">
                 <div class="flex items-center gap-2 min-w-0">
                     @if($product->foto)
-                    <img src="{{ asset('storage/'.$product->foto) }}" class="w-9 h-9 rounded-lg object-cover flex-shrink-0">
+                    <img loading="lazy" src="{{ asset('storage/'.$product->foto) }}" class="w-9 h-9 rounded-lg object-cover flex-shrink-0">
                     @endif
                     <div class="min-w-0">
                         <p class="font-semibold text-white truncate">{{ $product->nama }}</p>

@@ -184,7 +184,7 @@
                 <div class="flex items-center gap-2.5 sm:gap-3 lg:gap-4 py-2 sm:py-3 border-b border-white/5 last:border-0 hover:bg-white/5 p-2 rounded-xl transition-colors">
                     <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-white/5 flex-shrink-0 overflow-hidden border border-white/10">
                         @if($item->produk->foto)
-                            <img src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover">
+                            <img loading="lazy" src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover">
                         @else
                             <div class="w-full h-full flex items-center justify-center text-white/20">
                                 <i class="fas fa-fish text-sm"></i>

@@ -69,7 +69,7 @@
                         {{-- Product Image --}}
                         <div class="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 bg-white/10">
                             @if($item['produk']->foto)
-                                <img src="{{ asset('storage/' . $item['produk']->foto) }}" 
+                                <img loading="lazy" src="{{ asset('storage/' . $item['produk']->foto) }}" 
                                      alt="{{ $item['produk']->nama }}"
                                      class="w-full h-full object-cover">
                             @else

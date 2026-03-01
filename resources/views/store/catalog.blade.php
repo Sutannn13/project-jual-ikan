@@ -120,7 +120,7 @@
                 {{-- Image --}}
                 <div class="aspect-[4/3] overflow-hidden relative bg-white/5">
                     @if($produk->foto)
-                        <img src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama }}"
+                        <img loading="lazy" src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama }}"
                              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     @else
                         <div class="w-full h-full flex items-center justify-center text-white/20">

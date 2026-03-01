@@ -51,16 +51,22 @@
                 <div>
                     <label class="block text-sm font-semibold text-white/80 mb-2">Password</label>
                     <div class="relative overflow-hidden rounded-xl"
+                         id="password-wrapper"
                          style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);">
                         <div class="absolute left-0 top-0 bottom-0 w-14 flex items-center justify-center z-10"
                              style="background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%); box-shadow: 2px 0 8px rgba(6,182,212,0.2);">
                             <i class="fas fa-lock text-white text-base"></i>
                         </div>
-                        <input type="password" name="password" 
-                               class="w-full px-4 py-3.5 pl-16 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none bg-transparent border-0"
-                               onfocus="this.parentElement.style.borderColor='rgba(6,182,212,0.5)'; this.parentElement.style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
-                               onblur="this.parentElement.style.borderColor='rgba(255,255,255,0.15)'; this.parentElement.style.boxShadow='none';"
+                        <input type="password" name="password" id="password-input"
+                               class="w-full px-4 py-3.5 pl-16 pr-12 rounded-xl text-sm text-white placeholder-white/30 transition-all duration-300 outline-none bg-transparent border-0"
+                               onfocus="document.getElementById('password-wrapper').style.borderColor='rgba(6,182,212,0.5)'; document.getElementById('password-wrapper').style.boxShadow='0 0 0 3px rgba(6,182,212,0.15), 0 4px 12px rgba(6,182,212,0.1)';"
+                               onblur="document.getElementById('password-wrapper').style.borderColor='rgba(255,255,255,0.15)'; document.getElementById('password-wrapper').style.boxShadow='none';"
                                placeholder="••••••••" required>
+                        <button type="button" onclick="togglePassword()"
+                                class="absolute right-0 top-0 bottom-0 w-12 flex items-center justify-center text-white/40 hover:text-cyan-400 transition-colors duration-200 z-10"
+                                tabindex="-1">
+                            <i id="toggle-eye-icon" class="fas fa-eye text-sm"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -93,4 +99,21 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function togglePassword() {
+    const input = document.getElementById('password-input');
+    const icon  = document.getElementById('toggle-eye-icon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+</script>
+@endpush
+
 @endsection

@@ -132,7 +132,7 @@
                             </a>
                         </div>
                         <div class="p-4 flex items-center justify-center min-h-[200px]" style="background: rgba(0,0,0,0.2);">
-                            <img src="{{ asset('storage/' . $order->payment_proof) }}" 
+                            <img loading="lazy" src="{{ asset('storage/' . $order->payment_proof) }}" 
                                  alt="Bukti Pembayaran {{ $order->order_number }}"
                                  class="max-h-96 rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform"
                                  onclick="openImageModal(this.src)">
@@ -363,7 +363,7 @@
         <button onclick="closeImageModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 text-2xl">
             <i class="fas fa-times"></i>
         </button>
-        <img id="modalImage" src="" alt="Bukti Pembayaran" class="max-h-[85vh] rounded-xl shadow-2xl">
+        <img loading="lazy" id="modalImage" src="" alt="Bukti Pembayaran" class="max-h-[85vh] rounded-xl shadow-2xl">
     </div>
 </div>
 

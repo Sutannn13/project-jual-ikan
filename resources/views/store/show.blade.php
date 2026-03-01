@@ -21,7 +21,7 @@
             <div class="relative">
                 <div class="aspect-square rounded-3xl overflow-hidden store-glass-card">
                     @if($produk->foto)
-                        <img src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama }}"
+                        <img loading="lazy" src="{{ asset('storage/' . $produk->foto) }}" alt="{{ $produk->nama }}"
                              class="w-full h-full object-cover">
                     @else
                         <div class="w-full h-full flex items-center justify-center bg-white/5">
@@ -330,7 +330,7 @@
                 <div class="product-card flex flex-col">
                     <div class="aspect-[4/3] overflow-hidden bg-white/5">
                         @if($related->foto)
-                            <img src="{{ asset('storage/' . $related->foto) }}" alt="{{ $related->nama }}"
+                            <img loading="lazy" src="{{ asset('storage/' . $related->foto) }}" alt="{{ $related->nama }}"
                                  class="w-full h-full object-cover hover:scale-110 transition duration-500">
                         @else
                             <div class="w-full h-full flex items-center justify-center text-white/20">

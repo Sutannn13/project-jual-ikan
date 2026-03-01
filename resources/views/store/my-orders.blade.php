@@ -90,7 +90,7 @@
                         <div class="flex items-center gap-3 sm:gap-4">
                             <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden flex-shrink-0 bg-white/10 border border-white/10">
                                 @if($item->produk->foto)
-                                    <img src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover">
+                                    <img loading="lazy" src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-gray-300">
                                         <i class="fas fa-fish"></i>
@@ -129,7 +129,7 @@
                                     <div class="flex items-center gap-2 flex-1 min-w-0">
                                         <div class="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-white/10">
                                             @if($item->produk->foto)
-                                                <img src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover">
+                                                <img loading="lazy" src="{{ asset('storage/'.$item->produk->foto) }}" class="w-full h-full object-cover">
                                             @else
                                                 <i class="fas fa-fish text-white/40 text-xs"></i>
                                             @endif
