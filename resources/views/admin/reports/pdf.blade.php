@@ -50,7 +50,7 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td style="font-weight: bold; color: #0369a1;">{{ $order->order_number }}</td>
-                    <td>{{ $order->user->name }}</td>
+                    <td>{{ $order->user?->name ?? '-' }}</td>
                     <td>
                         @foreach($order->items as $item)
                             <span class="badge {{ $item->produk->kategori === 'Ikan Nila' ? 'badge-nila' : 'badge-mas' }}">{{ $item->produk->kategori }}</span>

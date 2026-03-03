@@ -52,9 +52,9 @@
                 {{-- Customer Info --}}
                 <div class="rounded-xl p-4 mb-4" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);">
                     <h4 class="text-xs uppercase tracking-wider text-white/40 font-semibold mb-2">Pelanggan</h4>
-                    <p class="font-medium text-white">{{ $order->user->name }}</p>
-                    <p class="text-sm text-white/50">{{ $order->user->email }}</p>
-                    @if($order->user->no_hp)
+                    <p class="font-medium text-white">{{ $order->user?->name ?? '[User Dihapus]' }}</p>
+                    <p class="text-sm text-white/50">{{ $order->user?->email ?? '-' }}</p>
+                    @if($order->user?->no_hp)
                     <p class="text-sm text-white/50"><i class="fas fa-phone text-xs mr-1"></i> {{ $order->user->no_hp }}</p>
                     @endif
                     @if($order->user->alamat)

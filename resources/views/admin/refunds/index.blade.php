@@ -45,7 +45,7 @@
                             </span>
                         </div>
                         <p class="text-white/60 text-sm">
-                            <i class="fas fa-user text-white/30 mr-1"></i> {{ $order->user->name }}
+                            <i class="fas fa-user text-white/30 mr-1"></i> {{ $order->user?->name ?? '[User Dihapus]' }}
                             <span class="text-white/30 mx-2">|</span>
                             <i class="fas fa-money-bill text-white/30 mr-1"></i> Rp {{ number_format($order->total_price, 0, ',', '.') }}
                             <span class="text-white/30 mx-2">|</span>

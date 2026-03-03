@@ -107,7 +107,7 @@
                         @endif
                         <p class="font-bold {{ $order->status === 'waiting_payment' ? 'text-orange-400' : 'text-cyan-400' }} text-sm">{{ $order->order_number }}</p>
                     </div>
-                    <p class="text-xs text-white/40 truncate">{{ $order->user->name }}</p>
+                    <p class="text-xs text-white/40 truncate">{{ $order->user?->name ?? '[User Dihapus]' }}</p>
                 </div>
                 <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase flex-shrink-0
                     {{ match($order->status) {
@@ -175,8 +175,8 @@
                         </div>
                     </td>
                     <td class="px-6 py-4">
-                        <p class="font-semibold text-white">{{ $order->user->name }}</p>
-                        <p class="text-xs text-white/40">{{ $order->user->email }}</p>
+                        <p class="font-semibold text-white">{{ $order->user?->name ?? '[User Dihapus]' }}</p>
+                        <p class="text-xs text-white/40">{{ $order->user?->email ?? '-' }}</p>
                     </td>
                     <td class="px-6 py-4 text-white/60">
                         {{ $order->items->count() }} item

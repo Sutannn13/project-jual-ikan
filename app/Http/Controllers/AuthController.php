@@ -30,13 +30,13 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
-            // Check email verification (skip for admin)
+            // If email not verified (skip for admin), let them log in but redirect to
+            // verification notice. Do NOT force-logout — that creates a deadlock where
+            // the user cannot verify from a different device because the verification
+            // route requires auth. Being logged-in lets them click the email link.
             if (!$user->isAdmin() && !$user->hasVerifiedEmail()) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
                 return redirect()->route('verification.notice')
-                    ->with('warning', 'Silakan verifikasi email Anda sebelum login. Cek inbox/spam email Anda.');
+                    ->with('warning', 'Silakan verifikasi email Anda terlebih dahulu. Cek inbox/spam email Anda.');
             }
 
             if ($user->must_change_password) {

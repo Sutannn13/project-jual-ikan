@@ -282,7 +282,7 @@
                                 <i class="fas fa-user text-white/60 text-xs"></i>
                             </div>
                             <div>
-                                <h4 class="font-bold text-white text-sm">{{ $review->user->name }}</h4>
+                                <h4 class="font-bold text-white text-sm">{{ $review->user?->name ?? 'Pengguna' }}</h4>
                                 <div class="flex items-center gap-2 mt-0.5">
                                     <div class="flex items-center gap-0.5">
                                         @for($i = 1; $i <= 5; $i++)

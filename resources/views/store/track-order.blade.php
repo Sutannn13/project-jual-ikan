@@ -12,7 +12,6 @@
             </div>
             Kembali ke Pesanan Saya
         </a>
-        </a>
 
         {{-- Main Card --}}
         <div class="store-glass-card rounded-3xl overflow-hidden mb-8">
@@ -64,14 +63,20 @@
                         {{-- Steps --}}
                         @php
                             $steps = [
-                                'pending' => ['title' => 'Pesanan Dibuat', 'desc' => 'Kami telah menerima pesanan Anda.', 'icon' => 'fa-receipt'],
-                                'confirmed' => ['title' => 'Dikonfirmasi', 'desc' => 'Admin telah memverifikasi pesanan.', 'icon' => 'fa-clipboard-check'],
-                                'out_for_delivery' => ['title' => 'Dalam Pengiriman', 'desc' => 'Kurir sedang menuju lokasi Anda.', 'icon' => 'fa-truck-fast'],
-                                'completed' => ['title' => 'Selesai', 'desc' => 'Pesanan telah diterima.', 'icon' => 'fa-check-double'],
+                                'pending'          => ['title' => 'Pesanan Dibuat',       'desc' => 'Kami telah menerima pesanan Anda.',                    'icon' => 'fa-receipt'],
+                                'waiting_payment'  => ['title' => 'Menunggu Verifikasi',  'desc' => 'Bukti pembayaran sedang diperiksa oleh admin.',         'icon' => 'fa-hourglass-half'],
+                                'paid'             => ['title' => 'Pembayaran Terverifikasi', 'desc' => 'Admin telah mengkonfirmasi pembayaran Anda.',        'icon' => 'fa-check-circle'],
+                                'confirmed'        => ['title' => 'Dikonfirmasi',          'desc' => 'Pesanan dikonfirmasi dan sedang disiapkan.',            'icon' => 'fa-clipboard-check'],
+                                'out_for_delivery' => ['title' => 'Dalam Pengiriman',      'desc' => 'Kurir sedang menuju lokasi Anda.',                     'icon' => 'fa-truck-fast'],
+                                'completed'        => ['title' => 'Selesai',               'desc' => 'Pesanan telah diterima.',                              'icon' => 'fa-check-double'],
                             ];
-                            
-                            $currentStatusIndex = array_search($order->status, array_keys($steps));
-                            if ($currentStatusIndex === false) $currentStatusIndex = -1;
+
+                            // Map statuses not explicitly in the list to the closest step
+                            $statusNormalized = $order->status;
+                            if ($statusNormalized === 'cancelled') $statusNormalized = 'pending';
+
+                            $currentStatusIndex = array_search($statusNormalized, array_keys($steps));
+                            if ($currentStatusIndex === false) $currentStatusIndex = 0;
                         @endphp
 
                         <div class="space-y-8">

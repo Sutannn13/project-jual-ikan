@@ -78,9 +78,9 @@ Route::middleware('auth')->group(function () {
 });
 
 // ============================================================
-// CART ROUTES (Auth required)
+// CART ROUTES (Auth + Email Verified required)
 // ============================================================
-Route::middleware('auth')->prefix('cart')->name('cart.')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'add'])->name('add');
     Route::patch('/{produk}/update', [CartController::class, 'update'])->name('update');
@@ -90,9 +90,9 @@ Route::middleware('auth')->prefix('cart')->name('cart.')->group(function () {
 });
 
 // ============================================================
-// CUSTOMER ROUTES (Auth required)
+// CUSTOMER ROUTES (Auth + Email Verified required)
 // ============================================================
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/checkout', [StoreController::class, 'checkout'])->name('checkout');
     Route::get('/order/{order}/success', [StoreController::class, 'orderSuccess'])->name('order.success');
     Route::post('/order/{order}/payment', [StoreController::class, 'uploadPaymentProof'])

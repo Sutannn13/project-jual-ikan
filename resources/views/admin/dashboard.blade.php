@@ -323,7 +323,7 @@
                         <div class="flex items-center justify-between">
                             <div class="min-w-0">
                                 <p class="font-bold text-cyan-400 text-sm">{{ $order->order_number }}</p>
-                                <p class="text-white/40 text-xs truncate">{{ $order->user->name }} — {{ $order->created_at->diffForHumans() }}</p>
+                                <p class="text-white/40 text-xs truncate">{{ $order->user?->name ?? '[User Dihapus]' }} — {{ $order->created_at->diffForHumans() }}</p>
                             </div>
                             <span class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase
                                 {{ match($order->status) {

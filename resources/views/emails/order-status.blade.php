@@ -1,7 +1,7 @@
 @component('mail::message')
 # Update Status Pesanan
 
-Halo **{{ $order->user->name }}**,
+Halo **{{ $order->user?->name ?? 'Pelanggan' }}**,
 
 Status pesanan Anda telah diperbarui:
 

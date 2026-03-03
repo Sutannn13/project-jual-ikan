@@ -311,17 +311,22 @@
                                  style="width: {{ $currentStep * 20 }}%; background: linear-gradient(90deg, #0891b2 0%, #14b8a6 100%);"></div>
                             
                             @foreach($stepLabels as $index => $label)
+                            @php
+                                $isStepDone    = $index < $currentStep;
+                                $isStepCurrent = $index === $currentStep;
+                                $isStepPending = $index > $currentStep;
+                            @endphp
                             <div class="flex flex-col items-center">
                                 <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold transition-all
-                                    {{ $index <= $currentStep ? 'text-white' : 'bg-white/10 text-white/40' }}"
-                                    style="{{ $index <= $currentStep ? 'background: linear-gradient(135deg, #0891b2 0%, #14b8a6 100%); box-shadow: 0 4px 10px rgba(6,182,212,0.3);' : '' }}">
-                                    @if($index < $currentStep)
+                                    {{ $isStepDone ? 'text-white' : ($isStepCurrent ? 'text-white ring-2 ring-cyan-400/50' : 'bg-white/10 text-white/40') }}"
+                                    style="{{ $isStepDone ? 'background: linear-gradient(135deg, #0891b2 0%, #14b8a6 100%); box-shadow: 0 4px 10px rgba(6,182,212,0.3);' : ($isStepCurrent ? 'background: rgba(8,145,178,0.25); border: 2px dashed rgba(6,182,212,0.6);' : '') }}">
+                                    @if($isStepDone)
                                         <i class="fas fa-check"></i>
                                     @else
                                         {{ $index + 1 }}
                                     @endif
                                 </div>
-                                <span class="text-[8px] sm:text-[10px] mt-1.5 {{ $index <= $currentStep ? 'text-cyan-300 font-semibold' : 'text-white/30' }} text-center leading-tight">
+                                <span class="text-[8px] sm:text-[10px] mt-1.5 {{ $isStepDone ? 'text-cyan-300 font-semibold' : ($isStepCurrent ? 'text-amber-300 font-semibold' : 'text-white/30') }} text-center leading-tight">
                                     {{ $label }}
                                 </span>
                             </div>

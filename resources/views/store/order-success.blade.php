@@ -276,7 +276,7 @@
         </div>
 
         @if($order->payment_method === 'ewallet_pending')
-        </div> {{-- Close manual-transfer-section --}}
+        </div> 
         @endif
 
         {{-- Cancel Order Option --}}
