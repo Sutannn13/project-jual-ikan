@@ -62,7 +62,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::match(['GET', 'POST'], '/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/change-password', [AuthController::class, 'showChangePassword'])->name('password.change');
     Route::post('/change-password', [AuthController::class, 'processChangePassword'])->name('password.change.proses');
 
@@ -165,6 +165,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/dashboard/chart-data', [AdminDashboardController::class, 'chartData'])->name('dashboard.chart');
     Route::get('/dashboard/live-stats', [AdminDashboardController::class, 'liveStats'])->name('dashboard.live-stats');
 
+    // Product Import (must be defined BEFORE resource to avoid route conflict with /{produk})
+    Route::get('/produk/import', [ProdukController::class, 'importForm'])->name('produk.import.form');
+    Route::post('/produk/import', [ProdukController::class, 'import'])->name('produk.import');
+    Route::get('/produk/import/template', [ProdukController::class, 'importTemplate'])->name('produk.import.template');
+
     // Product CRUD
     Route::resource('produk', ProdukController::class);
 
@@ -218,10 +223,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/stock-in', [StockInController::class, 'store'])->name('stock-in.store');
     Route::get('/stock-in/expiry-alert', [StockInController::class, 'expiryAlert'])->name('stock-in.expiry-alert');
 
-    // Product Import
-    Route::get('/produk/import', [ProdukController::class, 'importForm'])->name('produk.import.form');
-    Route::post('/produk/import', [ProdukController::class, 'import'])->name('produk.import');
-    Route::get('/produk/import/template', [ProdukController::class, 'importTemplate'])->name('produk.import.template');
+    // Product Import moved above Route::resource() – see comment above
 
     // Product Images
     Route::delete('/produk-image/{image}', [ProdukController::class, 'deleteImage'])->name('produk-image.destroy');

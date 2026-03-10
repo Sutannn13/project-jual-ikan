@@ -76,7 +76,6 @@ class AuthController extends Controller
             'alamat'   => 'nullable|string',
         ]);
 
-        $validated['password'] = bcrypt($validated['password']);
         $validated['role'] = 'customer';
 
         $user = \App\Models\User::create($validated);
@@ -120,7 +119,7 @@ class AuthController extends Controller
         }
 
         $user->update([
-            'password' => bcrypt($request->password),
+            'password' => $request->password,
             'must_change_password' => false,
         ]);
 

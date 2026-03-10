@@ -11,16 +11,18 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        // Trust all proxies (ngrok, Cloudflare, load balancers, etc.)
-        // so that X-Forwarded-Host / X-Forwarded-Proto are used when
-        // generating signed URLs (e.g. email verification links).
-        $middleware->trustProxies(at: '*');
-
+    ->withMiddleware(function (Middleware $middleware) {
+        // Mendaftarkan alias middleware 'admin'
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            '/payment/notification', // Midtrans webhook – no browser session
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+            return redirect()->route('login')->with('error', 'Sesi kamu telah berakhir. Silakan login ulang.');
+        });
     })->create();

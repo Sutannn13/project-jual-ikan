@@ -125,7 +125,7 @@ class ForgotPasswordController extends Controller
         // Update password user
         $user = User::where('email', $request->email)->first();
         $user->update([
-            'password'             => bcrypt($request->password),
+            'password'             => $request->password,
             'must_change_password' => false,
         ]);
 
