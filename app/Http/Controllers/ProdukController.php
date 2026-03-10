@@ -14,7 +14,18 @@ class ProdukController extends Controller
 {
     public function index()
     {
+        // Narik data dari database, diurutkan dari yang terbaru, dibagi 10 per halaman
         $produks = Produk::latest()->paginate(10);
+
+        // Jika yang minta adalah API (Postman / Angular)
+        if (request()->expectsJson()) {
+            return response()->json([
+                'message' => 'Berhasil mengambil daftar produk',
+                'data'    => $produks
+            ], 200); 
+        }
+
+        // Jika yang minta adalah Web Browser biasa
         return view('admin.produk.index', compact('produks'));
     }
 
@@ -26,25 +37,23 @@ class ProdukController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama'        => 'required|string|max:255',
-            'kategori'    => 'required|string|max:100',
-            'harga_per_kg'=> 'required|numeric|min:1000',
-            'harga_modal' => 'required|numeric|min:0',
-            'stok'        => 'required|numeric|min:0',
+            'nama'                => 'required|string|max:255',
+            'kategori'            => 'required|string|max:100',
+            'harga_per_kg'        => 'required|numeric|min:1000',
+            'harga_modal'         => 'required|numeric|min:0',
+            'stok'                => 'required|numeric|min:0',
             'low_stock_threshold' => 'required|numeric|min:0',
-            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'fotos.*'     => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'deskripsi'   => 'nullable|string',
+            'foto'                => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'fotos.*'             => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'deskripsi'           => 'nullable|string',
         ]);
 
-        // Handle single primary photo (legacy field)
         if ($request->hasFile('foto')) {
             $validated['foto'] = $request->file('foto')->store('produk', 'public');
         }
 
         $produk = Produk::create($validated);
 
-        // Handle multiple photos
         if ($request->hasFile('fotos')) {
             foreach ($request->file('fotos') as $i => $file) {
                 $path = $file->store('produk', 'public');
@@ -57,7 +66,6 @@ class ProdukController extends Controller
             }
         }
 
-        // If no legacy foto but first product image exists, use it as thumbnail
         if (!$produk->foto) {
             $first = $produk->productImages()->first();
             if ($first) {
@@ -67,7 +75,29 @@ class ProdukController extends Controller
 
         AdminNotificationService::logProdukCreated($produk);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Produk berhasil ditambahkan!',
+                'data'    => $produk
+            ], 201); 
+        }
+
         return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil ditambahkan!');
+    }
+
+    // --- FUNGSI SHOW HARUS DI SINI, DI LUAR FUNGSI STORE ---
+    public function show(string $id)
+    {
+        $produk = Produk::findOrFail($id);
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'message' => 'Detail produk ditemukan',
+                'data'    => $produk
+            ], 200);
+        }
+
+        return view('admin.produk.show', compact('produk'));
     }
 
     public function edit(string $id)
@@ -81,20 +111,19 @@ class ProdukController extends Controller
         $produk = Produk::findOrFail($id);
 
         $validated = $request->validate([
-            'nama'        => 'required|string|max:255',
-            'kategori'    => 'required|string|max:100',
-            'harga_per_kg'=> 'required|numeric|min:1000',
-            'harga_modal' => 'required|numeric|min:0',
-            'stok'        => 'required|numeric|min:0',
+            'nama'                => 'required|string|max:255',
+            'kategori'            => 'required|string|max:100',
+            'harga_per_kg'        => 'required|numeric|min:1000',
+            'harga_modal'         => 'required|numeric|min:0',
+            'stok'                => 'required|numeric|min:0',
             'low_stock_threshold' => 'required|numeric|min:0',
-            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'fotos.*'     => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'deskripsi'   => 'nullable|string',
+            'foto'                => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'fotos.*'             => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'deskripsi'           => 'nullable|string',
         ], [
             'stok.min' => 'Stok tidak boleh negatif.',
         ]);
         
-        // Validate stock is not less than reserved stock
         if ($validated['stok'] < $produk->reserved_stock) {
             return back()->withErrors([
                 'stok' => "Stok tidak boleh kurang dari stok yang di-reserve ({$produk->reserved_stock} Kg)."
@@ -113,7 +142,6 @@ class ProdukController extends Controller
         $newValues = $produk->fresh()->only(['nama', 'harga_per_kg', 'stok', 'kategori', 'harga_modal']);
         AdminNotificationService::logProdukUpdated($produk, ['old' => $oldValues, 'new' => $newValues]);
 
-        // Handle additional photos upload
         if ($request->hasFile('fotos')) {
             $existingCount = $produk->productImages()->count();
             foreach ($request->file('fotos') as $i => $file) {
@@ -130,9 +158,6 @@ class ProdukController extends Controller
         return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil diupdate!');
     }
 
-    /**
-     * Delete a single product image
-     */
     public function deleteImage(ProductImage $image)
     {
         $produk = $image->produk;
@@ -142,7 +167,6 @@ class ProdukController extends Controller
         $wasPrimary = $image->is_primary;
         $image->delete();
 
-        // If deleted primary, promote next image
         if ($wasPrimary) {
             $next = $produk->productImages()->first();
             if ($next) {
@@ -154,13 +178,9 @@ class ProdukController extends Controller
         return back()->with('success', 'Foto berhasil dihapus!');
     }
 
-    /**
-     * Set an image as primary
-     */
     public function setPrimaryImage(ProductImage $image)
     {
         $produkId = $image->produk_id;
-        // Unset all
         ProductImage::where('produk_id', $produkId)->update(['is_primary' => false]);
         $image->update(['is_primary' => true]);
         Produk::where('id', $produkId)->update(['foto' => $image->path]);
@@ -168,9 +188,6 @@ class ProdukController extends Controller
         return back()->with('success', 'Foto utama berhasil diubah!');
     }
 
-    /**
-     * Import produk massal via CSV/Excel
-     */
     public function importForm()
     {
         return view('admin.produk.import');
@@ -223,22 +240,22 @@ class ProdukController extends Controller
     {
         $produk = Produk::findOrFail($id);
 
-        // Cek apakah produk masih memiliki reserved stock (sedang dalam proses pemesanan aktif)
         if ($produk->reserved_stock > 0) {
-            return redirect()->route('admin.produk.index')->with('error', 'Produk tidak dapat dihapus karena sedang ada dalam keranjang atau proses pemesanan pelanggan (Reserved: ' . $produk->reserved_stock . ' Kg).');
+            $msg = "Produk tidak dapat dihapus karena ada pesanan aktif (Reserved: {$produk->reserved_stock} Kg).";
+            if (request()->expectsJson()) {
+                return response()->json(['message' => $msg], 422);
+            }
+            return redirect()->route('admin.produk.index')->with('error', $msg);
         }
-
-        // Karena menggunakan SoftDeletes, kita tidak perlu menghapus file foto dulu
-        // agar bisa di-restore jika diperlukan.
-        // if ($produk->foto && Storage::disk('public')->exists($produk->foto)) {
-        //    Storage::disk('public')->delete($produk->foto);
-        // }
 
         AdminNotificationService::logProdukDeleted($produk);
         
-        // Ini akan melakukan Soft Delete (mengisi kolom deleted_at)
         $produk->delete();
 
-        return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil dihapus (diarsipkan)!');
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Produk berhasil dihapus!'], 200);
+        }
+
+        return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil dihapus!');
     }
 }

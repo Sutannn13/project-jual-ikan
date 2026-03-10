@@ -267,6 +267,7 @@ class AdminOrderController extends Controller
      */
     private function sendStatusEmail(Order $order, string $oldStatus, string $newStatus): void
     {
+        if (!$order->user) return;
         try {
             Mail::to($order->user->email)
                 ->send(new OrderStatusMail($order, $oldStatus, $newStatus));
@@ -389,8 +390,10 @@ class AdminOrderController extends Controller
                     ->with('user')->get();
                 foreach ($orders as $order) {
                     try {
-                        Mail::to($order->user->email)->send(new OrderStatusMail($order, 'pending', 'pending'));
-                        $count++;
+                        if ($order->user) {
+                            Mail::to($order->user->email)->send(new OrderStatusMail($order, 'pending', 'pending'));
+                            $count++;
+                        }
                     } catch (\Exception $e) {
                         Log::error('Failed to send reminder', ['order' => $order->order_number]);
                     }

@@ -55,10 +55,10 @@
                     <p class="font-medium text-white">{{ $order->user?->name ?? '[User Dihapus]' }}</p>
                     <p class="text-sm text-white/50">{{ $order->user?->email ?? '-' }}</p>
                     @if($order->user?->no_hp)
-                    <p class="text-sm text-white/50"><i class="fas fa-phone text-xs mr-1"></i> {{ $order->user->no_hp }}</p>
+                    <p class="text-sm text-white/50"><i class="fas fa-phone text-xs mr-1"></i> {{ $order->user?->no_hp }}</p>
                     @endif
-                    @if($order->user->alamat)
-                    <p class="text-sm text-white/50 mt-1"><i class="fas fa-map-marker-alt text-xs mr-1"></i> {{ $order->user->alamat }}</p>
+                    @if($order->user?->alamat)
+                    <p class="text-sm text-white/50 mt-1"><i class="fas fa-map-marker-alt text-xs mr-1"></i> {{ $order->user?->alamat }}</p>
                     @endif
                 </div>
 
