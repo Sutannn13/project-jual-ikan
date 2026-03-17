@@ -25,7 +25,7 @@
     {{-- iOS / Mobile Web App --}}
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0891b2">
+    <meta name="theme-color" content="#0b2f4f">
 
     {{-- Premium Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,7 +42,7 @@
         body {
             overflow-x: hidden !important;
             max-width: 100vw;
-            background: linear-gradient(135deg, #0c4a6e 0%, #0e7490 50%, #0891b2 100%) !important;
+            background: linear-gradient(160deg, #042f2e 0%, #083344 35%, #0c4a6e 65%, #083344 100%) !important;
         }
 
         /* Premium Ocean Scrollbar */
@@ -52,17 +52,17 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: linear-gradient(180deg, rgba(6, 182, 212, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%);
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.12) 0%, rgba(15, 23, 42, 0.2) 100%);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #06b6d4 0%, #14b8a6 100%);
+            background: linear-gradient(180deg, #38bdf8 0%, #2dd4bf 100%);
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #22d3ee 0%, #2dd4bf 100%);
+            background: linear-gradient(180deg, #7dd3fc 0%, #5eead4 100%);
         }
 
         /* Floating orb animation - lebih dinamis */
@@ -135,18 +135,18 @@
         /* Navbar glassmorphism dengan ocean theme */
         .nav-blur {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(20, 184, 166, 0.25) 100%);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, rgba(7, 29, 51, 0.76) 0%, rgba(13, 50, 78, 0.7) 100%);
+            backdrop-filter: blur(24px) saturate(155%);
+            -webkit-backdrop-filter: blur(24px) saturate(155%);
+            border-bottom: 1px solid rgba(191, 219, 254, 0.2);
         }
 
         .nav-blur.scrolled {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.6) 0%, rgba(20, 184, 166, 0.5) 100%) !important;
-            backdrop-filter: blur(32px) saturate(200%) !important;
-            -webkit-backdrop-filter: blur(32px) saturate(200%) !important;
-            box-shadow: 0 8px 32px rgba(6, 182, 212, 0.3), 0 0 80px rgba(20, 184, 166, 0.15);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+            background: linear-gradient(135deg, rgba(6, 23, 41, 0.9) 0%, rgba(9, 42, 68, 0.86) 100%) !important;
+            backdrop-filter: blur(32px) saturate(165%) !important;
+            -webkit-backdrop-filter: blur(32px) saturate(165%) !important;
+            box-shadow: 0 10px 36px rgba(2, 6, 23, 0.55), 0 0 60px rgba(56, 189, 248, 0.12);
+            border-bottom: 1px solid rgba(186, 230, 253, 0.28);
         }
 
         /* Shimmer effect untuk accent elements */
@@ -197,32 +197,25 @@
     {{-- Base Ocean Gradient dengan multi-layer --}}
     <div id="master-bg-ocean" class="fixed inset-0 -z-10"
         style="background:
-        linear-gradient(135deg,
-            #0c4a6e 0%,
-            #0e7490 15%,
-            #0891b2 30%,
-            #06b6d4 45%,
-            #14b8a6 60%,
-            #0891b2 75%,
-            #0e7490 90%,
-            #0c4a6e 100%
-        );">
+        radial-gradient(ellipse at top right, rgba(45, 212, 191, 0.12) 0%, transparent 42%),
+        radial-gradient(ellipse at bottom left, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+        linear-gradient(160deg, #042f2e 0%, #083344 35%, #0c4a6e 65%, #083344 100%);">
     </div>
 
     {{-- Animated Wave Layers dengan Alpine.js --}}
-    <div class="fixed inset-0 -z-10 overflow-hidden opacity-40">
+    <div class="fixed inset-0 -z-10 overflow-hidden opacity-10">
         <div class="absolute inset-0"
             style="
-            background: radial-gradient(ellipse at 50% 120%, rgba(34, 211, 238, 0.4) 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 0%, rgba(20, 184, 166, 0.3) 0%, transparent 50%),
-                        radial-gradient(ellipse at 0% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 50%);
+            background: radial-gradient(ellipse at 50% 120%, rgba(125, 211, 252, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 0%, rgba(45, 212, 191, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 0% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
             animation: wave 20s ease-in-out infinite;
         ">
         </div>
         <div class="absolute inset-0"
             style="
-            background: radial-gradient(ellipse at 20% 0%, rgba(45, 212, 191, 0.3) 0%, transparent 60%),
-                        radial-gradient(ellipse at 100% 100%, rgba(34, 211, 238, 0.25) 0%, transparent 50%);
+            background: radial-gradient(ellipse at 20% 0%, rgba(45, 212, 191, 0.08) 0%, transparent 60%),
+                        radial-gradient(ellipse at 100% 100%, rgba(125, 211, 252, 0.08) 0%, transparent 50%);
             animation: waveReverse 25s ease-in-out infinite;
         ">
         </div>
@@ -231,18 +224,18 @@
     {{-- Radial Highlights - Lebih vibrant --}}
     <div id="master-bg-radial" class="fixed inset-0 -z-10"
         style="background:
-        radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.35), transparent 40%),
-        radial-gradient(circle at 80% 30%, rgba(20, 184, 166, 0.3), transparent 45%),
-        radial-gradient(circle at 50% 80%, rgba(6, 182, 212, 0.25), transparent 50%),
-        radial-gradient(circle at 10% 90%, rgba(45, 212, 191, 0.2), transparent 40%);">
+        radial-gradient(circle at 20% 20%, rgba(125, 211, 252, 0.08), transparent 42%),
+        radial-gradient(circle at 80% 30%, rgba(45, 212, 191, 0.06), transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(56, 189, 248, 0.08), transparent 50%),
+        radial-gradient(circle at 10% 90%, rgba(148, 197, 255, 0.05), transparent 40%);">
     </div>
 
     {{-- Grid Pattern dengan glow effect --}}
-    <div id="master-bg-grid" class="fixed inset-0 -z-10 opacity-20"
+    <div id="master-bg-grid" class="fixed inset-0 -z-10 opacity-5"
         style="
         background-image:
-            linear-gradient(rgba(34, 211, 238, 0.15) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34, 211, 238, 0.15) 1px, transparent 1px);
+            linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
         background-size: 50px 50px;
         mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
     ">
@@ -250,13 +243,13 @@
 
     {{-- Animated Floating Orbs - Lebih banyak & lebih besar --}}
     <div id="master-bg-orbs" class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div class="absolute -top-48 -left-48 w-[700px] h-[700px] bg-gradient-to-br from-cyan-400/25 via-teal-400/15 to-transparent rounded-full blur-[120px]"
+        <div class="absolute -top-48 -left-48 w-[700px] h-[700px] bg-gradient-to-br from-sky-300/10 via-cyan-300/5 to-transparent rounded-full blur-[120px]"
             style="animation: floatOrb 20s ease-in-out infinite;"></div>
-        <div class="absolute -bottom-60 -right-60 w-[800px] h-[800px] bg-gradient-to-tl from-sky-400/20 via-cyan-500/15 to-transparent rounded-full blur-[130px]"
+        <div class="absolute -bottom-60 -right-60 w-[800px] h-[800px] bg-gradient-to-tl from-teal-300/5 via-sky-400/5 to-transparent rounded-full blur-[130px]"
             style="animation: floatOrb 25s ease-in-out infinite; animation-delay: -5s;"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-teal-500/15 via-cyan-400/15 to-sky-500/15 rounded-full blur-[140px]"
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-sky-400/5 via-cyan-300/5 to-teal-300/5 rounded-full blur-[140px]"
             style="animation: floatOrb 30s ease-in-out infinite; animation-delay: -10s;"></div>
-        <div class="absolute top-20 right-1/4 w-[400px] h-[400px] bg-gradient-to-bl from-cyan-300/20 to-transparent rounded-full blur-[100px]"
+        <div class="absolute top-20 right-1/4 w-[400px] h-[400px] bg-gradient-to-bl from-sky-300/10 to-transparent rounded-full blur-[100px]"
             style="animation: floatOrb 22s ease-in-out infinite; animation-delay: -7s;"></div>
     </div>
 
@@ -349,7 +342,7 @@
                             @if ($cartCount > 0)
                                 <span
                                     class="absolute -top-1 -right-1 w-6 h-6 rounded-full text-xs font-bold text-white flex items-center justify-center {{ session('cart_added') ? 'badge-cart-pop' : 'animate-pulse' }}"
-                                    style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 4px 12px rgba(249,115,22,0.6), 0 0 20px rgba(249,115,22,0.4);">
+                                    style="background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%); box-shadow: 0 4px 12px rgba(14,165,233,0.45), 0 0 20px rgba(20,184,166,0.25);">
                                     {{ $cartCount }}
                                 </span>
                             @endif
@@ -465,7 +458,7 @@
                             @if ($mobileCartCount > 0)
                                 <span
                                     class="absolute -top-1 -right-1 w-6 h-6 rounded-full text-xs font-bold text-white flex items-center justify-center {{ session('cart_added') ? 'badge-cart-pop' : 'animate-pulse' }}"
-                                    style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); box-shadow: 0 3px 10px rgba(249,115,22,0.6);">
+                                    style="background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%); box-shadow: 0 3px 10px rgba(14,165,233,0.45);">
                                     {{ $mobileCartCount }}
                                 </span>
                             @endif
@@ -502,7 +495,7 @@
                             @if ($menuCartCount > 0)
                                 <span
                                     class="ml-auto px-2.5 py-1 rounded-full text-xs font-bold text-white {{ session('cart_added') ? 'badge-cart-pop' : '' }}"
-                                    style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">{{ $menuCartCount }}</span>
+                                    style="background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%);">{{ $menuCartCount }}</span>
                             @endif
                         </a>
                         <a href="{{ route('my.orders') }}" @click="mobileOpen = false"
@@ -758,7 +751,7 @@
                                 style="background: rgba(6, 182, 212, 0.15);">
                                 <i class="fas fa-map-marker-alt text-cyan-400"></i>
                             </div>
-                            <a href="https://maps.app.goo.gl/5ZrvMiap5HjvzrEn9" target="_blank"
+                            <a href="https://maps.app.goo.gl/anpaCYcKMCKYr7ii6" target="_blank"
                                 rel="noopener noreferrer"
                                 class="pt-1.5 hover:text-white transition-colors duration-200 underline underline-offset-2 decoration-cyan-400/50">
                                 HV44+4PM, Jl. Persaudaraan, RT.003/RW.002, Cilangkap, Kec. Tapos, Kota Depok, Jawa Barat
@@ -776,11 +769,11 @@
                 </div>
                 <div class="text-center">
                     <p class="text-cyan-100/60 text-sm font-medium">
-                        &copy; {{ date('Y') }} <span class="text-white font-bold">FishMarket</span> &mdash; Sutan
-                        Arlie
+                        &copy; {{ date('Y') }} <span class="text-white font-bold">FishMarket</span>. Seluruh hak
+                        cipta dilindungi.
                     </p>
                     <p class="text-cyan-100/40 text-xs mt-2">
-                        Made with <i class="fas fa-heart text-red-400 animate-pulse"></i> for fresh seafood lovers
+                        Platform marketplace ikan air tawar terpercaya di Indonesia.
                     </p>
                 </div>
             </div>

@@ -22,7 +22,7 @@ class ProdukController extends Controller
             return response()->json([
                 'message' => 'Berhasil mengambil daftar produk',
                 'data'    => $produks
-            ], 200); 
+            ], 200);
         }
 
         // Jika yang minta adalah Web Browser biasa
@@ -79,7 +79,7 @@ class ProdukController extends Controller
             return response()->json([
                 'message' => 'Produk berhasil ditambahkan!',
                 'data'    => $produk
-            ], 201); 
+            ], 201);
         }
 
         return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil ditambahkan!');
@@ -123,7 +123,7 @@ class ProdukController extends Controller
         ], [
             'stok.min' => 'Stok tidak boleh negatif.',
         ]);
-        
+
         if ($validated['stok'] < $produk->reserved_stock) {
             return back()->withErrors([
                 'stok' => "Stok tidak boleh kurang dari stok yang di-reserve ({$produk->reserved_stock} Kg)."
@@ -135,6 +135,8 @@ class ProdukController extends Controller
                 Storage::disk('public')->delete($produk->foto);
             }
             $validated['foto'] = $request->file('foto')->store('produk', 'public');
+        } else {
+            unset($validated['foto']);
         }
 
         $oldValues = $produk->only(['nama', 'harga_per_kg', 'stok', 'kategori', 'harga_modal']);
@@ -249,7 +251,7 @@ class ProdukController extends Controller
         }
 
         AdminNotificationService::logProdukDeleted($produk);
-        
+
         $produk->delete();
 
         if (request()->expectsJson()) {
